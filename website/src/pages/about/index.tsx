@@ -7,7 +7,6 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { HeaderDiscordIcon } from "@site/src/refine-theme/icons/header-discord";
 import { FooterGithubIcon } from "@site/src/refine-theme/icons/footer-github";
-import { MailIcon } from "@site/src/refine-theme/icons/mail";
 import { team } from "../../assets/team";
 import { inProgress, plannedFeatures } from "../../assets/roadmap";
 import { WizardsIcon } from "@site/src/components/landing/icons";
@@ -192,40 +191,18 @@ const getInitials = (name: string) =>
         .slice(0, 2)
         .toUpperCase();
 
-const gradientAccentA = clsx(
-    "text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r",
-    "from-[#0FBDBD] to-[#26D97F]",
-);
 
-const gradientAccentB = clsx(
-    "text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r",
-    "from-[#FF9933] to-[#FF4C4D]",
-);
+const card = "rounded-2xl border border-gray-300 dark:border-gray-700 p-5 sm:p-6";
+const h2 = "text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-0 m-0";
+const lead = "text-base text-gray-600 dark:text-gray-400 m-0";
+const primaryBtn =
+    "inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110 no-underline";
+const secondaryBtn =
+    "inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 no-underline";
+const link = "text-refine-react-light-link dark:text-refine-react-dark-link hover:underline";
 
-const sectionHeading = clsx(
-    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-    "tracking-tight",
-    "p-0",
-    "dark:text-gray-0 text-gray-900",
-);
-
-const sectionAccent = clsx(
-    "font-semibold",
-    "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-    "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
-);
-
-const cardShell = clsx(
-    "not-prose",
-    "p-4 landing-sm:p-10",
-    "flex",
-    "flex-col landing-sm:flex-row",
-    "items-start",
-    "gap-6",
-    "dark:bg-landing-noise",
-    "dark:bg-gray-800 bg-gray-50",
-    "rounded-2xl landing-sm:rounded-3xl",
-);
+const GITHUB = "https://github.com/stefanpejcic/openpanel";
+const DISCORD = "https://discord.com/invite/7bNY8fANqF";
 
 const About: React.FC = () => {
     return (
@@ -244,823 +221,197 @@ const About: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div
-                    className={clsx(
-                        "flex flex-col",
-                        "gap-16 landing-sm:gap-20 landing-md:gap-28",
-                        "w-full max-w-[592px] landing-sm:max-w-[656px] landing-md:max-w-[896px] landing-lg:max-w-[1200px]",
-                        "px-2 landing-sm:px-0",
-                        "pt-8 landing-sm:pt-12 landing-lg:pt-20",
-                        "pb-16 landing-sm:pb-24 landing-md:pb-32",
-                        "mx-auto",
-                        "not-prose",
-                    )}
-                >
-                    {/* Hero */}
-                    <div className={clsx("px-4 landing-md:px-10")}>
-                        <h1
-                            className={clsx(
-                                "text-3xl landing-sm:text-[40px] landing-sm:leading-[48px]",
-                                "font-semibold",
-                                "tracking-tight",
-                                "text-center",
-                                "max-w-3xl mx-auto",
-                                "p-0",
-                                "dark:text-gray-0 text-gray-900",
-                            )}
-                        >
-                            Built by{" "}
-                            <span className={gradientAccentA}>hosting operators</span>{" "}
-                            who got tired of{" "}
-                            <span className={gradientAccentB}>
-                                paying more for less
-                            </span>
-                            .
+                <div className="not-prose flex flex-col gap-16 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
+                    <section className="flex flex-col gap-5">
+                        <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-gray-0 m-0 max-w-[860px]">
+                            Built by hosting operators who got tired of paying more for less
                         </h1>
-                        <p
-                            className={clsx(
-                                "mt-4 landing-sm:mt-6",
-                                "max-w-lg mx-auto",
-                                "text-base text-center",
-                                "dark:text-gray-400 text-gray-600",
-                            )}
-                        >
-                            OpenPanel is a Podman-native control panel built by hosting
-                            operators, for hosting operators - real user isolation,
-                            security built in, and pricing that doesn&apos;t punish you
-                            for growing.
+                        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 m-0 max-w-[720px]">
+                            OpenPanel is a Podman-native control panel built by hosting operators, for hosting operators: real user
+                            isolation, security built in, and pricing that doesn&apos;t punish you for growing.
                         </p>
-                        <div
-                            className={clsx(
-                                "mt-8",
-                                "flex flex-col landing-xs:flex-row",
-                                "items-center justify-center",
-                                "gap-4",
-                            )}
-                        >
-                            <Link
-                                to="https://github.com/stefanpejcic/openpanel"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={clsx(
-                                    "w-full landing-xs:w-auto",
-                                    "!text-gray-0 dark:!text-gray-900",
-                                    "bg-refine-blue dark:bg-refine-cyan-alt",
-                                    "transition-[filter]",
-                                    "duration-150",
-                                    "ease-in-out",
-                                    "hover:brightness-110",
-                                    "hover:!no-underline",
-                                    "rounded-3xl",
-                                    "py-3 px-8",
-                                    "flex items-center justify-center gap-2",
-                                    "text-base font-semibold",
-                                )}
-                            >
-                                <FooterGithubIcon width={20} height={20} />
-                                Star on GitHub
+                        <div className="flex flex-wrap gap-3">
+                            <Link to={GITHUB} className={primaryBtn}>
+                                <FooterGithubIcon className="w-4 h-4" /> Star on GitHub
                             </Link>
-                            <Link
-                                to="https://discord.com/invite/7bNY8fANqF"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={clsx(
-                                    "w-full landing-xs:w-auto",
-                                    "dark:text-refine-cyan-alt text-refine-blue",
-                                    "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                                    "transition-[filter]",
-                                    "duration-150",
-                                    "ease-in-out",
-                                    "hover:brightness-110",
-                                    "hover:!no-underline",
-                                    "rounded-3xl",
-                                    "py-3 px-8",
-                                    "flex items-center justify-center gap-2",
-                                    "text-base font-semibold",
-                                )}
-                            >
-                                <HeaderDiscordIcon width={20} height={20} />
-                                Join Discord
+                            <Link to={DISCORD} className={secondaryBtn}>
+                                <HeaderDiscordIcon className="w-4 h-4" /> Join Discord
                             </Link>
                         </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className={clsx("px-4 landing-md:px-10")}>
-                        <div
-                            className={clsx(
-                                "grid",
-                                "grid-cols-2 landing-sm:grid-cols-4",
-                                "gap-4",
-                            )}
-                        >
-                            {stats.map((stat, index) => (
-                                <div
-                                    key={index}
-                                    className={clsx(
-                                        "not-prose",
-                                        "flex flex-col items-center text-center",
-                                        "gap-2",
-                                        "p-6",
-                                        "dark:bg-landing-noise",
-                                        "dark:bg-gray-800 bg-gray-50",
-                                        "rounded-2xl",
-                                    )}
-                                >
-                                    <div
-                                        className={clsx(
-                                            "text-2xl landing-sm:text-3xl",
-                                            "font-semibold",
-                                            "dark:text-refine-cyan-alt text-refine-blue",
-                                        )}
-                                    >
-                                        {stat.value}
-                                    </div>
-                                    <div
-                                        className={clsx(
-                                            "text-sm",
-                                            "dark:text-gray-400 text-gray-600",
-                                        )}
-                                    >
-                                        {stat.label}
-                                    </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                            {stats.map((s) => (
+                                <div key={s.label} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-0">{s.value}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-400">{s.label}</div>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    {/* Timeline */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Where we&apos;ve <span className={sectionAccent}>been</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                From a bootstrapped side project to 100,000+ active
-                                installations - the short version.
-                            </p>
+                    <section className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-2">
+                            <h2 className={h2}>Where we&apos;ve been</h2>
+                            <p className={lead}>From a bootstrapped side project to 100,000+ active installations, the short version.</p>
                         </div>
-
-                        <div
-                            className={clsx(
-                                "not-prose",
-                                "mt-8 landing-sm:mt-12 landing-lg:mt-20",
-                                "px-4 landing-md:px-10",
-                            )}
-                        >
-                            <div
-                                className={clsx(
-                                    "flex flex-col landing-lg:flex-row",
-                                    "gap-6 landing-lg:gap-6",
-                                )}
-                            >
-                                {timeline.map((item, index) => (
+                        <ol className="m-0 p-0 list-none flex flex-col">
+                            {timeline.map((t, i) => (
+                                <li key={t.year} className="grid grid-cols-[64px_1fr] sm:grid-cols-[96px_1fr] gap-4">
+                                    <div className="flex flex-col items-start">
+                                        <span className="text-lg sm:text-xl font-bold text-refine-blue dark:text-refine-cyan-alt">{t.year}</span>
+                                    </div>
                                     <div
-                                        key={index}
                                         className={clsx(
-                                            "flex landing-lg:flex-col",
-                                            "gap-4",
-                                            "landing-lg:flex-1",
+                                            "border-l border-gray-300 dark:border-gray-700 pl-5 flex flex-col gap-4",
+                                            i < timeline.length - 1 ? "pb-8" : "pb-1",
                                         )}
                                     >
-                                        <div
-                                            className={clsx(
-                                                "flex flex-col items-center",
-                                                "flex-shrink-0",
-                                            )}
-                                        >
-                                            <div
-                                                className={clsx(
-                                                    "w-3 h-3",
-                                                    "rounded-full",
-                                                    "dark:bg-refine-cyan-alt bg-refine-blue",
-                                                    "flex-shrink-0",
+                                        {t.achievements.map((a) => (
+                                            <div key={a.title} className="relative flex flex-col gap-1">
+                                                <span className="absolute -left-[25px] top-1.5 w-2.5 h-2.5 rounded-full bg-refine-blue dark:bg-refine-cyan-alt" />
+                                                {a.link ? (
+                                                    <Link to={a.link} className="text-sm font-semibold text-gray-900 dark:text-gray-100 hover:underline no-underline">
+                                                        {a.title} →
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{a.title}</span>
                                                 )}
-                                            />
-                                            <div
-                                                className={clsx(
-                                                    "w-px flex-1",
-                                                    "landing-lg:hidden",
-                                                    "dark:bg-gray-800 bg-gray-100",
-                                                )}
-                                            />
-                                            <div
-                                                className={clsx(
-                                                    "hidden landing-lg:block",
-                                                    "h-px w-full",
-                                                    "mt-[5px]",
-                                                    "dark:bg-gray-800 bg-gray-100",
-                                                )}
-                                            />
-                                        </div>
-                                        <div className={clsx("pb-6 landing-lg:pb-0")}>
-                                            <div
-                                                className={clsx(
-                                                    "text-sm",
-                                                    "font-semibold",
-                                                    "dark:text-refine-cyan-alt text-refine-blue",
-                                                )}
-                                            >
-                                                {item.year}
+                                                <span className="text-sm text-gray-600 dark:text-gray-400">{a.description}</span>
                                             </div>
-                                            {item.achievements.map(
-                                                (achievement, achievementIndex) => (
-                                                    <div
-                                                        key={achievementIndex}
-                                                        className={clsx(
-                                                            achievementIndex > 0 &&
-                                                                "mt-3",
-                                                        )}
-                                                    >
-                                                        <div
-                                                            className={clsx(
-                                                                "mt-1",
-                                                                "text-base",
-                                                                "font-semibold",
-                                                                "dark:text-gray-0 text-gray-900",
-                                                            )}
-                                                        >
-                                                            {achievement.link ? (
-                                                                <Link
-                                                                    to={achievement.link}
-                                                                    className="text-inherit underline decoration-dotted underline-offset-4 hover:no-underline"
-                                                                >
-                                                                    {achievement.title}
-                                                                </Link>
-                                                            ) : (
-                                                                achievement.title
-                                                            )}
-                                                        </div>
-                                                        <div
-                                                            className={clsx(
-                                                                "mt-1",
-                                                                "text-sm",
-                                                                "dark:text-gray-400 text-gray-600",
-                                                            )}
-                                                        >
-                                                            {achievement.description}
-                                                        </div>
-                                                    </div>
-                                                ),
-                                            )}
-                                        </div>
+                                        ))}
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+                    </section>
+
+                    {(inProgress.length > 0 || plannedFeatures.length > 0) && (
+                        <section className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-2">
+                                <h2 className={h2}>Where we&apos;re heading</h2>
+                                <p className={lead}>What we&apos;re building right now, and what&apos;s up next.</p>
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {inProgress.map((f) => (
+                                    <div key={f.title} className={clsx(card, "flex flex-col gap-1 !p-4")}>
+                                        <span className="text-xs font-semibold uppercase tracking-wide text-refine-blue dark:text-refine-cyan-alt">In progress</span>
+                                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{f.title}</span>
+                                        <span className="text-sm text-gray-600 dark:text-gray-400">{f.description}</span>
+                                    </div>
+                                ))}
+                                {plannedFeatures.map((f) => (
+                                    <div key={f.title} className={clsx(card, "flex flex-col gap-1 !p-4")}>
+                                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Planned</span>
+                                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{f.title}</span>
                                     </div>
                                 ))}
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Where we're heading */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Where we&apos;re{" "}
-                                <span className={sectionAccent}>heading</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                What we&apos;re building right now, and what&apos;s up
-                                next.
-                            </p>
-                        </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12 landing-lg:mt-20",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-2",
-                                "gap-4 landing-sm:gap-6",
-                            )}
-                        >
-                            {inProgress.map((item, index) => (
-                                <div key={index} className={cardShell}>
-                                    <div className={clsx("flex", "flex-col", "gap-4")}>
-                                        <div
-                                            className={clsx(
-                                                "flex items-center gap-3",
-                                            )}
-                                        >
-                                            <div
-                                                className={clsx(
-                                                    "text-xl",
-                                                    "font-semibold",
-                                                    "text-gray-900 dark:text-gray-0",
-                                                )}
-                                            >
-                                                {item.title}
-                                            </div>
-                                            <div
-                                                className={clsx(
-                                                    "text-xs",
-                                                    "font-semibold",
-                                                    "uppercase",
-                                                    "tracking-wide",
-                                                    "px-2.5 py-1",
-                                                    "rounded-full",
-                                                    "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                                                    "dark:text-refine-cyan-alt text-refine-blue",
-                                                )}
-                                            >
-                                                In progress
-                                            </div>
-                                        </div>
-                                        <div
-                                            className={clsx(
-                                                "text-base",
-                                                "dark:text-gray-400 text-gray-600",
-                                            )}
-                                        >
-                                            {item.description}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div
-                            className={clsx(
-                                "mt-4 landing-sm:mt-6",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-2",
-                                "gap-4",
-                            )}
-                        >
-                            {plannedFeatures.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className={clsx(
-                                        "not-prose",
-                                        "p-4 landing-sm:p-6",
-                                        "flex",
-                                        "items-center",
-                                        "dark:bg-landing-noise",
-                                        "dark:bg-gray-800 bg-gray-50",
-                                        "rounded-2xl",
-                                    )}
-                                >
-                                    <div
-                                        className={clsx(
-                                            "text-base",
-                                            "font-semibold",
-                                            "text-gray-900 dark:text-gray-0",
-                                        )}
-                                    >
-                                        {item.title}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className={clsx("px-4 landing-md:px-10", "mt-6")}>
-                            <Link
-                                to="/roadmap/"
-                                className={clsx(
-                                    "text-sm font-semibold",
-                                    "dark:text-refine-cyan-alt text-refine-blue",
-                                )}
-                            >
+                            <Link to="/roadmap/" className={clsx("self-start text-sm font-semibold", link)}>
                                 See the full roadmap →
                             </Link>
-                        </div>
-                    </div>
+                        </section>
+                    )}
 
-                    {/* Our story */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Our <span className={sectionAccent}>story</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Containers had changed everything about infrastructure -
-                                but hosting control panels were still stuck in the past.
-                            </p>
+                    <section className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-2">
+                            <h2 className={h2}>Our story</h2>
+                            <p className={lead}>Containers had changed everything about infrastructure, but hosting control panels were still stuck in the past.</p>
                         </div>
+                        <div className="grid gap-4 lg:grid-cols-3">
+                            {story.map((s) => (
+                                <div key={s.title} className={clsx(card, "flex flex-col gap-3")}>
+                                    <div className="text-refine-blue dark:text-refine-cyan-alt">{s.icon}</div>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0 m-0">{s.title}</h3>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 m-0 leading-relaxed">{s.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
 
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12 landing-lg:mt-20",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-1",
-                                "gap-4 landing-sm:gap-6",
-                            )}
-                        >
-                            {story.map((item, index) => (
-                                <div key={index} className={cardShell}>
-                                    <div>{item.icon}</div>
-                                    <div className={clsx("flex", "flex-col", "gap-4")}>
-                                        <div
-                                            className={clsx(
-                                                "text-xl",
-                                                "font-semibold",
-                                                "text-gray-900 dark:text-gray-0",
-                                            )}
-                                        >
-                                            {item.title}
-                                        </div>
-                                        <div
-                                            className={clsx(
-                                                "text-base",
-                                                "dark:text-gray-400 text-gray-600",
-                                            )}
-                                        >
-                                            {item.description}
-                                        </div>
+                    <section className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-2">
+                            <h2 className={h2}>What we believe</h2>
+                            <p className={lead}>The principles that shape every decision we make about OpenPanel.</p>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {beliefs.map((b) => (
+                                <div key={b.title} className={clsx(card, "flex gap-4")}>
+                                    <div className="shrink-0 text-refine-blue dark:text-refine-cyan-alt">{b.icon}</div>
+                                    <div className="flex flex-col gap-1.5">
+                                        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-0 m-0">{b.title}</h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 m-0">{b.description}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    {/* What we believe */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                What we <span className={sectionAccent}>believe</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                The principles that shape every decision we make about
-                                OpenPanel.
-                            </p>
-                        </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12 landing-lg:mt-20",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-2",
-                                "gap-4 landing-sm:gap-6",
-                            )}
-                        >
-                            {beliefs.map((item, index) => (
-                                <div key={index} className={cardShell}>
-                                    <div>{item.icon}</div>
-                                    <div className={clsx("flex", "flex-col", "gap-4")}>
-                                        <div
-                                            className={clsx(
-                                                "text-xl",
-                                                "font-semibold",
-                                                "text-gray-900 dark:text-gray-0",
-                                            )}
-                                        >
-                                            {item.title}
-                                        </div>
-                                        <div
-                                            className={clsx(
-                                                "text-base",
-                                                "dark:text-gray-400 text-gray-600",
-                                            )}
-                                        >
-                                            {item.description}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Independent & fairly priced */}
-                    <div className={clsx("px-4 landing-md:px-10")}>
-                        <div
-                            className={clsx(
-                                "not-prose",
-                                "flex flex-col items-center text-center",
-                                "gap-4",
-                                "px-6 py-12 landing-sm:px-20 landing-sm:py-16",
-                                "dark:bg-landing-noise",
-                                "dark:bg-gray-800 bg-gray-50",
-                                "rounded-2xl landing-sm:rounded-3xl",
-                            )}
-                        >
-                            <h2
-                                className={clsx(
-                                    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-                                    "tracking-tight",
-                                    "font-semibold",
-                                    "p-0",
-                                    "dark:text-gray-0 text-gray-900",
-                                )}
-                            >
-                                Independent by choice.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "max-w-xl",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Over the years we turned down offers from competitors and
-                                venture capitalists. Every one came with conditions that
-                                would&apos;ve compromised the product, so we stayed
-                                self-funded instead. One promise we stand by:{" "}
-                                <span
-                                    className={clsx(
-                                        "font-semibold",
-                                        "dark:text-gray-0 text-gray-900",
-                                    )}
-                                >
-                                    we will never charge per user or per website
-                                </span>
-                                .
-                            </p>
-                            <div
-                                className={clsx(
-                                    "mt-4",
-                                    "flex flex-col landing-xs:flex-row",
-                                    "items-center justify-center",
-                                    "gap-4",
-                                    "w-full landing-xs:w-auto",
-                                )}
-                            >
-                                <Link
-                                    to="/community/"
-                                    className={clsx(
-                                        "w-full landing-xs:w-auto",
-                                        "!text-gray-0 dark:!text-gray-900",
-                                        "bg-refine-blue dark:bg-refine-cyan-alt",
-                                        "transition-[filter]",
-                                        "duration-150",
-                                        "ease-in-out",
-                                        "hover:brightness-110",
-                                        "hover:!no-underline",
-                                        "rounded-3xl",
-                                        "py-3 px-8",
-                                        "flex items-center justify-center gap-2",
-                                        "text-base font-semibold",
-                                    )}
-                                >
-                                    Community Edition
-                                </Link>
-                                <Link
-                                    to="/enterprise"
-                                    className={clsx(
-                                        "w-full landing-xs:w-auto",
-                                        "dark:text-refine-cyan-alt text-refine-blue",
-                                        "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                                        "transition-[filter]",
-                                        "duration-150",
-                                        "ease-in-out",
-                                        "hover:brightness-110",
-                                        "hover:!no-underline",
-                                        "rounded-3xl",
-                                        "py-3 px-8",
-                                        "flex items-center justify-center gap-2",
-                                        "text-base font-semibold",
-                                    )}
-                                >
-                                    Enterprise Edition
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Team */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Who&apos;s <span className={sectionAccent}>behind it</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                A small, independent team building OpenPanel full-time.
-                            </p>
-                        </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-2 landing-sm:grid-cols-4",
-                                "gap-4",
-                            )}
-                        >
-                            {team.map(({ name, avatar, role1, role2, linkedin }) => {
-                                const isLocalImage = avatar.startsWith("/");
-                                return (
-                                    <Link
-                                        key={name}
-                                        to={linkedin}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className={clsx(
-                                            "not-prose",
-                                            "flex flex-col items-center text-center",
-                                            "gap-3",
-                                            "p-4 landing-sm:p-6",
-                                            "dark:bg-landing-noise",
-                                            "dark:bg-gray-800 bg-gray-50",
-                                            "rounded-2xl",
-                                            "transition-[filter]",
-                                            "duration-150",
-                                            "ease-in-out",
-                                            "hover:brightness-110",
-                                            "hover:!no-underline",
-                                        )}
-                                    >
-                                        {isLocalImage ? (
-                                            <img
-                                                src={avatar}
-                                                alt={name}
-                                                className={clsx(
-                                                    "w-16 h-16 landing-sm:w-20 landing-sm:h-20",
-                                                    "rounded-full",
-                                                    "object-cover",
-                                                    "m-0",
-                                                )}
-                                            />
-                                        ) : (
-                                            <div
-                                                className={clsx(
-                                                    "w-16 h-16 landing-sm:w-20 landing-sm:h-20",
-                                                    "rounded-full",
-                                                    "flex items-center justify-center",
-                                                    "bg-gradient-to-br from-refine-cyan-alt to-refine-blue",
-                                                    "text-gray-0",
-                                                    "text-lg landing-sm:text-xl",
-                                                    "font-semibold",
-                                                )}
-                                            >
-                                                {getInitials(name)}
-                                            </div>
-                                        )}
-                                        <div>
-                                            <div
-                                                className={clsx(
-                                                    "text-sm landing-sm:text-base",
-                                                    "font-semibold",
-                                                    "text-gray-900 dark:text-gray-0",
-                                                )}
-                                            >
-                                                {name}
-                                            </div>
-                                            <div
-                                                className={clsx(
-                                                    "text-xs landing-sm:text-sm",
-                                                    "text-gray-500 dark:text-gray-400",
-                                                )}
-                                            >
-                                                {role1}
-                                            </div>
-                                            {role2 && (
-                                                <div
-                                                    className={clsx(
-                                                        "text-xs landing-sm:text-sm",
-                                                        "text-gray-500 dark:text-gray-400",
-                                                    )}
-                                                >
-                                                    {role2}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Bottom CTA */}
-                    <div className={clsx("px-4 landing-md:px-10")}>
-                        <div
-                            className={clsx(
-                                "not-prose",
-                                "flex flex-col items-center text-center",
-                                "gap-4",
-                                "px-6 py-12 landing-sm:px-20 landing-sm:py-16",
-                                "dark:bg-landing-noise",
-                                "dark:bg-gray-800 bg-gray-50",
-                                "rounded-2xl landing-sm:rounded-3xl",
-                            )}
-                        >
-                            <h2
-                                className={clsx(
-                                    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-                                    "tracking-tight",
-                                    "font-semibold",
-                                    "p-0",
-                                    "dark:text-gray-0 text-gray-900",
-                                )}
-                            >
-                                Come build the future of hosting with us.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "max-w-lg",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Join our community, contribute on GitHub, or just say
-                                hello - we&apos;re glad you&apos;re here.
-                            </p>
-                            <div
-                                className={clsx(
-                                    "mt-4",
-                                    "flex flex-col landing-xs:flex-row",
-                                    "items-center justify-center",
-                                    "gap-4",
-                                    "w-full landing-xs:w-auto",
-                                )}
-                            >
-                                <Link
-                                    to="https://discord.com/invite/7bNY8fANqF"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={clsx(
-                                        "w-full landing-xs:w-auto",
-                                        "!text-gray-0 dark:!text-gray-900",
-                                        "bg-refine-blue dark:bg-refine-cyan-alt",
-                                        "transition-[filter]",
-                                        "duration-150",
-                                        "ease-in-out",
-                                        "hover:brightness-110",
-                                        "hover:!no-underline",
-                                        "rounded-3xl",
-                                        "py-3 px-8",
-                                        "flex items-center justify-center gap-2",
-                                        "text-base font-semibold",
-                                    )}
-                                >
-                                    <HeaderDiscordIcon width={20} height={20} />
-                                    Join Discord
-                                </Link>
-                                <Link
-                                    to="https://github.com/stefanpejcic/openpanel"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={clsx(
-                                        "w-full landing-xs:w-auto",
-                                        "dark:text-refine-cyan-alt text-refine-blue",
-                                        "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                                        "transition-[filter]",
-                                        "duration-150",
-                                        "ease-in-out",
-                                        "hover:brightness-110",
-                                        "hover:!no-underline",
-                                        "rounded-3xl",
-                                        "py-3 px-8",
-                                        "flex items-center justify-center gap-2",
-                                        "text-base font-semibold",
-                                    )}
-                                >
-                                    <FooterGithubIcon width={20} height={20} />
-                                    View on Github
-                                </Link>
-                            </div>
-                            <Link
-                                to="mailto:info@openpanel.com"
-                                className={clsx(
-                                    "mt-2",
-                                    "flex items-center gap-2",
-                                    "text-sm",
-                                    "dark:text-gray-400 text-gray-600",
-                                    "hover:!no-underline",
-                                )}
-                            >
-                                <MailIcon width={16} height={14} />
-                                info@openpanel.com
+                    <section className={clsx(card, "flex flex-col gap-4 sm:!p-8")}>
+                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-0 m-0">Independent by choice</h2>
+                        <p className="text-base text-gray-600 dark:text-gray-400 m-0 max-w-[760px]">
+                            Over the years we turned down offers from competitors and venture capitalists. Every one came with
+                            conditions that would&apos;ve compromised the product, so we stayed self-funded instead. One promise we
+                            stand by: <b className="text-gray-900 dark:text-gray-0">we will never charge per user or per website</b>.
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                            <Link to="/community/" className={primaryBtn}>
+                                Community Edition
+                            </Link>
+                            <Link to="/enterprise" className={secondaryBtn}>
+                                Enterprise Edition
                             </Link>
                         </div>
-                    </div>
-                </div>
+                    </section>
 
+                    <section className="flex flex-col gap-6">
+                        <div className="flex flex-col gap-2">
+                            <h2 className={h2}>Who&apos;s behind it</h2>
+                            <p className={lead}>A small, independent team building OpenPanel full-time.</p>
+                        </div>
+                        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+                            {team.map(({ name, avatar, role1, role2, linkedin }) => (
+                                <Link
+                                    key={name}
+                                    to={linkedin}
+                                    className={clsx(card, "flex flex-col items-center text-center gap-3 no-underline hover:border-gray-400 dark:hover:border-gray-500")}
+                                >
+                                    {avatar ? (
+                                        <img src={avatar} alt={name} loading="lazy" className="w-20 h-20 rounded-full object-cover" />
+                                    ) : (
+                                        <span className="w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-xl font-bold text-gray-700 dark:text-gray-200">
+                                            {getInitials(name)}
+                                        </span>
+                                    )}
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{name}</span>
+                                        <span className="text-xs text-gray-600 dark:text-gray-400">{role1}</span>
+                                        {role2 && <span className="text-xs text-gray-600 dark:text-gray-400">{role2}</span>}
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className={clsx(card, "flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between sm:!p-8")}>
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-0 m-0">Come build the future of hosting with us</h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 m-0">
+                                Join our community, contribute on GitHub, or just say hello at{" "}
+                                <Link to="mailto:info@openpanel.com" className={link}>
+                                    info@openpanel.com
+                                </Link>
+                                .
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                            <Link to={DISCORD} className={primaryBtn}>
+                                <HeaderDiscordIcon className="w-4 h-4" /> Join Discord
+                            </Link>
+                            <Link to={GITHUB} className={secondaryBtn}>
+                                <FooterGithubIcon className="w-4 h-4" /> View on GitHub
+                            </Link>
+                        </div>
+                    </section>
+                </div>
                 <BlogFooter />
             </div>
         </CommonLayout>

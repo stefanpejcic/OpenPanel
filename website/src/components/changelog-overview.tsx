@@ -5,7 +5,7 @@ import { useDocsSidebar, useDocsVersion } from "@docusaurus/plugin-content-docs/
 type Item = { type: string; label?: string; href?: string; docId?: string; items?: Item[] };
 
 // hand picked, newest first; the version pages hold the full lists
-const HIGHLIGHTS: [string, string, string][] = [
+export const HIGHLIGHTS: [string, string, string][] = [
     ["2.0.28", "OpenCLI rewritten in Go", "Every opencli command in one binary, about 2x faster with the same commands and output."],
     ["2.0.28", "PHP 8.6 and user panel themes", "PHP 8.6 by default for new users, Saturn and Modern themes, and users can pick their own theme."],
     ["2.0.25", "32 new one-click Docker apps", "Open WebUI, Langflow, Excalidraw, Stirling PDF and more in the Auto Installer."],

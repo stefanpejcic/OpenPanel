@@ -1,27 +1,12 @@
 import React from "react";
 import {
-    FolderIcon,
-    WizardsIcon,
-    SecurityIcon,
     MonitorIcon,
     SelfHostedIcon,
     IdentityIcon,
 } from "@site/src/components/landing/icons";
 
-// The two items currently being worked on. Update this once they ship.
-export const inProgress = [
-    {
-        icon: <FolderIcon />,
-        title: "Backup restore GUI",
-        description:
-            "Browse existing backups and restore a website, database, or full account with a couple of clicks - no terminal required.",
-    },
-    {
-        icon: <WizardsIcon />,
-        title: "Autoinstallers",
-        description:
-            "One-click installers for popular apps - we're currently working on Drupal, Joomla, Moodle, and Nextcloud.",
-    },
+// what is being worked on right now, empty hides the section; update it once things ship
+export const inProgress: { icon: React.ReactNode; title: string; description: string }[] = [
 ];
 
 // Everything else that's planned. Keep this list up to date manually.
@@ -33,10 +18,6 @@ export const plannedFeatures = [
     {
         icon: <SelfHostedIcon />,
         title: "Ongoing improvements in container isolation",
-    },
-    {
-        icon: <SecurityIcon />,
-        title: "Docker app templates: set up any Dockerized app in one click",
     },
     {
         icon: <IdentityIcon />,
