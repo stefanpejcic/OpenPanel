@@ -336,6 +336,8 @@ opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--resel
 
 On the Community edition the restore is refused before anything is created when the backup's domains would bring the server over 50 domains.
 
+The backup holds the account's files, databases, configuration and Compose service definitions, but not container images. The containers are recreated with podman-compose, which pulls every image that isn't already in the account's rootless Podman image store, so the server needs internet access (or those images loaded into that user's image store first). After starting them, the restore checks that every container from the backup is running and reports each one that isn't, with the image it needs, as a warning. Once the image is available, start just that service with `cd /home/<USERNAME> && opencli podman <USERNAME> compose up -d <SERVICE>`.
+
 `--reseller=<NAME>` restores the account for a reseller: it's refused when the reseller has reached their account or disk limit, when the plan from the backup doesn't exist or isn't assigned to the reseller, or together with `--force`. The restored account is owned by the reseller.
 
 <details>
