@@ -7,26 +7,27 @@ import { CommonLayout } from "@site/src/refine-theme/common-layout";
 interface InstallOption {
     value: string | boolean;
     description: string;
+    docs?: string;
 }
 
 type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
-    key: { value: "", description: "Set Enterprise license key." },
-    "join-cluster": { value: "", description: "Join a multi-server cluster as a slave, paste the code from Generate install command on the master (needs key)." },
-    domain: { value: "", description: "Set the domain to be used for accessing both panels." },
-    "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only." },
-    "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },
-    "user-port": { value: "", description: "Specify a custom port for OpenPanel (default is 2083)." },
-    username: { value: "", description: "Set admin username (by default random generated)." },
-    password: { value: "", description: "Set admin password (by default random generated)." },
-    "skip-firewall": { value: false, description: "Don't setup Sentinel Firewall (CSF)" },
-    "skip-dns-server": { value: false, description: "Don't setup local BIND9 DNS server" },
-    imunifyav: { value: false, description: "Install and Setup ImunifyAV." },
-    "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
+    key: { value: "", description: "Set Enterprise license key.", docs: "/docs/admin/license/#license-key" },
+    "join-cluster": { value: "", description: "Join a multi-server cluster as a slave, paste the code from Generate install command on the master (needs key).", docs: "/docs/admin/system/multi-server/add-servers/#install-a-new-server-straight-into-the-cluster" },
+    domain: { value: "", description: "Set the domain to be used for accessing both panels.", docs: "/docs/admin/settings/general/#domain" },
+    "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only.", docs: "/docs/admin/settings/general/#domain" },
+    "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087).", docs: "/docs/admin/settings/general/#ports" },
+    "user-port": { value: "", description: "Specify a custom port for OpenPanel (default is 2083).", docs: "/docs/admin/settings/general/#ports" },
+    username: { value: "", description: "Set admin username (by default random generated).", docs: "/docs/admin/accounts/administrators/" },
+    password: { value: "", description: "Set admin password (by default random generated).", docs: "/docs/admin/accounts/administrators/" },
+    "skip-firewall": { value: false, description: "Don't setup Sentinel Firewall (CSF)", docs: "/docs/admin/security/firewall/" },
+    "skip-dns-server": { value: false, description: "Don't setup local BIND9 DNS server", docs: "/docs/admin/domains/dns/" },
+    imunifyav: { value: false, description: "Install and Setup ImunifyAV.", docs: "/docs/admin/security/imunify/" },
+    "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains.", docs: "/docs/admin/security/waf/" },
     "post-install": { value: "", description: "Specify the post install script path or URL." },
     swap: { value: "", description: "Set size in GB for the swap partition." },
-    "skip-requirements": { value: false, description: "Skip the requirements check." },
+    "skip-requirements": { value: false, description: "Skip the requirements check.", docs: "/docs/articles/install-update/system-requirements/" },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
     selfsigned: { value: false, description: "Generate and configure a Self-signed certificate." },
@@ -127,13 +128,21 @@ const Install: React.FC = () => {
                                                 ? "License key must start with 'enterprise-'"
                                                 : undefined
                                         }
-                                        className="mr-2 w-64 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
+                                        className="mr-2 w-64 shrink-0 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
                                     />
                                     <div>
                                         <label htmlFor={key} className="font-bold">
                                             {key.replace(/-/g, " ").toUpperCase()}
                                         </label>
-                                        <div>{config.description}</div>
+                                        <div>
+                                            {config.description}
+                                            {config.docs && (
+                                                <>
+                                                    {" "}
+                                                    <a href={config.docs}>Docs</a>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
                                 </li>
                             ))}
