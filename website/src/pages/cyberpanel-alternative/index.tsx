@@ -11,6 +11,7 @@ import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-i
 import { EnterpriseFaq } from "@site/src/refine-theme/cyberpanel-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/cyberpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
+import { ResourceComparison } from "@site/src/refine-theme/resource-comparison";
 import { ENTERPRISE_TRIAL_URL } from "@site/src/refine-theme/enterprise-get-in-touch-button";
 
 const Enterprise: React.FC = () => {
@@ -66,6 +67,7 @@ const Enterprise: React.FC = () => {
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
                         </div>
+                        <ResourceComparison competitor="cyberpanel" className={clsx(sectionWidth, sectionPadding)} />
                         <CyberpanelIntroContent
                             className={clsx(
                                 sectionPadding,
