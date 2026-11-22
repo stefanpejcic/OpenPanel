@@ -3,6 +3,7 @@ package mysql
 import (
 	"compress/gzip"
 	"context"
+	"errors"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -50,7 +51,16 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	if r.Method == http.MethodPost {
 		maxBytes := int64(web.AtoiDefault(mysqlImportMaxSizeGB, 1))*1024*1024*1024 + (1 << 20)
-		_ = r.ParseMultipartForm(maxBytes)
+		// cap the body itself and keep only 32 MB in memory, the rest spills to disk
+		r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+		if mpErr := r.ParseMultipartForm(32 << 20); mpErr != nil {
+			var tooBig *http.MaxBytesError
+			if errors.As(mpErr, &tooBig) {
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Uploaded file exceeds %(mysql_import_max_size_gb)s GB limit.", "mysql_import_max_size_gb", mysqlImportMaxSizeGB))
+				renderImportPage(a, w, r, mysqlVersion, "", http.StatusRequestEntityTooLarge)
+				return
+			}
+		}
 
 		file, fileHeader, fileErr := r.FormFile("db_file")
 		dbName := r.FormValue("database_name")
