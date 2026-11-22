@@ -2,6 +2,7 @@ package crons
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strings"
 
@@ -11,6 +12,19 @@ import (
 
 // AddJob appends a new [job-exec "<comment>"] block to userContext's crons.ini and (re)starts the cron container - the same effect as handleSaveCronjob's non-interactive path, exported for other modules (like an app installer registering its own periodic task) to use directly instead of going through the HTTP form. comment must be unique within the user's crons.ini - callers that might install more than once per user should pick a comment that encodes the site (e.g. "moodle-" + domain) and pair this with RemoveJobByComment at uninstall.
 func AddJob(ctx context.Context, userContext, comment, schedule, container, command string, noOverlap bool) error {
+	// callers build these from request params, a newline would let them write extra [job-exec] blocks
+	for _, v := range []string{comment, schedule, container, command} {
+		if strings.ContainsAny(v, "\r\n\x00") {
+			return errors.New("cron job fields can't contain line breaks")
+		}
+	}
+	if strings.ContainsAny(comment, "\"]") {
+		return errors.New("cron job name can't contain quotes or brackets")
+	}
+	// same rule as the cron form: docker-proxy holds the podman socket and cron is the runner itself
+	if excludedServicesForCrons[strings.TrimSpace(container)] {
+		return errors.New("container " + container + " can't run cron jobs")
+	}
 	path := cronFilePath(userContext)
 	block := "[job-exec \"" + comment + "\"]\n" +
 		"schedule = " + schedule + "\n" +
