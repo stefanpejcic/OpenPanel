@@ -16,7 +16,7 @@ To display a custom message in **OpenPanel > Dashboard** for a specific user:
 
    ![add message](/img/docs-content/KZBxwWJC-2025-08-14-14-50.png)
 
-2. Enter the message — either plain text or HTML — in the **'Custom message for user'** area.
+2. Enter the message, either plain text or HTML, in the **'Custom message for user'** area.
 
 3. Click **Save**.
 

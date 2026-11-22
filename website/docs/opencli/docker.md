@@ -107,7 +107,7 @@ opencli docker-update shinsenter/php:8.3-fpm -y --no-php-move
 opencli docker-update openpanel/php-fpm:8.3 -y --no-php-move
 ```
 
-With no options, available updates are printed and confirmation is asked for 10 seconds — if there's no answer in that time, the command exits without changing anything. Every run is logged to `/var/log/openpanel/admin/docker/<date>.log`.
+With no options, available updates are printed and confirmation is asked for 10 seconds, if there's no answer in that time, the command exits without changing anything. Every run is logged to `/var/log/openpanel/admin/docker/<date>.log`.
 
 ### Autostart
 

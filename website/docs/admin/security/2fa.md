@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Two-factor authentication
 
-Two-Factor Authentication (2FA) adds a second login step for your own OpenAdmin account — a time-based one-time password (TOTP) from an authenticator app, in addition to your password.
+Two-Factor Authentication (2FA) adds a second login step for your own OpenAdmin account, a time-based one-time password (TOTP) from an authenticator app, in addition to your password.
 
 Use **OpenAdmin > Security > Two-factor authentication** to set it up.
 

@@ -764,7 +764,7 @@ logrotate_keep_days=30
 ```
 
 * Example: Setting to `30` means rotated logs older than 30 days will be removed.
-* Works alongside `logrotate_retention` — whichever limit is hit first will trigger deletion.
+* Works alongside `logrotate_retention`, whichever limit is hit first will trigger deletion.
 
 
 ### `goaccess_enable`

@@ -92,7 +92,7 @@ Review the startup logs for any errors, resolve them, and once the service is ru
 
 The most common reasons the mail server fails to start include:
 
-* **Another service already using port 25**—for example, Exim.
+* **Another service already using port 25**: for example, Exim.
   **Solution:** Disable or stop the conflicting service.
 
 * **Firewall or iptables error** that block the container from starting.

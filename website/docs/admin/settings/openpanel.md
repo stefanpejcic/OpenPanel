@@ -170,7 +170,7 @@ Captcha, 2FA, and password protections for login and signup forms:
 ![Security section with the OpenPanel login and session options](/img/openadmin-screenshots/settings/openpanel-security_dark.png#gh-dark-mode-only)
 
 :::info
-Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
+Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed, these settings have no effect until it is installed.
 :::
 
 - **Minimum Password Strength:** A value between 1-100 setting the minimum password strength required for all password input fields in OpenPanel (account, FTP, Emails, Databases, etc).
@@ -211,8 +211,8 @@ Plugins and themes installed on new WordPress sites, and the profiles users can 
 The global default list of WordPress plugins, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [plugins set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
 Enter one item per row. Supported formats:
 
-* **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
-* **URL** — a direct link to a `.zip` plugin file hosted online
+* **wp\_org\_slug**: the plugin slug from the WordPress.org plugin page
+* **URL**: a direct link to a `.zip` plugin file hosted online
 
 Stored in `/etc/openpanel/wordpress/sets/plugins.txt` file.
 
@@ -221,8 +221,8 @@ Stored in `/etc/openpanel/wordpress/sets/plugins.txt` file.
 The global default list of WordPress themes, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [themes set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
 Enter one item per row. Supported formats:
 
-* **wp\_org\_slug** — the theme slug from the WordPress.org themes page
-* **URL** — a direct link to a `.zip` theme file hosted online
+* **wp\_org\_slug**: the theme slug from the WordPress.org themes page
+* **URL**: a direct link to a `.zip` theme file hosted online
 
 Stored in `/etc/openpanel/wordpress/sets/themes.txt` file.
 

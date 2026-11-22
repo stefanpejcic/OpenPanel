@@ -16,7 +16,7 @@ Each email address can have its own set of filters. Filters are applied in order
 1. Go to **OpenPanel > Email > Filters**.
 2. Select the email address you want to manage filters for.
 3. Click **Add filter** and give the filter a name.
-4. Configure one or more **conditions** — the fields and values that must match.
+4. Configure one or more **conditions**, the fields and values that must match.
 5. Add one or more **actions** to perform when conditions are met.
 6. Click **Save filters**.
 

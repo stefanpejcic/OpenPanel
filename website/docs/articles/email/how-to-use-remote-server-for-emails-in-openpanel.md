@@ -6,8 +6,8 @@ sidebar_label: "Offload Email Storage to a Remote NFS Server"
 
 ## Architecture
 
-- **OpenPanel server** — runs websites and mail services (Postfix/Dovecot)
-- **NFS server** — stores `/var/mail/` data
+- **OpenPanel server**: runs websites and mail services (Postfix/Dovecot)
+- **NFS server**: stores `/var/mail/` data
 
 ---
 
@@ -31,7 +31,7 @@ Create the mail storage directory:
 mkdir -p /var/mail
 ```
 
-Add the export — edit `/etc/exports`:
+Add the export, edit `/etc/exports`:
 ```bash
 /var/mail  <OPENPANEL_SERVER_IP>(rw,sync,no_subtree_check,no_root_squash)
 ```
@@ -66,7 +66,7 @@ mkdir -p /var/mail
 mount <NFS_SERVER_IP>:/var/mail /var/mail
 ```
 
-Make the mount persistent — add to `/etc/fstab`:
+Make the mount persistent, add to `/etc/fstab`:
 ```bash
 <NFS_SERVER_IP>:/var/mail  /var/mail  nfs  defaults,_netdev  0  0
 ```

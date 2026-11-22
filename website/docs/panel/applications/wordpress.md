@@ -7,11 +7,11 @@ sidebar_position: 3
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png#gh-light-mode-only)
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list_dark.png#gh-dark-mode-only)
 
-The WordPress Manager is your all-in-one tool inside OpenPanel for installing and managing WordPress websites — without ever needing to log in to wp-admin. It makes handling multiple sites fast, simple, and efficient.
+The WordPress Manager is your all-in-one tool inside OpenPanel for installing and managing WordPress websites, without ever needing to log in to wp-admin. It makes handling multiple sites fast, simple, and efficient.
 
 ## Manage WordPress sites
 
-The WordPress Manager lets you adjust settings, create backups, update plugins, toggle debugging, and more — all directly from OpenPanel. No need to open multiple dashboards or remember dozens of logins.
+The WordPress Manager lets you adjust settings, create backups, update plugins, toggle debugging, and more, all directly from OpenPanel. No need to open multiple dashboards or remember dozens of logins.
 Perfect for agencies, developers, and anyone managing several WordPress sites at once.
 
 ### WP Manager
@@ -27,7 +27,7 @@ On the main WP Manager page you can:
 
 ### Install WordPress
 
-Installing WordPress is quick and automatic. OpenPanel takes care of everything — downloading WordPress from WordPress.org, creating the database, linking it to your domain, and configuring your new site.
+Installing WordPress is quick and automatic. OpenPanel takes care of everything, downloading WordPress from WordPress.org, creating the database, linking it to your domain, and configuring your new site.
 
 1. Add your **domain name** first.
 2. Open **Websites** from the sidebar and click **+ New Website**.
@@ -83,7 +83,7 @@ For example, you might set up a default combo like:
 - Elementor plugin
 - Classic Editor plugin
 
-Every time you install a new site — boom, it’s ready with your preferred setup.
+Every time you install a new site, boom, it’s ready with your preferred setup.
 
 Your hosting provider can also add ready-made sets, like *E-commerce* or *Blog*. When they have, the install form shows a **Plugins & themes set** field where you pick **Default** (your own sets, or the server's default ones if you have none), one of the provider's sets, or **None, clean WordPress** to install WordPress with no extra plugins or themes.
 
@@ -132,7 +132,7 @@ Switch views anytime using a button.
 
 ### Auto Login to wp-admin
 
-Use **Login as admin** for one-click secure access to your WordPress dashboard — no password needed.
+Use **Login as admin** for one-click secure access to your WordPress dashboard, no password needed.
 
 ![Site header with the Live Preview and Login as Admin buttons](/img/openpanel-screenshots/applications/wordpress-header.png#gh-light-mode-only)
 ![Site header with the Live Preview and Login as Admin buttons](/img/openpanel-screenshots/applications/wordpress-header_dark.png#gh-dark-mode-only)
@@ -304,7 +304,7 @@ If a newer WordPress core version is available, you will see 'Click to update Wo
 
 Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) directly from WP Manager.
 
-These are great for testing or development sites — not recommended for production.
+These are great for testing or development sites, not recommended for production.
 For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
 
 ![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png#gh-light-mode-only)
@@ -317,7 +317,7 @@ When your hosting plan includes [Error Logs](/docs/panel/statistics/error_logs/)
 
 ### Backups
 
-Create and restore backups anytime — files, database, or both.
+Create and restore backups anytime, files, database, or both.
 
 Create a Backup:
 - Choose what to back up (files, database, or both).
@@ -353,10 +353,10 @@ See [Git](/docs/panel/applications/git) for pushing, webhooks and deploy actions
 
 Want to stop managing a site in WP Manager (without deleting it)?
 
-Use **Detach** — your files and database remain untouched.
+Use **Detach**, your files and database remain untouched.
 
 
-To completely remove a website — files, database, and all — click **Uninstall**, then confirm.
+To completely remove a website, files, database, and all, click **Uninstall**, then confirm.
 
 ![Remove tab with the Detach and Uninstall options](/img/openpanel-screenshots/applications/wordpress-remove.png#gh-light-mode-only)
 ![Remove tab with the Detach and Uninstall options](/img/openpanel-screenshots/applications/wordpress-remove_dark.png#gh-dark-mode-only)

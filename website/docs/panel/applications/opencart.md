@@ -4,7 +4,7 @@ sidebar_position: 9
 
 # OpenCart
 
-Install and manage [OpenCart](https://www.opencart.com/) sites in an existing domain, via OpenCart's own CLI installer — deliberately simpler than the WordPress Manager: no dedicated OpenCart Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
+Install and manage [OpenCart](https://www.opencart.com/) sites in an existing domain, via OpenCart's own CLI installer, deliberately simpler than the WordPress Manager: no dedicated OpenCart Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
 ---
 
@@ -38,11 +38,11 @@ The **Login as admin** button generates a one-time login link and opens the Open
 
 ### Cache
 
-The **Cache** widget deletes every `cache.*` file under `system/storage/cache/` — the same thing the admin panel's own "Refresh Cache" tool does.
+The **Cache** widget deletes every `cache.*` file under `system/storage/cache/`, the same thing the admin panel's own "Refresh Cache" tool does.
 
 ### Logs
 
-The **Logs** tab shows the tail of `system/storage/logs/error.log` — the PHP warnings/errors OpenCart logs by default. A freshly installed, healthy site typically has none yet.
+The **Logs** tab shows the tail of `system/storage/logs/error.log`, the PHP warnings/errors OpenCart logs by default. A freshly installed, healthy site typically has none yet.
 
 ### Remove
 

@@ -4,7 +4,7 @@ sidebar_position: 17
 
 # TinyPhotoGallery
 
-Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotogallery) in an existing domain — the simplest of OpenPanel's app managers. TinyPhotoGallery is a single PHP file plus an empty `photos/` folder: no database, no admin account, no CLI installer, no versioning, and no update mechanism upstream. There is no dedicated TinyPhotoGallery Manager sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
+Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotogallery) in an existing domain, the simplest of OpenPanel's app managers. TinyPhotoGallery is a single PHP file plus an empty `photos/` folder: no database, no admin account, no CLI installer, no versioning, and no update mechanism upstream. There is no dedicated TinyPhotoGallery Manager sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
 
 ---
 
@@ -19,14 +19,14 @@ On the install page, configure:
 
 * **Domain** – The domain (and optional subfolder) to install into. Leave the subfolder blank to install at the domain root.
 
-Behind the scenes, this downloads `index.php` from the project's main branch (there are no tagged releases upstream) and creates an empty `photos/` folder next to it — the entire upstream install procedure per the project's own README. There's nothing else to configure: install is complete the moment those two filesystem items exist. Progress is streamed live as each step completes.
+Behind the scenes, this downloads `index.php` from the project's main branch (there are no tagged releases upstream) and creates an empty `photos/` folder next to it, the entire upstream install procedure per the project's own README. There's nothing else to configure: install is complete the moment those two filesystem items exist. Progress is streamed live as each step completes.
 
 ## Manage a TinyPhotoGallery site
 
 Every TinyPhotoGallery install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a TinyPhotoGallery site to open its overview page:
 
 * **Screenshot** and **TinyPhotoGallery / PHP / Created** status cards. TinyPhotoGallery always reports as "main" since there is no real versioning upstream.
-* **Files** – Docroot path, a File Manager shortcut, and live folder size. There is no Database card — TinyPhotoGallery has no database.
+* **Files** – Docroot path, a File Manager shortcut, and live folder size. There is no Database card, TinyPhotoGallery has no database.
 * **PHP version** – Editable for root-level installs; subdirectory installs inherit the domain's PHP version.
 * **Setup** – Shown until at least one photo exists in `photos/`, explaining that uploading photos there is all that's needed, with a link to open the site.
 

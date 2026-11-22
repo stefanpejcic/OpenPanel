@@ -36,12 +36,12 @@ After completing the form, click **Start installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
 
 :::info
-Since Java 11 ([JEP 330](https://openjdk.org/jeps/330)), `java SomeFile.java` runs a single source file directly — it's compiled in memory with no separate `javac` step and no build tool required. That's the default here, matching the "just run one file" model of the Node.js, Python, and Ruby application types for a quick app. Projects that do have a `pom.xml` can enable **Run Install** to run `mvn install` first, then use a custom startup command to run the resulting build.
+Since Java 11 ([JEP 330](https://openjdk.org/jeps/330)), `java SomeFile.java` runs a single source file directly, it's compiled in memory with no separate `javac` step and no build tool required. That's the default here, matching the "just run one file" model of the Node.js, Python, and Ruby application types for a quick app. Projects that do have a `pom.xml` can enable **Run Install** to run `mvn install` first, then use a custom startup command to run the resulting build.
 :::
 
 ### Example App
 
-A minimal HTTP server using only the JDK standard library — no build step or dependencies required.
+A minimal HTTP server using only the JDK standard library, no build step or dependencies required.
 
 Example `Main.java` file:
 
@@ -63,7 +63,7 @@ public class Main {
 }
 ```
 
-No **Run Install** step is needed for this example — leave it disabled and set the startup file to `Main.java`.
+No **Run Install** step is needed for this example, leave it disabled and set the startup file to `Main.java`.
 
 ---
 

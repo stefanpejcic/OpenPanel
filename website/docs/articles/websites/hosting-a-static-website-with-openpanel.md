@@ -8,7 +8,7 @@ This guide walks you through hosting a static website on OpenPanel.
 
 ---
 
-## Step 1 — Add a Domain
+## Step 1: Add a Domain
 
 1. Go to **OpenPanel → Domains → Add New Domain**.
 2. Enter your new domain name and click **Add Domain**.
@@ -17,7 +17,7 @@ This guide walks you through hosting a static website on OpenPanel.
 
 ---
 
-## Step 2 — Upload Your Files
+## Step 2: Upload Your Files
 
 1. Open **OpenPanel → File Manager**.
 2. Navigate to your domain’s directory.
@@ -27,7 +27,7 @@ This guide walks you through hosting a static website on OpenPanel.
 
 ---
 
-## Step 3 — Test Your Website
+## Step 3: Test Your Website
 
 1. Visit your domain using `https://` to trigger SSL generation.
 2. Your static site should now be live and visible immediately.

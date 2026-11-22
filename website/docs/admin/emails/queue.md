@@ -22,4 +22,4 @@ The table shows 100 messages per page with **Previous** and **Next** below it. A
 - **Retry** – Force an immediate delivery retry, for a **selected** message or for **all** queued messages.
 - **Delete** – Permanently remove a message from the queue, for a **selected** message or for **all** queued messages.
 
-Bulk actions (retry/delete **all**) apply to the entire queue at once, not only the current page or search results — use with care. The checkbox in the table header selects the messages on the current page.
+Bulk actions (retry/delete **all**) apply to the entire queue at once, not only the current page or search results, use with care. The checkbox in the table header selects the messages on the current page.

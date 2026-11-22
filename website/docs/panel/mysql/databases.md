@@ -11,7 +11,7 @@ MySQL databases are used to store and manage your website's data, such as conten
 
 On the Databases page, you can view and manage your MySQL databases.
 
-The page provides a table containing your Databases, along with options related to them. By default, internal/system databases are hidden — enable **Show system databases** to display them. Sizes are not loaded by default either; enable **Show database sizes** to fetch and display each database's size, and pick the unit (B, KB, MB, or GB) from the dropdown next to it.
+The page provides a table containing your Databases, along with options related to them. By default, internal/system databases are hidden, enable **Show system databases** to display them. Sizes are not loaded by default either; enable **Show database sizes** to fetch and display each database's size, and pick the unit (B, KB, MB, or GB) from the dropdown next to it.
 
 ![Databases table with Show database sizes enabled and the size unit dropdown set to MB](/img/openpanel-screenshots/mysql/databases-sizes.png#gh-light-mode-only)
 ![Databases table with Show database sizes enabled and the size unit dropdown set to MB](/img/openpanel-screenshots/mysql/databases-sizes_dark.png#gh-dark-mode-only)

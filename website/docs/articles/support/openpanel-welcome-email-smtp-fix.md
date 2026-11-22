@@ -30,7 +30,7 @@ Check whether the email step is actually attempted or silently skipped, e.g.:
 + return 0
 ```
 
-If skipped, make sure the CLI command includes the same flags the UI sends (e.g. `--send-email`) — otherwise you're not reproducing the same code path.
+If skipped, make sure the CLI command includes the same flags the UI sends (e.g. `--send-email`), otherwise you're not reproducing the same code path.
 
 **2. Verify stored SMTP config matches intended credentials**
 
@@ -68,14 +68,14 @@ This isolates whether the request even reaches `/send_email` and captures the re
 
 ## Common Root Causes
 
-**Hairpin NAT** — if the panel calls its own public domain internally (rather than `localhost`) and the network/firewall doesn't support hairpin NAT, the internal call times out.
+**Hairpin NAT**: if the panel calls its own public domain internally (rather than `localhost`) and the network/firewall doesn't support hairpin NAT, the internal call times out.
 
 Fix: add a local hosts entry so the server resolves its own domain to itself:
 ```
 127.0.0.1 <admin-panel-domain>
 ```
 
-**SMTP provider IP block** — repeated test connections can trigger an anti-abuse block, e.g.:
+**SMTP provider IP block**: repeated test connections can trigger an anti-abuse block, e.g.:
 ```
 421 - 4.4.5 Directory harvest attack detected
 ```

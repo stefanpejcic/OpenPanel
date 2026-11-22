@@ -28,7 +28,7 @@ The default PHP version used for new domains can be configured via:
 
 ### PHP Options
 
-This interface allows you to modify commonly used PHP settings—limited to those pre-configured by an Administrator.
+This interface allows you to modify commonly used PHP settings, limited to those pre-configured by an Administrator.
 
 [PHP Options Documentation](/docs/panel/php/options)
 

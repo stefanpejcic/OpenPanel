@@ -98,7 +98,7 @@ Login to SSH for the WISECP server, pull the latest files from the repository an
 ## Troubleshooting
 
 On WISECP:
-1. Failed API calls are recorded through `Modules::save_log()` — check **Settings > Others > Module Log** (or the `mod_logs` table) for the request URL, payload and response
+1. Failed API calls are recorded through `Modules::save_log()`, check **Settings > Others > Module Log** (or the `mod_logs` table) for the request URL, payload and response
 2. Errors returned by the module are shown directly on the relevant admin action
 
 On OpenPanel server:

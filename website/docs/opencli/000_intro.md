@@ -30,7 +30,7 @@ Most commonly used commands:
   opencli update_check
 ```
 
-OpenCLI has tab-completion for the bash shell built into the binary: `opencli update` writes it to `/usr/local/opencli/lib/completion.bash` and links it from `/etc/bash_completion.d/opencli`. Typing `opencli` and pressing `TAB` suggests all available commands, and pressing `TAB` again after a command suggests its actual arguments — usernames, domain names, plan names, PHP versions, admin logins, FTP accounts, config/notification setting names, and more, all pulled live from the panel database and filesystem so suggestions always match what's actually on the server. It's installed and kept up to date automatically by `opencli update`, which also installs the `bash-completion` package if it's missing. Open a new shell session after updating for it to take effect.
+OpenCLI has tab-completion for the bash shell built into the binary: `opencli update` writes it to `/usr/local/opencli/lib/completion.bash` and links it from `/etc/bash_completion.d/opencli`. Typing `opencli` and pressing `TAB` suggests all available commands, and pressing `TAB` again after a command suggests its actual arguments, usernames, domain names, plan names, PHP versions, admin logins, FTP accounts, config/notification setting names, and more, all pulled live from the panel database and filesystem so suggestions always match what's actually on the server. It's installed and kept up to date automatically by `opencli update`, which also installs the `bash-completion` package if it's missing. Open a new shell session after updating for it to take effect.
 
 ## Help
 

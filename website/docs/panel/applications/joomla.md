@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Joomla
 
-Install and manage [Joomla](https://www.joomla.org/) sites in an existing domain, via Joomla's own CLI installer — deliberately simpler than the WordPress Manager: no dedicated Joomla Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
+Install and manage [Joomla](https://www.joomla.org/) sites in an existing domain, via Joomla's own CLI installer, deliberately simpler than the WordPress Manager: no dedicated Joomla Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
 ---
 
@@ -43,7 +43,7 @@ The **Cache** widget runs Joomla's own `cli/joomla.php cache:clean`, clearing th
 
 ### Logs
 
-The **Logs** tab shows the contents of `administrator/logs/*.php` — the PHP warnings/errors Joomla logs by default. A freshly installed, healthy site typically has none yet.
+The **Logs** tab shows the contents of `administrator/logs/*.php`, the PHP warnings/errors Joomla logs by default. A freshly installed, healthy site typically has none yet.
 
 ### Remove
 

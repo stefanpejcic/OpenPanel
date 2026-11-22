@@ -8,7 +8,7 @@ Manage the default PHP version and configuration files for new user accounts.
 
 ### Default version
 
-The default PHP version used for new user accounts is not set on this page — it is configurable from the [Edit User Defaults](/docs/admin/settings/defaults/) page.
+The default PHP version used for new user accounts is not set on this page, it is configurable from the [Edit User Defaults](/docs/admin/settings/defaults/) page.
 
 ![Default version section linking to the User Defaults page](/img/openadmin-screenshots/settings/php-default.png#gh-light-mode-only)
 ![Default version section linking to the User Defaults page](/img/openadmin-screenshots/settings/php-default_dark.png#gh-dark-mode-only)

@@ -60,13 +60,13 @@ If the WAF feature is enabled, the **WAF** column has a toggle to turn the [Web 
 
 Depending on the features enabled on your server, the following actions are available from the **Actions** dropdown menu per domain:
 
-* **Edit DNS zone** — if the DNS feature is enabled
-* **Manage WAF** — if the WAF feature is enabled
-* **Restrict to Cloudflare / Remove Cloudflare restriction** — see [Cloudflare-only access](#cloudflare-only-access)
-* **Change docroot** — if the docroot feature is enabled
-* **Edit VirtualHosts** — if the VHosts editor is enabled
-* **Capitalize** — if the Capitalize feature is enabled
-* **Suspend / Unsuspend** — if the Suspend feature is enabled
+* **Edit DNS zone**: if the DNS feature is enabled
+* **Manage WAF**: if the WAF feature is enabled
+* **Restrict to Cloudflare / Remove Cloudflare restriction**: see [Cloudflare-only access](#cloudflare-only-access)
+* **Change docroot**: if the docroot feature is enabled
+* **Edit VirtualHosts**: if the VHosts editor is enabled
+* **Capitalize**: if the Capitalize feature is enabled
+* **Suspend / Unsuspend**: if the Suspend feature is enabled
 * **Delete**
 
 ![Actions menu of a domain with Edit DNS Zone, Manage WAF, Remove Cloudflare restriction, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions.png#gh-light-mode-only)

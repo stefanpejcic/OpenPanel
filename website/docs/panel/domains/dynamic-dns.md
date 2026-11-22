@@ -29,7 +29,7 @@ Dynamic DNS lets you point a subdomain (e.g. `home.yourdomain.com`) to a device 
    | Field | Description |
    |---|---|
    | **Domain** | The base domain you own (e.g. `yourdomain.com`) |
-   | **Subdomain** | The subdomain to update (e.g. `home`) — letters, numbers, and hyphens only |
+   | **Subdomain** | The subdomain to update (e.g. `home`), letters, numbers, and hyphens only |
    | **Initial IP** | Starting IP address. Defaults to `0.0.0.0` and is replaced on the first update call |
 
 4. Click **Create**. Your entry will appear in the table with its update URL.
