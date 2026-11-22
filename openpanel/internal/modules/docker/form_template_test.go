@@ -103,3 +103,46 @@ func TestDeniedPathsAbsoluteForm(t *testing.T) {
 		t.Errorf("editing the cron service broke: %v", err)
 	}
 }
+
+func TestCheckHostPathsRejectsNestedBindSources(t *testing.T) {
+	compose := map[string]any{"services": map[string]any{
+		"a": map[string]any{"volumes": []any{"./data:/data"}},
+	}}
+	for _, bad := range []string{"./data/l", "./data/x/y"} {
+		if checkHostPaths(compose, []string{bad}, "alice", "") == nil {
+			t.Fatalf("%s nests inside a's ./data and should be rejected", bad)
+		}
+	}
+	if checkHostPaths(map[string]any{"services": map[string]any{"a": map[string]any{"volumes": []any{"./data/x:/x"}}}}, []string{"./data"}, "alice", "") == nil {
+		t.Fatal("./data contains a's ./data/x and should be rejected")
+	}
+	if checkHostPaths(compose, []string{"./data", "./other"}, "alice", "") != nil {
+		t.Fatal("the same folder or a sibling should still be fine")
+	}
+	if checkHostPaths(compose, []string{"./data/l"}, "alice", "a") != nil {
+		t.Fatal("editing a itself replaces its own mounts, so nesting against its old ones is fine")
+	}
+	if checkHostPaths(map[string]any{}, []string{"./x", "./x/y"}, "alice", "") == nil {
+		t.Fatal("two new entries nested in each other should be rejected")
+	}
+}
+
+func TestCheckSocketAccess(t *testing.T) {
+	if checkSocketAccess(false, nil, true, "") == nil {
+		t.Fatal("socket checkbox without the feature should be rejected")
+	}
+	for _, n := range []string{"/run/user/${USER_ID}/podman", "/run/user/${USER_ID}/podman/podman.sock"} {
+		if checkSocketAccess(false, []string{n}, false, "") == nil {
+			t.Fatalf("raw %s without the feature should be rejected", n)
+		}
+	}
+	if checkSocketAccess(false, []string{"/run/user/${USER_ID}/podman"}, false, "docker-proxy") != nil {
+		t.Fatal("the template docker-proxy keeps its socket dir")
+	}
+	if checkSocketAccess(true, []string{"/run/user/${USER_ID}/podman"}, true, "") != nil {
+		t.Fatal("with the feature it's allowed")
+	}
+	if checkSocketAccess(false, []string{"./data", "pgdata"}, false, "") != nil {
+		t.Fatal("ordinary volumes stay fine")
+	}
+}

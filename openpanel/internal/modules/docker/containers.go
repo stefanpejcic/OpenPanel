@@ -266,6 +266,10 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		fail(err.Error())
 		return
 	}
+	if err := checkSocketAccess(socketAllowed(a, r), r.Form["volume_name"], r.Form.Get("add_socket") != "", ""); err != nil {
+		fail(err.Error())
+		return
+	}
 	var port int
 	if domain != "" {
 		if port, err = validateContainerDomain(ctx, a, userID, composeData, domain, r.Form.Get("port")); err != nil {
@@ -451,6 +455,11 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		if err := checkHostPaths(composeData, r.Form["volume_name"], userContext, service); err != nil {
+			formView.Error = err.Error()
+			renderContainerFormPage(a, w, r, formView)
+			return
+		}
+		if err := checkSocketAccess(socketAllowed(a, r), r.Form["volume_name"], r.Form.Get("add_socket") != "", service); err != nil {
 			formView.Error = err.Error()
 			renderContainerFormPage(a, w, r, formView)
 			return

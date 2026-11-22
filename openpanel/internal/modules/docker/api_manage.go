@@ -146,6 +146,10 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
+	if volErr := checkSocketAccess(socketAllowed(a, r), volNames, body.AddSocket, ""); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusForbidden, map[string]string{"error": volErr.Error()})
+		return
+	}
 	// only mutate .env once the request has passed validation, so a rejected request leaves it alone
 	UpdateEnvFileWithVars(userContext, newEnvVars)
 	declareNewVolumes(composeData, volNames, serviceName)
@@ -252,6 +256,10 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if volErr := checkHostPaths(composeData, volNames, userContext, service); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
+	if volErr := checkSocketAccess(socketAllowed(a, r), volNames, body.AddSocket, service); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusForbidden, map[string]string{"error": volErr.Error()})
 		return
 	}
 
