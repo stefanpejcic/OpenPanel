@@ -4,7 +4,7 @@ sidebar_label: "OpenCLI Hooks"
 
 # How to Run Custom Scripts Before or After CLI Commands (Hooks)
 
-OpenPanel supports **pre** and **post hooks** for all commands, that run bash scripts before or after running opencli commands.
+OpenPanel supports **pre** and **post hooks** for all commands: your own bash scripts that run before or after an opencli command.
 
 To create a hook, first create a new directory: `/etc/openpanel/openpanel/hooks/` and inside create a file based on the desired command:
 

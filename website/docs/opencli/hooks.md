@@ -1,6 +1,6 @@
 ## Hooks
 
-OpenPanel supports hooks that run bash scripts before or after running opencli commands.
+OpenPanel supports hooks: your own bash scripts that run before or after an opencli command.
 
 To create a hook, first create a new directory: `/etc/openpanel/openpanel/hooks/` and inside create a file based on the desired command:
 
@@ -17,4 +17,4 @@ another example, script that executes after adding a domain (opencli *domains-ad
 post_domains-add.sh
 ```
 
-any command-line attributes passed to opencli script will also be to your custom scripts.
+Any arguments passed to the opencli command are also passed to your hook script.
