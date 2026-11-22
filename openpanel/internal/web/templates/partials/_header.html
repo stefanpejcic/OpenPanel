@@ -30,7 +30,7 @@
                     </nav>
                     {{else}}
                     <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
-                        <ol role="list" class="flex items-center space-x-3 text-sm" x-data="navMenu('{{.RequestPath}}')">
+                        <ol role="list" class="flex items-center space-x-3 text-sm" data-nav-path="{{.RequestPath}}" x-data="navMenu()">
 
                         <ul>
                             <template x-for="item in items" :key="item.label">
@@ -42,7 +42,9 @@
                         </ul>
 
                         <script>
-                            function navMenu(currentPath) {
+                            function navMenu() {
+                                // read from a data attribute, interpolating the path into x-data made any URL with a quote run as JS
+                                const currentPath = document.querySelector('[data-nav-path]')?.dataset.navPath || window.location.pathname;
                                 return {
                                     // True when the visible section item's own link IS the
                                     // current page (e.g. on /sites itself, not a sub-page
