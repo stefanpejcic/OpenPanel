@@ -489,6 +489,8 @@ const renderItems = ({
 
     return (
         items?.map((item, index) => {
+            // in the sidebar only so its page keeps the sidebar, like the changelog intro
+            if (item.className?.includes("sidebar-item-hidden")) return null;
             switch (item.type) {
                 case "category":
                     return (

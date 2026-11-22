@@ -99,7 +99,9 @@ const siteConfig = {
                                       .filter(isVersion)
                                       .sort((a, b) => b.id.localeCompare(a.id, undefined, { numeric: true }));
                                   const rest = modifiedSidebarItems.filter((item) => !isVersion(item) && !isIntro(item));
-                                  return [...versions, ...rest];
+                                  // the intro stays in the sidebar but hidden, a doc that isn't in any sidebar renders without one
+                                  const intro = modifiedSidebarItems.filter(isIntro).map((item) => ({ ...item, className: 'sidebar-item-hidden' }));
+                                  return [...versions, ...rest, ...intro];
                               }
 
                               return modifiedSidebarItems;
