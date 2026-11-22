@@ -690,7 +690,7 @@ export const integrations: IntegrationsType = {
             icon: API,
             description:
                 "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
-            url: "/docs/articles/dev-experience/openadmin-api",
+            url: "/docs/admin/api/",
             status: "enterprise",
         },
         {

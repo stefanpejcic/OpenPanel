@@ -167,6 +167,10 @@
     {
       "from": "/wisecp-module",
       "to": "/billing/wisecp-module/"
+    },
+    {
+      "from": "/docs/articles/dev-experience/openadmin-api",
+      "to": "/docs/admin/api/"
     }
   ]
 }

@@ -69,4 +69,4 @@ Resellers can't turn the module on or off and can't change the [rate limit](#rat
 
 ## API
 
-The same actions are available through the [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/#ai--bot-control): `GET /api/security/bot-control` and `POST /api/security/bot-control`.
+The same actions are available through the [OpenAdmin API](/docs/admin/api/#ai--bot-control): `GET /api/security/bot-control` and `POST /api/security/bot-control`.

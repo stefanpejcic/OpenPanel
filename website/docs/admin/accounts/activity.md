@@ -13,7 +13,7 @@ Each entry has the date and time, the IP address it was made from and a short de
 ```
 
 - Actions that failed end with `(failed)`, for example a domain that could not be added.
-- Actions made through the [OpenAdmin API](/docs/articles/dev-experience/openadmin-api) are recorded in the log of the administrator the API token belongs to and end with `(via API)`.
+- Actions made through the [OpenAdmin API](/docs/admin/api/) are recorded in the log of the administrator the API token belongs to and end with `(via API)`.
 - Passwords and other values typed into forms are never written to the log.
 - Logins are not part of the activity log, they are shown in the **Activity** column and kept in `/var/log/openpanel/admin/login.log`.
 

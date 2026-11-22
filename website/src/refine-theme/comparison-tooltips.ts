@@ -41,7 +41,7 @@ const tips: Record<string, Tip> = {
     "Java Applications": { description: "Users run Java and Spring Boot applications next to their PHP sites.", link: "/docs/panel/applications/java/" },
     "Users can manage Containers": { description: "Users start, stop and configure the containers of their own account." },
     "Users can add Containers": { description: "Users add their own services as containers to their account." },
-    "API for every UI action": { description: "Everything you can do in the interface can also be done through the REST API.", link: "/docs/articles/dev-experience/openadmin-api/" },
+    "API for every UI action": { description: "Everything you can do in the interface can also be done through the REST API.", link: "/docs/admin/api/" },
     "Native MCP server for AI agents": { description: "AI agents can manage the panel through a built-in Model Context Protocol server." },
     "Process Manager": { description: "Users see and stop the processes running in their account.", link: "/docs/panel/processes/process_manager/" },
     "Web Terminal": { description: "A terminal in the browser, without setting up SSH." },

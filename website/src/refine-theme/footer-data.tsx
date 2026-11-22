@@ -32,7 +32,7 @@ export const menuItems = [
             },
             {
                 label: "OpenAdmin API",
-                href: "/docs/articles/dev-experience/openadmin-api",
+                href: "/docs/admin/api/",
             },
             {
                 label: "Resource Calculator",
