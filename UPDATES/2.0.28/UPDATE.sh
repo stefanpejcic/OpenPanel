@@ -206,7 +206,7 @@ fi
 # the panel keeps api.openpanel.com/php-versions for 72h, drop it so 8.6 shows as the latest version right away
 rm -f /etc/openpanel/openpanel/php/api_versions.json
 
-# opencli is now one Go binary from github releases, swap it in for the bash dispatcher, the old .sh files stay for anything still calling them
+# opencli is now one Go binary from github releases, swap it in for the bash dispatcher
 if ! head -c 4 /usr/local/opencli/opencli 2>/dev/null | grep -q "ELF"; then
     cli_binary="opencli-amd64"
     [ "$(uname -m)" = "aarch64" ] && cli_binary="opencli-arm64"
@@ -228,6 +228,12 @@ if ! head -c 4 /usr/local/opencli/opencli 2>/dev/null | grep -q "ELF"; then
         echo "Failed to download $cli_url/$cli_binary, kept the bash opencli"
     fi
     rm -f "$tmp"
+fi
+
+# the Go binary only needs itself, aliases.txt and lib/completion.bash, drop the old bash scripts
+if head -c 4 /usr/local/opencli/opencli 2>/dev/null | grep -q "ELF"; then
+    find /usr/local/opencli -mindepth 1 -maxdepth 1 ! -name opencli ! -name aliases.txt ! -name lib -exec rm -rf {} +
+    find /usr/local/opencli/lib -mindepth 1 ! -name completion.bash -exec rm -rf {} + 2>/dev/null
 fi
 
 # ImunifyAV calls opencli for its user and domain lists, point it at the Go commands instead of the .sh scripts

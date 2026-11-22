@@ -172,7 +172,7 @@ openpanel
 
 ## Terminal
 
-Update only OpenCLI *(the `/usr/local/opencli/opencli` binary from the latest [stefanpejcic/opencli release](https://github.com/stefanpejcic/opencli/releases), checked against its `SHA256SUMS`)*:
+Update only OpenCLI *(the `/usr/local/opencli/opencli` binary from the latest [stefanpejcic/opencli release](https://github.com/stefanpejcic/opencli/releases), checked against its `SHA256SUMS`, old bash scripts left in `/usr/local/opencli` are removed)*:
 ```bash
 opencli update --cli
 ```

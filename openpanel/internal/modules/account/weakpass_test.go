@@ -13,13 +13,12 @@ import (
 )
 
 func TestIsCommonPasswordExitCodes(t *testing.T) {
-	orig, origBin := weakpassScript, opencliBin
-	t.Cleanup(func() { weakpassScript, opencliBin = orig, origBin })
-	opencliBin = filepath.Join(t.TempDir(), "missing")
+	orig := opencliBin
+	t.Cleanup(func() { opencliBin = orig })
 
-	script := filepath.Join(t.TempDir(), "weakpass.sh")
-	os.WriteFile(script, []byte("read -r p; [ \"$p\" = password ] && exit 1; exit 0\n"), 0644)
-	weakpassScript = script
+	bin := filepath.Join(t.TempDir(), "opencli")
+	os.WriteFile(bin, []byte("#!/bin/sh\n[ \"$1\" = weakpass ] || exit 2\nread -r p; [ \"$p\" = password ] && exit 1; exit 0\n"), 0755)
+	opencliBin = bin
 
 	if !isCommonPassword(context.Background(), "password") {
 		t.Error("expected exit 1 to mean a common password")
@@ -28,9 +27,9 @@ func TestIsCommonPasswordExitCodes(t *testing.T) {
 		t.Error("expected exit 0 to mean the password is fine")
 	}
 
-	weakpassScript = filepath.Join(t.TempDir(), "missing.sh")
+	opencliBin = filepath.Join(t.TempDir(), "missing")
 	if isCommonPassword(context.Background(), "password") {
-		t.Error("expected a missing script to let the password through")
+		t.Error("expected a missing opencli to let the password through")
 	}
 }
 

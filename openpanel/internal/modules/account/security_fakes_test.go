@@ -237,9 +237,9 @@ func newFakeApp(t *testing.T, cfg config.Config, users map[int]*fakeUser) (*appc
 	if cfg == nil {
 		cfg = config.Config{}
 	}
-	orig := weakpassScript
-	weakpassScript = filepath.Join(t.TempDir(), "missing.sh")
-	t.Cleanup(func() { weakpassScript = orig })
+	orig := opencliBin
+	opencliBin = filepath.Join(t.TempDir(), "missing")
+	t.Cleanup(func() { opencliBin = orig })
 	return &appctx.App{
 		Config:    cfg,
 		SecretKey: secret,

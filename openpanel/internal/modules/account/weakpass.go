@@ -1,7 +1,6 @@
 package account
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"log"
@@ -11,26 +10,14 @@ import (
 	"time"
 )
 
-// opencli is mounted read-only into the container, the Go build has the check as `opencli weakpass`
-var (
-	opencliBin     = "/usr/local/opencli/opencli"
-	weakpassScript = "/usr/local/opencli/lib/weakpass.sh"
-)
+// opencli is mounted read-only into the container, the check is `opencli weakpass`
+var opencliBin = "/usr/local/opencli/opencli"
 
-// weakpassCmd uses the opencli binary when it's the Go build, else the old bash script
 func weakpassCmd(ctx context.Context, args ...string) *exec.Cmd {
-	if f, err := os.Open(opencliBin); err == nil {
-		head := make([]byte, 4)
-		n, _ := f.Read(head)
-		f.Close()
-		if bytes.Equal(head[:n], []byte("\x7fELF")) {
-			cmd := exec.CommandContext(ctx, opencliBin, append([]string{"weakpass"}, args...)...)
-			// skips opencli's log, hooks and cluster routing, none of them exist in the container
-			cmd.Env = append(os.Environ(), "OPENCLI_RAW=1")
-			return cmd
-		}
-	}
-	return exec.CommandContext(ctx, "bash", append([]string{weakpassScript}, args...)...)
+	cmd := exec.CommandContext(ctx, opencliBin, append([]string{"weakpass"}, args...)...)
+	// skips opencli's log, hooks and cluster routing, none of them exist in the container
+	cmd.Env = append(os.Environ(), "OPENCLI_RAW=1")
+	return cmd
 }
 
 // isCommonPassword is a var so tests can stub it
@@ -44,7 +31,7 @@ var isCommonPassword = func(ctx context.Context, password string) bool {
 	if errors.As(err, &exitErr) && exitErr.ExitCode() == 1 {
 		return true
 	}
-	// any other failure (script missing, timeout) lets the password through, same as opencli when the list can't be fetched
+	// any other failure (opencli missing, timeout) lets the password through, same as opencli when the list can't be fetched
 	if err != nil {
 		log.Printf("ACCOUNT - weakpass check skipped: %v", err)
 	}
