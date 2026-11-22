@@ -341,7 +341,7 @@ const Features: React.FC = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
                             {[
                                 ["Isolated", "containers for every account"],
-                                ["~53 MB", "RAM for OpenPanel and OpenAdmin at idle"],
+                                ["~53 MB", "RAM for OpenPanel at idle"],
                                 [`${FEATURES.length}+`, "features, each one on or off per user"],
                             ].map(([big, small]) => (
                                 <div key={big} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
