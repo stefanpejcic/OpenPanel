@@ -137,6 +137,10 @@ const faq = [
         answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as daily updates. On the other hand, the community edition receives updates on a monthly basis.",
     },
     {
+        question: "How much disk space and RAM does OpenPanel need?",
+        answer: "The panel itself is lightweight: OpenPanel, OpenAdmin and OpenCLI together use about 53 MB of RAM at idle (OpenPanel ~20 MB, OpenAdmin ~33 MB) and about 324 MB of disk (OpenPanel 278 MB, OpenAdmin 34.5 MB, OpenCLI 11.4 MB), with ~0% CPU. A full server with Caddy, MySQL and Redis needs at least 1 GB of RAM, 20 GB of disk and 1 CPU core, 4 GB of RAM or more is recommended; see the system requirements in the docs.",
+    },
+    {
         question: "What operating systems does OpenPanel Enterprise support?",
         answer: "OpenPanel Enterprise supports Ubuntu, Debian, AlmaLinux, Rocky Linux, and CentOS.",
     },

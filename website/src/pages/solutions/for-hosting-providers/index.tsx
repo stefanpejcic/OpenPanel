@@ -178,7 +178,7 @@ export default function ForHostingProviders() {
                 },
                 {
                     title: "Runs on cheaper hardware",
-                    text: "Native ARM (AArch64) support and lightweight containers let you use cost-efficient servers and pack more customers per node.",
+                    text: "The panel itself needs only ~53 MB of RAM at idle and ~324 MB of disk (OpenPanel, OpenAdmin and OpenCLI together), and with native ARM (AArch64) support you can use cost-efficient servers and leave the resources to your customers.",
                 },
             ]}
             compareTitle="What's in the box"

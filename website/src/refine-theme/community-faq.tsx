@@ -133,6 +133,10 @@ const faq = [
         answer: "Yes, nothing is closed. The full source code of OpenPanel is on GitHub: OpenAdmin, the OpenPanel UI with all Enterprise modules like FTP, emails, Docker manager and API, OpenCLI and the configuration files. OpenCLI and the configuration are licensed under CC BY-NC 4.0, the web interfaces under the OpenPanel EULA.",
     },
     {
+        question: "How much disk space and RAM does OpenPanel need?",
+        answer: "The panel itself is lightweight: OpenPanel, OpenAdmin and OpenCLI together use about 53 MB of RAM at idle (OpenPanel ~20 MB, OpenAdmin ~33 MB) and about 324 MB of disk (OpenPanel 278 MB, OpenAdmin 34.5 MB, OpenCLI 11.4 MB), with ~0% CPU. A full server with Caddy, MySQL and Redis needs at least 1 GB of RAM, 20 GB of disk and 1 CPU core, 4 GB of RAM or more is recommended; see the system requirements in the docs.",
+    },
+    {
         question: "What operating systems does OpenPanel Community support?",
         answer: "OpenPanel Community currently supports Ubuntu 24.04. The Enterprise edition adds support for Debian, AlmaLinux, Rocky Linux, and CentOS.",
     },

@@ -171,7 +171,7 @@ export default function ForAgencies() {
                 },
                 {
                     title: "Many clients, one affordable server",
-                    text: "Host as many client accounts as the hardware allows for one flat price, and turn hosting into recurring revenue instead of a cost.",
+                    text: "Host as many client accounts as the hardware allows for one flat price, and turn hosting into recurring revenue instead of a cost. The panel itself needs only ~53 MB of RAM at idle and ~324 MB of disk, so almost the whole server goes to your clients' sites.",
                 },
             ]}
             compareTitle="Everything an agency server needs"
