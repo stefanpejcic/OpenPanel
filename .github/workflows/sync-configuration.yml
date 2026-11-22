@@ -74,7 +74,7 @@ jobs:
             fi
           done
 
-          # opencli special-cased: track the podman branch
+          # opencli special-cased: track the go branch
           opencli_exists=false
           if [ -f .gitmodules ]; then
             if git config --file .gitmodules --get-regexp "^submodule\..*\.path$" 2>/dev/null \
@@ -86,10 +86,10 @@ jobs:
           if [ "$opencli_exists" = true ]; then
             echo "Submodule already exists: opencli"
           else
-            echo "Adding submodule: opencli -> podman branch"
+            echo "Adding submodule: opencli -> go branch"
             git rm -r --cached opencli 2>/dev/null || true
             rm -rf opencli
-            git submodule add -f -b podman https://github.com/stefanpejcic/opencli opencli
+            git submodule add -f -b go https://github.com/stefanpejcic/opencli opencli
           fi
 
       - name: Ensure correct tracking branches
@@ -101,7 +101,7 @@ jobs:
           git config -f .gitmodules submodule.openadmin.branch main
           git config -f .gitmodules submodule.mailserver.branch main
           git config -f .gitmodules submodule.vsftpd.branch main
-          git config -f .gitmodules submodule.opencli.branch podman
+          git config -f .gitmodules submodule.opencli.branch go
           git config -f .gitmodules submodule.integrations/cpanel-import.branch podman
           git config -f .gitmodules submodule.integrations/cyberpanel-import.branch podman
           git config -f .gitmodules submodule.integrations/whmcs.branch main
@@ -125,19 +125,10 @@ jobs:
           git submodule update --init --recursive --remote --merge
 
 
-      - name: Sync OpenCLI binary needed in Dockerfile
-        shell: bash
-        run: |
-          curl -fsSL \
-            https://raw.githubusercontent.com/stefanpejcic/opencli/refs/heads/podman/opencli \
-            -o openpanel/opencli
-
-          chmod +x openpanel/opencli
-
       - name: Commit and push if changed
         shell: bash
         run: |
-          git add .gitmodules tests translations configuration opencli openadmin mailserver vsftpd integrations openpanel/opencli
+          git add .gitmodules tests translations configuration opencli openadmin mailserver vsftpd integrations
           if ! git diff --cached --quiet; then
             git commit -m "chore: update submodule references to latest upstream"
             git push origin main

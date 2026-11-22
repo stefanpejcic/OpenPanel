@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           13.11.2026
+# Last Modified:           22.11.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -507,10 +507,18 @@ download_files() {
     chmod +x "/usr/local/admin/$admin_binary"
     sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
 
-    # opencli
-    echo "Downloading opencli commands to /usr/local/opencli"
+    # opencli is a single Go binary from the latest release, checked against the release's SHA256SUMS
+    local cli_binary="opencli-amd64"
+    [[ "$architecture" == "aarch64" ]] && cli_binary="opencli-arm64"
+    local cli_url="https://github.com/stefanpejcic/opencli/releases/latest/download"
+    echo "Downloading opencli to /usr/local/opencli/opencli"
     mkdir -p /usr/local/opencli/
-    curl -sSL https://github.com/stefanpejcic/opencli/archive/refs/heads/podman.tar.gz -o /tmp/scripts.tar.gz && tar -xzf /tmp/scripts.tar.gz -C "/usr/local/opencli" --strip-components=1 && find /usr/local/opencli -type f -name '*.sh' -exec chmod +x {} +
+    curl -fsSL --retry 3 "$cli_url/$cli_binary" -o /usr/local/opencli/opencli.new || die 1 "Failed to download opencli binary ${cli_binary} from Github."
+    local cli_sum
+    cli_sum=$(curl -fsSL --retry 3 "$cli_url/SHA256SUMS" | awk -v f="$cli_binary" '$2 == f {print $1}')
+    [[ -n "$cli_sum" && "$(sha256sum /usr/local/opencli/opencli.new | awk '{print $1}')" == "$cli_sum" ]] || { rm -f /usr/local/opencli/opencli.new; die 1 "Checksum of the downloaded opencli binary doesn't match SHA256SUMS."; }
+    chmod 755 /usr/local/opencli/opencli.new
+    mv -f /usr/local/opencli/opencli.new /usr/local/opencli/opencli
 }
 
 download_config() {
@@ -520,10 +528,13 @@ download_config() {
 
 setup_opencli() {
     echo "Setting up opencli..."
-    chmod +x -R /usr/local/opencli
+    chmod 755 /usr/local/opencli/opencli
     ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
     export PATH="/usr/bin:$PATH"
-    [[ -x /usr/local/bin/opencli ]] && ok "opencli commands are executable." || die 1 "opencli setup failed."
+    /usr/local/bin/opencli version >/dev/null 2>&1 || die 1 "opencli setup failed."
+    # --help writes aliases.txt that tab-completion reads
+    /usr/local/bin/opencli --help >/dev/null 2>&1 || true
+    ok "opencli commands are executable."
 }
 
 install_openadmin() {

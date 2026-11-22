@@ -13,8 +13,9 @@ import (
 )
 
 func TestIsCommonPasswordExitCodes(t *testing.T) {
-	orig := weakpassScript
-	t.Cleanup(func() { weakpassScript = orig })
+	orig, origBin := weakpassScript, opencliBin
+	t.Cleanup(func() { weakpassScript, opencliBin = orig, origBin })
+	opencliBin = filepath.Join(t.TempDir(), "missing")
 
 	script := filepath.Join(t.TempDir(), "weakpass.sh")
 	os.WriteFile(script, []byte("read -r p; [ \"$p\" = password ] && exit 1; exit 0\n"), 0644)

@@ -55,7 +55,7 @@ func ClampPasswordStrength(raw string, def int) int {
 	return value
 }
 
-// PasswordStrengthScore mirrors the 6-check rubric shared with static/js/password-strength.js and opencli/lib/password_strength.sh - keep all three in sync
+// PasswordStrengthScore mirrors the 6-check rubric shared with static/js/password-strength.js and opencli internal/passwd/passwd.go - keep all three in sync
 func PasswordStrengthScore(password string) int {
 	if password == "" {
 		return 0

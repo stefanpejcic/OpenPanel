@@ -41,7 +41,7 @@
 [submodule "opencli"]
 	path = opencli
 	url = https://github.com/stefanpejcic/opencli
-	branch = podman
+	branch = go
 [submodule "mailserver"]
 	path = mailserver
 	url = https://github.com/stefanpejcic/OpenMail

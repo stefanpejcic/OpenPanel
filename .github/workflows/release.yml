@@ -15,6 +15,9 @@ on:
 
 permissions:
   contents: write
+  # the e2e reusable workflow opens an issue on failure; a called workflow's
+  # permissions can't exceed the caller's, so grant issues here too
+  issues: write
 
 env:
   IMAGE_NAME: openpanel/openpanel

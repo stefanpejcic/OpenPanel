@@ -11,7 +11,7 @@ into every template via app.py's GLOBAL_DATA context processor.
 
 Keep the scoring rubric in sync with:
   - /home/stefan/2083/modules/core/validators.py (password_strength_score)
-  - /home/stefan/opencli/lib/password_strength.sh (password_strength_score)
+  - opencli internal/passwd/passwd.go (Score)
 */
 
 function passwordStrengthScore(value) {

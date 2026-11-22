@@ -205,3 +205,34 @@ fi
 
 # the panel keeps api.openpanel.com/php-versions for 72h, drop it so 8.6 shows as the latest version right away
 rm -f /etc/openpanel/openpanel/php/api_versions.json
+
+# opencli is now one Go binary from github releases, swap it in for the bash dispatcher, the old .sh files stay for anything still calling them
+if ! head -c 4 /usr/local/opencli/opencli 2>/dev/null | grep -q "ELF"; then
+    cli_binary="opencli-amd64"
+    [ "$(uname -m)" = "aarch64" ] && cli_binary="opencli-arm64"
+    cli_url="https://github.com/stefanpejcic/opencli/releases/latest/download"
+    tmp=/usr/local/opencli/opencli.new
+    if wget --timeout=30 --tries=3 -q -O "$tmp" "$cli_url/$cli_binary"; then
+        cli_sum=$(wget --timeout=15 --tries=3 -q -O - "$cli_url/SHA256SUMS" | awk -v f="$cli_binary" '$2 == f {print $1}')
+        chmod 755 "$tmp"
+        if [ -n "$cli_sum" ] && [ "$(sha256sum "$tmp" | awk '{print $1}')" = "$cli_sum" ] && "$tmp" --version >/dev/null 2>&1; then
+            mv -f "$tmp" /usr/local/opencli/opencli
+            ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
+            # --help writes aliases.txt that tab-completion reads
+            /usr/local/opencli/opencli --help >/dev/null 2>&1
+            echo "opencli switched to the Go binary $cli_binary"
+        else
+            echo "Downloaded $cli_binary doesn't match SHA256SUMS or doesn't run, kept the bash opencli"
+        fi
+    else
+        echo "Failed to download $cli_url/$cli_binary, kept the bash opencli"
+    fi
+    rm -f "$tmp"
+fi
+
+# ImunifyAV calls opencli for its user and domain lists, point it at the Go commands instead of the .sh scripts
+IMUNIFY_INTEGRATION=/etc/sysconfig/imunify360/integration.conf
+if [ -f "$IMUNIFY_INTEGRATION" ] && head -c 4 /usr/local/opencli/opencli 2>/dev/null | grep -q "ELF"; then
+    sed -i -e 's#/usr/local/opencli/user/list\.sh --json#/usr/local/opencli/opencli user-list --json#' \
+           -e 's#/usr/local/opencli/domains/all\.sh --json#/usr/local/opencli/opencli domains-all --json#' "$IMUNIFY_INTEGRATION"
+fi

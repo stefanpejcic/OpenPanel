@@ -36,9 +36,8 @@ RUN apk add --no-cache \
     openssh-client
 
 
-# OpenCLI
-COPY opencli /usr/local/bin/opencli
-RUN chmod +x /usr/local/bin/opencli
+# OpenCLI is the Go binary from the host, mounted read-only at /usr/local/opencli
+RUN ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
 
 # Platform-specific binaries
 COPY encoded-${TARGETARCH}/ /
