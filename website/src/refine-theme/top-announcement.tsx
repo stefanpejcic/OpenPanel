@@ -176,9 +176,8 @@ const messages = [
 ];
 
 const Text = () => {
-    // Pick after hydration so the pre-rendered HTML and the client agree
-    // (Math.random() during SSR caused a mismatch and text flicker).
-    const [randomMessage, setRandomMessage] = React.useState(messages[0]);
+    // picked after hydration, the pre-rendered bar stays empty until then so one message never flashes and swaps to another
+    const [randomMessage, setRandomMessage] = React.useState<(typeof messages)[number] | null>(null);
 
     React.useEffect(() => {
         // multi-server is new, so it gets half of the views and the rest are split evenly
@@ -191,9 +190,12 @@ const Text = () => {
 
     return (
         <a
-            href={randomMessage.href}
+            href={randomMessage?.href}
             rel="noreferrer"
+            aria-hidden={!randomMessage}
             className={clsx(
+                "transition-opacity duration-300",
+                randomMessage ? "opacity-100" : "opacity-0 pointer-events-none",
                 "relative lg:absolute",
                 "px-2 lg:px-0",
                 "top-0",
@@ -212,7 +214,7 @@ const Text = () => {
             )}
         >
             <div className="ml-2 not-prose">
-                {randomMessage.text}
+                {randomMessage?.text}
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
@@ -220,7 +222,7 @@ const Text = () => {
                         "ml-2"
                     )}
                 >
-                    {randomMessage.cta}
+                    {randomMessage?.cta}
                 </span>
             </div>
         </a>
