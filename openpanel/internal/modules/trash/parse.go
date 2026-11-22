@@ -40,7 +40,7 @@ func splitRestoreLine(line string) (string, trashMeta, bool) {
 	if i := strings.Index(line, "=/"); i > 0 {
 		name, value, ok = line[:i], line[i+1:], true
 	}
-	if !ok || name == "" {
+	if !ok || !validTrashName(name) {
 		return "", trashMeta{}, false
 	}
 	if i := strings.LastIndex(value, "|deletion_date="); i != -1 {
@@ -148,4 +148,9 @@ func splitFields(line string, maxFields int) []string {
 		fields = append(fields, rest)
 	}
 	return fields
+}
+
+// validTrashName only takes a bare entry name, the file lives in the account's home so a key like ../../etc/shadow is just text they wrote
+func validTrashName(name string) bool {
+	return name != "" && name != "." && name != ".." && !strings.ContainsAny(name, "/\\\x00")
 }
