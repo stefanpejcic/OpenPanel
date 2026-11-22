@@ -23,6 +23,7 @@ The wizard only asks about what's actually available on your plan — each step 
 
 | Step | Shown when... | What you can do |
 | --- | --- | --- |
+| **Theme** | Your Administrator turned on [Users can switch theme](/docs/admin/settings/openpanel/#users-can-switch-theme) and more than one theme is installed | Pick how your panel looks. Clicking a theme saves it and reloads the page with it, and you can change it again later from your account menu. |
 | **Webserver** | You're allowed to change your webserver container | Choose Apache, Nginx, OpenLiteSpeed, or OpenResty as the webserver for new domains. |
 | **PHP** | The PHP feature is enabled | Choose the default PHP version for new domains (skipped on OpenLiteSpeed, which always uses the latest version). |
 | **Database** | You're allowed to change your database container | Choose MySQL or MariaDB as your account's database server. |
