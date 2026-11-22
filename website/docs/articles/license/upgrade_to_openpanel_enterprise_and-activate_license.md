@@ -24,7 +24,7 @@ After payment, license key is automatically issued and you will see it under the
 ### To existing installation:
 
 - From OpenAdmin:
-  If you already have OpenPanel Community edition installed, navigate to **OpenAdmin > Try Enterprise** and add the key into the form:
+  If you already have OpenPanel Community edition installed, navigate to **OpenAdmin > License & Support** and add the key into the form:
   
   ![add license key](/img/guides/add_key.png)
 

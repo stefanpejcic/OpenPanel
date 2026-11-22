@@ -25,7 +25,7 @@ OpenPanel uses a modular system where features can be individually enabled or di
 To enable the Email module:
 
 * Go to **OpenAdmin > Settings > Modules**
-* Find the **Emails** module and click **Activate**
+* Turn on the **Emails** module and click **Save changes**
 
 ![Email Module Activation](/img/docs-content/9FvhmLSX-2025-07-09-17-12.png)
 
@@ -95,8 +95,8 @@ The most common reasons the mail server fails to start include:
 * **Another service already using port 25**—for example, Exim.
   **Solution:** Disable or stop the conflicting service.
 
-* **Firewall or iptables error** that block docker starting.
-  **Solution:** Restart the Docker service to reset network rules.
+* **Firewall or iptables error** that block the container from starting.
+  **Solution:** Restart the firewall with `csf -r` and start the mail server again.
 
 * **Invalid Configuration** for mailserver.
   **Solution:** Revert the default mailserver .env file.

@@ -20,7 +20,7 @@ sed -i 's/\(v=spf1\)/\1 include:example.com/' /etc/bind/zones/*.zone
 To ensure new domains include this host in their SPF records automatically:
 
 1. Go to:
-   `OpenAdmin > Domains > DNS Zone Templates`
+   `OpenAdmin > Domains > Zone Templates`
 
 2. Edit the zone template, include the desired hosts in the SPF entry:
 

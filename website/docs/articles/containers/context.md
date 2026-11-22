@@ -83,12 +83,9 @@ quota -u USERNAME
 
 ## Managing Services
 
-Services are defined in `/home/USERNAME/docker-compose.yml`. You can extend this file with custom services, but to maintain compatibility with the OpenPanel UI, [follow the guidelines](#).
+Services are defined in `/home/USERNAME/docker-compose.yml`. You can extend this file with custom services, but to maintain compatibility with the OpenPanel UI, [follow the guidelines](/docs/articles/containers/how-to-add-custom-docker-image-for-openpanel-user/).
 
-As root, load the OpenPanel Podman helpers first - they run `podman` and `podman-compose` against the user's own rootless instance:
-
-```bash
-```
+As root, use `opencli podman USERNAME ...` to run `podman` against the user's own rootless instance, and `opencli podman USERNAME compose ...` to run `podman-compose` (from `/home/USERNAME`). See [opencli podman](/docs/articles/opencli/podman/).
 
 Examples:
 

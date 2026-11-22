@@ -4,7 +4,7 @@ sidebar_label: "Removing the Port for OpenAdmin"
 
 # How to Access the Admin Panel Without a Port Number
 
-By default, the OpenAdmin interface runs on a Gunicorn web server, while all other websites run on Caddy. This setup ensures that the admin panel remains accessible even if the main web server is down.
+By default, the OpenAdmin interface runs as its own `admin` systemd service, while all other websites run on Caddy. This setup ensures that the admin panel remains accessible even if the main web server is down.
 
 If you want to remove the port number for OpenAdmin and access it directly via your domain (e.g., `https://yourdomain.com/`), follow these steps:
 
@@ -12,7 +12,5 @@ If you want to remove the port number for OpenAdmin and access it directly via y
    ```bash
    opencli admin port 443
    ```
-3. Restart service to apply the change:
-   ```bash
-   service amdin restart
-   ```
+
+The command opens the port on the firewall, reloads Caddy and restarts the `admin` service, so there is nothing else to do.

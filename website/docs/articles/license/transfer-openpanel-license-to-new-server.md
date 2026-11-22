@@ -59,7 +59,7 @@ Now, activate the license on your new server. You can do this in one of two ways
 * **From the Terminal:**
 
   ```bash
-  opencli license add YOUR-KEY-HERE
+  opencli license YOUR-KEY-HERE
   ```
 
 ---

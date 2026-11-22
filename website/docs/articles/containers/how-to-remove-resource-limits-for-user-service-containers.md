@@ -18,12 +18,12 @@ Set both the CPU and RAM limits to `0` (zero) in the plan settings to remove res
 
 ----
 
-## Remove Docker Resource Limits
+## Remove Container Resource Limits
 
 
 ### For existing user
 
-Run this command to remove CPU, memory, and PID limits from all services defined in the user's Docker Compose file. Replace `dorotea` with the actual username:
+Run this command to remove CPU, memory, and PID limits from all services defined in the user's `docker-compose.yml` file. Replace `dorotea` with the actual username:
 
 ```bash
 USERNAME=dorotea && \
@@ -50,7 +50,7 @@ opencli podman $USERNAME compose up -d $running_services
 
 ### For All new users
 
-To ensure all new users have unlimited CPU and RAM by default, apply the same `sed` commands to the Docker Compose template used for new accounts:
+To ensure all new users have unlimited CPU and RAM by default, apply the same `sed` commands to the `docker-compose.yml` template used for new accounts:
 
 ```bash
 sed -i '/deploy:/,/^[^[:space:]]/{

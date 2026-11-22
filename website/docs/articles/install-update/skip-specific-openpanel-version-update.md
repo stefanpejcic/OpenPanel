@@ -8,12 +8,11 @@ OpenPanel can be updated either **automatically** or **manually**, depending on 
 
 The update process performs the following actions:
 
-* Pulls the latest OpenPanel UI Docker image from Docker Hub
+* Pulls the latest OpenPanel UI container image
 * Updates the OpenAdmin UI from the latest GitHub release
 * Updates OpenCLI commands from GitHub
 * Executes any update scripts provided for configuration changes
 * Checks and installs updates via the system package manager
-* Updates docker compose to latest version
 * Verifies if any kernel updates require a reboot
 * Executes post-update scripts if provided by the administrator
 

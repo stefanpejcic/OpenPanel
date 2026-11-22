@@ -8,7 +8,7 @@ OpenPanel uses the following services:
 
 ## Caddy
 
-[Caddy](https://caddyserver.com/) is utilized as a reverse proxy to manage traffic to and from user websites hosted in their Docker containers. It also handles SSL certificate generation and renewals for both user domains and the main control panel domain.
+[Caddy](https://caddyserver.com/) is utilized as a reverse proxy to manage traffic to and from user websites hosted in their containers. It also handles SSL certificate generation and renewals for both user domains and the main control panel domain.
 
 Configuration Files:
 - `/etc/openpanel/caddy/Caddyfile`: This is the main configuration file that includes all others.
@@ -40,15 +40,15 @@ CADDY_IMAGE="openpanel/caddy-coraza"
 To use the official Caddy image without Coraza:
 
 ```
-CADDY_IMAGE="caddy/latest"
+CADDY_IMAGE="caddy:latest"
 ```
 
-## Docker
+## Podman
 
 
-[Docker](https://www.docker.com/) rootful is used to run all the shared services. Default services can be viewed [here](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/docker-compose.yml).
+[Podman](https://podman.io/) rootful is used to run all the shared services, defined in `/root/docker-compose.yml`. Default services can be viewed [here](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/docker-compose.yml).
 
-[Docker Rootless mode](https://docs.docker.com/engine/security/rootless/) is used for each user account to isolate their containers.
+Rootless Podman is used for each user account to isolate their containers. See [how OpenPanel isolates users](/docs/articles/containers/how-does-openpanel-isolate-users/).
 
 ## MySQL
 
@@ -59,12 +59,12 @@ CADDY_IMAGE="caddy/latest"
 - Domains
 - Websites
 
-MySQL login information is stored in files: `/etc/openpanel/mysql/host_db.conf` and `/etc/openpanel/mysql/hcontainer_db.conf`. 
+MySQL login information is stored in files: `/etc/openpanel/mysql/host_my.cnf` and `/etc/openpanel/mysql/container_my.cnf`. 
 
-- `/etc/openpanel/mysql/host_db.conf` is symlinked to `/etc/my.cnf` and is used for OpenAdmin service and OpenCLI commands.
-- `/etc/openpanel/mysql/hcontainer_db.conf` is mounted to `/etc/my.cnf` in OpenPanel container and is used by it.
+- `/etc/openpanel/mysql/host_my.cnf` is symlinked to `/etc/my.cnf` and is used for OpenAdmin service and OpenCLI commands.
+- `/etc/openpanel/mysql/container_my.cnf` is mounted to `/etc/my.cnf` in OpenPanel container and is used by it.
 
-MySQL data is stored inside the `root_mysql` volume.
+The service runs in the `openpanel_mysql` container (MariaDB image) and its data is stored inside the `mysql` volume.
 
 Admins can set memory (RAM) and CPU limits for MySQL service by modifying the `/root/.env` file:
 
@@ -81,13 +81,13 @@ MYSQL_ROOT_PASSWORD=
 ## SQLite
 
 SQLite database is used by the OpenAdmin panel in order to completely separate the Admin and end-user interface.
-Database file: `/etc/openpanel/openadmin/users.db` contians all administrator accounts.
+Database file: `/etc/openpanel/openadmin/users.db` contains all administrator accounts.
 
 ## Named
 
 [Named (BIND9)](https://www.isc.org/bind/) container is used for DNS.
 
-Administrators can set custom nameservers on *OpenAdmin > OpenPanel* to be used for OpenPanel websites.
+Administrators can set custom nameservers on *OpenAdmin > Settings > OpenPanel* to be used for OpenPanel websites.
 
 [ default named.conf.options` configuration file](https://github.com/stefanpejcic/openpanel-configuration/blob/main/bind9/named.conf.options)
 
@@ -124,7 +124,7 @@ To customize these reports edit the [/etc/openpanel/goaccess/goaccess.conf](http
 
 Admins can set the OpenPanel version by changing the tag in the `/root/.env` file with any tag from [hub.docker.com](https://hub.docker.com/r/openpanel/openpanel/tags):
 ```
-VERSION="1.0.0"
+VERSION="2.0.28"
 ```
 
 By default OpenPanel is accesible on port `2083` but this can also be configured by Admin by editing the `PORT` value:
@@ -134,7 +134,7 @@ PORT="2083"
 ```
 
 
-OpenPanel is a [Flask](https://flask.palletsprojects.com/en/3.0.x/)-based application that uses [MySQL](#mysql) to store user data and operates on the [Gunicorn](https://gunicorn.org/) web server. This configuration ensures that OpenPanel remains functional even if the web server is down, thereby providing complete isolation between user websites and the admin panel.
+OpenPanel is a Go application that uses [MySQL](#mysql) to store user data and runs in its own container with a built-in web server. This configuration ensures that OpenPanel remains functional even if the web server is down, thereby providing complete isolation between user websites and the admin panel.
 
 OpenPanel operates in production mode by default, logging only [errors and access logs](/docs/admin/services/logs/). For developers needing more detailed logs for troubleshooting or development purposes, it is possible to switch to a more verbose logging mode by enabling dev_mode.
 
@@ -147,20 +147,20 @@ OpenPanel operates in production mode by default, logging only [errors and acces
 
 By default, OpenAdmin is accessible on port `2087`, but this can be changed by the Admin by modifying the `port` value in the admin service configuration. However, due to limitations in billing systems like WHMCS, which do not support custom port settings, changing the port through the admin interface is not allowed. If the port is changed via the terminal, it may disrupt any third-party integrations that rely on the default port `2087`.
 
-OpenAdmin is a [Flask](https://flask.palletsprojects.com/en/3.0.x/) application that utilizes [SQLite](https://www.sqlite.org/) for its database and runs on a separate Gunicorn instance. It operates independently from the OpenPanel and webserver.
+OpenAdmin is a Go application that utilizes [SQLite](https://www.sqlite.org/) for its database and runs as a separate systemd service. It operates independently from the OpenPanel and webserver.
 
 ## ClamAV
 
-[ClamAV](https://www.clamav.net/) is an open-source antivirus engine for detecting trojans, viruses, malware & other malicious threats. OpenPanel uses ClamAV for the `'malware_scanner' feature.
+[ClamAV](https://www.clamav.net/) is an open-source antivirus engine for detecting trojans, viruses, malware & other malicious threats. OpenPanel uses ClamAV for the `malware_scanner` feature.
 
 
 Admins can set memory (RAM) and CPU limits for ClamAV service by modifying the `/root/.env` file:
 
 ```
-CLAMAV_RAM="1g"
-CLAMAV_CPUS="1.0"
+CLAMAV_RAM="2g"
+CLAMAV_CPUS="2.0"
 ```
-*Note:ClamAV requires at least 1GB of RAM nad 1 CPU: https://docs.clamav.net/#recommended-system-requirements*
+*Note:ClamAV requires at least 1GB of RAM and 1 CPU: https://docs.clamav.net/#recommended-system-requirements*
 
 ClamAV version can be set by changing the `latest` tag to any version from [hub.docker.com](https://hub.docker.com/r/clamav/clamav/tags):
 ```
@@ -187,8 +187,8 @@ Redis service is used by the OpenPanel user interface to keep user session data 
 Admins can set memory (RAM) and CPU limits for Redis service by modifying the `/root/.env` file:
 
 ```
-CLAMAV_RAM="1g"
-CLAMAV_CPUS="1.0"
+REDIS_RAM="0.25g"
+REDIS_CPUS="0.25"
 ```
 
 By default `/tmp/redis/` is used for the redis.sock file for conencting the OpenPanel and Redis services. This path can be changed by editing:

@@ -31,7 +31,7 @@ In this mode, the **admin has full control** over backup scheduling, retention, 
 #### 1: Set the Central Schedule
 
 **Path:**
-`OpenAdmin > Backups > Users > Settings`
+`OpenAdmin > Backups > User Backups > Settings`
 **Action:** Set the schedule dropdown to **Daily**, **Weekly**, or **Monthly** and save.
 
 This does two things: it schedules `opencli docker-backup` to run centrally for every account the admin manages (the accounts with an `admin.backups` marker), and it locks the Backups **Destinations** and **Settings** pages in the panel for accounts created from then on (via an `admin.backups` marker - see [User Backups](/docs/admin/backups/user/) for details, including how to apply it to an existing account). Their **List Backups** and **Restore Logs** pages stay available, so users can still restore from the backups the admin is taking.

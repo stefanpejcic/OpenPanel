@@ -26,9 +26,9 @@ Migration can be performed via OpenAdmin UI or from the terminal:
 
 ### Using OpenAdmin
 
-On the old server, login to **OpenAdmin** and navigate to *Advanced > Migration*, provide the new server’s IP address and root credentials:
+On the old server, login to **OpenAdmin** and navigate to **System > Migrate**, provide the new server’s IP address and root credentials:
 
-Click on the 'Start Migration' button and wait for the process to complete:
+Click on the 'Start migration' button and wait for the process to complete:
 
 ### Using Terminal
 
@@ -42,7 +42,7 @@ Allow the migration process to finish.
 
 After completion, log in to the OpenAdmin panel on the new server using the same credentials you used on the old server.
 
-Verify that all services have started correctly in OpenAdmin under Service Status, and test a few user websites to ensure they are functioning properly.
+Verify that all services have started correctly in **OpenAdmin > Services > Service status**, and test a few user websites to ensure they are functioning properly.
 
 If everything looks good, proceed to update the DNS records for the domains to point to the new server.
 

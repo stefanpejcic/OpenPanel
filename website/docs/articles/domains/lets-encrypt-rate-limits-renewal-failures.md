@@ -87,7 +87,7 @@ Add `0 issue "letsencrypt.org"` to the domain's CAA records, or remove the CAA r
 
 ### 6. A redirect or the WAF interferes
 
-A redirect from the domain to another site, or a strict web application firewall rule, can block the validation request under `/.well-known/acme-challenge/`. Temporarily remove the redirect and try again - see [403 errors](/docs/articles/domains/error-on-website-disable-coraza-waf/).
+A redirect from the domain to another site, or a strict web application firewall rule, can block the validation request under `/.well-known/acme-challenge/`. Temporarily remove the redirect and try again - see [403 errors](/docs/articles/domains/403-error-on-website-disable-coraza-waf/).
 
 ### 7. The domain isn't in OpenPanel
 

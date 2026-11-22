@@ -6,7 +6,7 @@ sidebar_label: "Troubleshooting OpenAdmin UI Errors"
 
 ## 500 Error
 
-If a **500 error** occurs in the OpenAdmin UI, enable dev_mode and tial to log to see the exact command run and response.
+If a **500 error** occurs in the OpenAdmin UI, enable dev_mode and tail the error log (`/var/log/openpanel/admin/error.log`) to see the exact command run and response.
 
 If you need assistance, you can copy the message to our [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) or [Discord channel](https://discord.openpanel.com/) for help troubleshooting.
 
@@ -24,7 +24,7 @@ To troubleshoot:
 4. Check for requests in the **Network** tab and any errors in the **Console** log.
 
 * Selecting a request in the Network tab allows you to view the response returned by the backend.
-* If the response doesn’t contain enough information to diagnose the issue, enable **dev_mode** on the server and check the Docker logs.
+* If the response doesn’t contain enough information to diagnose the issue, enable **dev_mode** on the server and check the logs.
 
 ---
 
@@ -40,7 +40,7 @@ opencli config update dev_mode on
 
 Then restart the panel.
 
-When dev_mode is enabled, detailed logs for the user panel are available via:
+When dev_mode is enabled, detailed logs for the admin panel are available via:
 
 ```bash
 tail -f /var/log/openpanel/admin/error.log

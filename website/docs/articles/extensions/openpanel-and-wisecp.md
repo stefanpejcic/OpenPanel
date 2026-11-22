@@ -14,21 +14,21 @@ To setup WISECP to use your OpenPanel server follow these steps:
 
 ## Enable API
 
-First make sure that API access is enabled by going to `OpenAdmin > API` or by running `opencli config get api` from the terminal:
+First make sure that API access is enabled by going to `OpenAdmin > Settings > API Access` or by running `opencli config get api` from the terminal:
 
 If API is not enabled, click on the "Enable API access" button or from terminal run
 ```bash
 opencli config update api on
 ```
 
-We recommend creating new Administrator user for the module, to create a new user navigate to *OpenAdmin > OpenAdmin Settings* and create new admin user, or from terminal run:
+We recommend creating new Administrator user for the module, to create a new user navigate to *OpenAdmin > Accounts > Administrators* and create new admin user, or from terminal run:
 ```bash
 opencli admin new USERNAME_HERE PASSWORD_HERE
 ```
 
 ## Whitelist on OpenPanel
 
-On OpenPanel server make sure that the OpenAdmin port 2087 is open on `OpenAdmin > Firewall` or whitelist the IP address of your WISECP server.
+On OpenPanel server make sure that the OpenAdmin port 2087 is open on `OpenAdmin > Security > Firewall` or whitelist the IP address of your WISECP server.
 to whitelist ip address from terminal run:
 
 ```bash
@@ -42,7 +42,7 @@ ufw allow from WISECP_IP_HERE
 ## Create hosting package
 
 Hosting packages need to be created on both OpenPanel and WISECP servers.
-On OpenPanel server login to admin panel and on `OpenAdmin > Plans` create hosting packages that you will be assigning to users on WISECP.
+On OpenPanel server login to admin panel and on `OpenAdmin > Hosting Plans` create hosting packages that you will be assigning to users on WISECP.
 
 # WISECP
 
@@ -102,7 +102,7 @@ On WISECP:
 2. Errors returned by the module are shown directly on the relevant admin action
 
 On OpenPanel server:
-1. [Enable `DEV_MODE` on OpenAdmin](https://dev.openpanel.com/cli/config.html#dev-mode)
+1. [Enable `DEV_MODE` on OpenAdmin](/docs/articles/opencli/config/#dev_mode)
 2. Send requests from the WISECP server
 3. View the logs in: `/var/log/openpanel/admin/api.log`
 

@@ -24,20 +24,26 @@ du -h / | sort -hr | head -n 20
 
 ---
 
-### 2. Clean Up Docker
+### 2. Clean Up Podman
 
-Docker can quickly consume space with unused containers, images, volumes, and networks.
+Podman can quickly consume space with unused containers, images, volumes, and networks. System services run in root's Podman, and every user has their own rootless Podman, run as `opencli podman USERNAME ...`.
 
-* To remove **unused** Docker data:
+* To remove **unused** data of the system services:
 
 ```bash
-docker system prune
+podman system prune
 ```
 
 * To also remove unused **volumes** (use with caution):
 
 ```bash
-docker system prune --volumes
+podman system prune --volumes
+```
+
+* To remove unused data of a user's containers:
+
+```bash
+opencli podman USERNAME system prune
 ```
 
 > 🧼 **Note:** This only removes resources not actively in use. Review the list before confirming.
@@ -45,7 +51,8 @@ docker system prune --volumes
 * View what's taking space:
 
 ```bash
-docker system df
+podman system df
+opencli podman USERNAME system df
 ```
 
 ---

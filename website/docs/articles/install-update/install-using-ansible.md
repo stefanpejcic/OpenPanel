@@ -13,7 +13,7 @@ Use the following **Ansible playbook** to install OpenPanel on one or more targe
   become: true
   vars:
     # Customize installation flags as needed. Full list: https://openpanel.com/install
-    openpanel_install_flags: "--debug --username=admin --password=super123"
+    openpanel_install_flags: "--username=admin --password=super123"
 
   tasks:
     - name: Download and run OpenPanel installer

@@ -6,6 +6,8 @@ sidebar_label: "Setting Up ImunifyAV"
 
 ImunifyAV regularly scans user files and alerts you if any malware is detected.
 
+ImunifyAV is not installed by default. Install it from **OpenAdmin > Security > ImunifyAV**, with [`opencli imunify install`](/docs/articles/opencli/imunify/), or on a new server with the `--imunifyav` installer flag.
+
 ---
 
 To configure ImunifyAV via the control panel:

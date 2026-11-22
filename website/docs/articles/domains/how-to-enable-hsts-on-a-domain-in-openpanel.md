@@ -76,7 +76,6 @@ To apply HSTS automatically to all domains on the server:
 1. Edit the default domain templates:
 
 ```bash
-/etc/openpanel/caddy/templates/domain.conf_with_modsec
 /etc/openpanel/caddy/templates/domain.conf
 ```
 

@@ -80,11 +80,11 @@ Manually editing these files can break the panel or be overwritten during update
 | Path | Format | Purpose |
 |---|---|---|
 | `/etc/openpanel/docker/compose/docker-compose.yml`, `.env` | YAML/env | Main podman/docker-compose stack (mysql, redis, openpanel, caddy, bind9, ftp, phpMyAdmin, clamav) |
-| `/etc/openpanel/docker/compose/nodejs.yml`, `python.yml` | YAML | Compose overlays for Node.js/Python app hosting |
+| `/etc/openpanel/docker/compose/nodejs.yml`, `python.yml` | YAML | Compose overlays for Node.js/Python app hosting (`java.yml` and `ruby.yml` for Java and Ruby) |
 | `/etc/openpanel/docker/compose/1.0/docker-compose.yml`, `.env`, `autostart.services` | YAML/env/text | Per-account container stack template (legacy "1.0" webserver stack) |
 | `/etc/openpanel/docker/templates/docker_*.conf` | conf | Per-website nginx-vhost snippets matching the container backend |
-| `/etc/openpanel/docker/daemon/rootless.json` | JSON | Rootless Docker daemon config template |
-| `/etc/openpanel/docker/overlay2/*.json` | JSON | `/etc/docker/daemon.json` templates per filesystem/distro |
+| `/etc/openpanel/docker/daemon/rootless.json` | JSON | Legacy rootless Docker daemon config template, not used by the Podman stack |
+| `/etc/openpanel/docker/overlay2/*.json` | JSON | Legacy `/etc/docker/daemon.json` templates per filesystem/distro, not used by the Podman stack |
 | `/etc/openpanel/docker/modprobe.txt` | text | Kernel modules loaded at boot (symlinked to `/etc/modules-load.d/podman.conf`) |
 | `/etc/openpanel/docker/selinux/pasta_local.pp` | SELinux policy | Rootless podman networking policy |
 | `/root/.env` | env | Root-level docker-compose environment (e.g. `CADDY_IMAGE`) |

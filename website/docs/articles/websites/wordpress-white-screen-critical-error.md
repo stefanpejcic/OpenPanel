@@ -96,7 +96,7 @@ If the site broke after a change you can't undo, restore the last working backup
 | **500 Internal Server Error** instead of a white page | Often a broken `.htaccess` (Apache). Rename it and re-save *Settings → Permalinks*. |
 | **502 Bad Gateway** | The PHP container isn't running or crashed - see [502 errors](/docs/articles/domains/bad-gateway-502-error-troubleshooting/). |
 | **Error establishing a database connection** | See [Error establishing a database connection](/docs/articles/databases/error-establishing-a-database-connection/). |
-| **403 Forbidden** | The web application firewall may be blocking a request - see [403 errors](/docs/articles/domains/error-on-website-disable-coraza-waf/). |
+| **403 Forbidden** | The web application firewall may be blocking a request - see [403 errors](/docs/articles/domains/403-error-on-website-disable-coraza-waf/). |
 
 ---
 

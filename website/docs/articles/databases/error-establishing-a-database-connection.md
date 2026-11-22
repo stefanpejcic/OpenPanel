@@ -8,13 +8,13 @@ If you see the error **“Error establishing a database connection”** in the O
 
 ## MySQL Service
 
-OpenPanel and OpenAdmin use a MySQL Docker service defined in `/root/docker-compose.yml`.
+OpenPanel and OpenAdmin use a MySQL container (service `openpanel_mysql`) defined in `/root/docker-compose.yml`.
 
 First, ensure that the service is running:
 
 **From OpenAdmin:**
 
-1. Go to **Services > Services Status**.
+1. Go to **Services > Service status**.
 2. Check the status of the MySQL service.
 3. Restart it from this page if necessary.
 

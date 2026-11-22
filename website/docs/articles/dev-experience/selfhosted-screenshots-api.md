@@ -8,9 +8,9 @@ sidebar_label: "Screenshots API"
 
 ## Remote API
 
-When installing OpenPanel on your server, you can use the `--screenshots=<url>` flag to use a custom api instead.
+To use a custom api instead, update the setting using: `opencli config update screenshots <url_of_your_remote_service>`
 
-Later, you can update the setting using: `opencli config update screenshots <url_of_your_remote_service>`
+The default value is `local`, which generates the screenshots on your server.
 
 
 This is recommended for small servers, as the local screenshots api will use additional 1GB of storage.

@@ -23,7 +23,7 @@ To change IP address for a user from OpenAdmin:
 
 ## Using OpenCLI
 
-To change a user’s IP address from the command line, use the [`opencli user-ip`](https://dev.openpanel.com/cli/users.html#Assign-Remove-IP-to-User) command:
+To change a user’s IP address from the command line, use the [`opencli user-ip`](/docs/articles/opencli/user/#assign--remove-ip-to-user) command:
 
 ```bash
 opencli user-ip <USERNAME> <NEW_IP_ADDRESS>

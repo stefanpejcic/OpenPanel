@@ -13,7 +13,7 @@ There is no hardcoded list of webservers. OpenPanel reads them from the services
 The webservers in the template are offered on:
 
 - **OpenAdmin > Settings > [User Defaults](/docs/admin/settings/defaults/)**
-- the **OpenAdmin > Users > Add User** form
+- the **OpenAdmin > Accounts > Users > Create User** form
 - `opencli user-add --webserver`. A webserver that isn't in the template is ignored, and the template default is used.
 
 The webservers in a user's own `docker-compose.yml` are offered on:

@@ -28,7 +28,7 @@ If both servers are in the same [multi-server cluster](/docs/admin/system/multi-
 5. (Optional) Enable the **Live Transfer** option.
    If checked, the account will be suspended on the current server after migration, and DNS will be forwarded to the new server.
 
-6. Click **Start Transfer**.
+6. Click **Start transfer**.
 
 Once initiated, the transfer process will begin. A log file will be generated - click on its name to view live progress.
 

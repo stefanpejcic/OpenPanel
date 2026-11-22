@@ -144,4 +144,4 @@ curl -I -u john:YourStrongPassword https://example.com/private/  # 200 OK
 
 - [Share .htaccess rules across websites](/docs/articles/websites/sharing-htaccess-rules/)
 - [Set up a WordPress staging site](/docs/articles/websites/wordpress-staging-site/)
-- [Fix 403 Forbidden errors](/docs/articles/domains/error-on-website-disable-coraza-waf/)
+- [Fix 403 Forbidden errors](/docs/articles/domains/403-error-on-website-disable-coraza-waf/)

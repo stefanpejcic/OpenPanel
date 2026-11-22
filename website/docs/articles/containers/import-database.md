@@ -29,7 +29,7 @@ Documentation: [phpMyAdmin Import Guide](https://openpanel.com/docs/panel/mysql/
 
 ---
 
-## 3. Using Terminal (Docker)
+## 3. Using Terminal
 
 To use terminal access:
 

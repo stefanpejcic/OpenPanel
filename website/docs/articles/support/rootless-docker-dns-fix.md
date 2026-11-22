@@ -81,7 +81,7 @@ Both should now return output instead of timing out.
 Collect this output before contacting support:
 
 ```bash
-opencli report --public
+opencli report --user <user>
 opencli podman <user> info
 opencli podman <user> network ls
 cat /etc/containers/containers.conf.d/*.conf
@@ -161,7 +161,7 @@ Both commands should now return valid output instead of timing out.
 Collect and review the following before escalating to platform support:
 
 ```bash
-opencli report --public
+opencli report --user <user>
 docker info
 docker --context=<user> network inspect <network-name>
 ```

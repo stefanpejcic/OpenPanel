@@ -4,7 +4,7 @@ sidebar_label: "Adding custom container images for OpenPanel users"
 
 # How to Use a Custom Docker Image for a Hosting User
 
-Each user has a Docker service running in [Rootless mode](https://docs.docker.com/engine/security/rootless/) and a single `docker-compose.yml` file that has all their services defined.
+Each user has their own containers running in rootless [Podman](https://podman.io/) and a single `docker-compose.yml` file that has all their services defined.
 
 For each user you can edit their `/home/USER/docker-compose.yml` file to specify custom services.
 
@@ -232,7 +232,7 @@ add to `docker-compose.yml` file in the **services** section:
     container_name: uptimekuma
     volumes:
       - ./data:/app/data
-      - /hostfs/run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
+      - /run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro
     restart: unless-stopped
     deploy:
       resources:

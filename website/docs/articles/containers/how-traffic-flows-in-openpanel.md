@@ -56,7 +56,7 @@ Client → Caddy → Nginx → Node.js container
 
 ## Handling Multiple PHP Versions
 
-Each user runs its own **PHP-FPM container version**, ensuring compatibility with different frameworks or legacy apps. Multiple PHP versions (7.4, 8.0, 8.1, 8.2, 8.3, etc.) can coexist safely for a userL
+Each user runs its own **PHP-FPM container version**, ensuring compatibility with different frameworks or legacy apps. Multiple PHP versions (7.4, 8.0, 8.1, 8.2, 8.3, etc.) can coexist safely for a user:
 
 Example:
 

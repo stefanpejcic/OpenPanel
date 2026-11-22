@@ -35,7 +35,7 @@ sidebar_position: 1
 - [How to install a PHP extension in OpenPanel](/docs/articles/websites/how-to-install-php-extensions-in-openpanel)
 - [Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/)
 - [How to set or increase PHP INI memory_limit or other values?](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/)
-- [403 Error Troubleshooting Guide](/docs/articles/domains/error-on-website-disable-coraza-waf/)
+- [403 Error Troubleshooting Guide](/docs/articles/domains/403-error-on-website-disable-coraza-waf/)
 - [404 Error Troubleshooting Guide](/docs/articles/domains/not-found-404-error-troubleshooting)
 - [502 Error Troubleshooting Guide](/docs/articles/domains/bad-gateway-502-error-troubleshooting)
 - [504 Error Troubleshooting Guide](/docs/articles/domains/gateway-timeout-504-error-troubleshooting)

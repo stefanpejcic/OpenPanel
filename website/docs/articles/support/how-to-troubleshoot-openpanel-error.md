@@ -32,7 +32,7 @@ To troubleshoot:
 4. Check for requests in the **Network** tab and any errors in the **Console** log.
 
 * Selecting a request in the Network tab allows you to view the response returned by the backend.
-* If the response doesn’t contain enough information to diagnose the issue, enable **dev_mode** on the server and check the Docker logs.
+* If the response doesn’t contain enough information to diagnose the issue, enable **dev_mode** on the server and check the logs.
 
 ---
 

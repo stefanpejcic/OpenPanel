@@ -110,7 +110,7 @@ ModSecurity rules do not affect SSL generation: Caddy automatically tries to gen
 However, you can temporarily disable all rules - or disable the WAF completely by simply:
 
 - Disabling 'waf' module in OpenAdmin > Settings > Modules 
-- Changing image tag from openpanel/caddy-coraza to caddy:latest in OpenAdmin > Services > Services Limits > CADDY image.
+- Changing image tag from openpanel/caddy-coraza to caddy:latest in OpenAdmin > Services > Service Limits > CADDY image.
 - Stop & Start the Web Server from OpenAdmin > Services > Service Status.
 
 Or use opencli command: ```opencli waf disable```

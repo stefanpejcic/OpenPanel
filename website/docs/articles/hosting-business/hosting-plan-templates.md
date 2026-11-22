@@ -85,7 +85,7 @@ Use the [resource calculator](/calculator) to model your mix, and watch real usa
 ## Change Plans Later
 
 - Edit a plan to change limits for **all** its users at once.
-- Move a single customer to another plan (upgrade/downgrade) from **OpenAdmin → Users → Edit**, or with `opencli user-change_plan`.
+- Move a single customer to another plan (upgrade/downgrade) from **OpenAdmin → Accounts → Users → Edit**, or with `opencli user-change_plan`.
 - With a [billing integration](/docs/articles/extensions/openpanel-and-whmcs/), upgrades and downgrades happen automatically when the customer changes their package.
 
 ---

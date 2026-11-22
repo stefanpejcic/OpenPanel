@@ -25,7 +25,7 @@ OpenPanel uses a modular system where features can be individually enabled or di
 To enable the FTP module:
 
 * Go to **OpenAdmin > Settings > Modules**
-* Find the **FTP** module and click **Activate**
+* Turn on the **FTP** module and click **Save changes**
 
 ![FTP Module Activation](/img/docs-content/zGBwhJVz-2025-07-09-11-34.png)
 

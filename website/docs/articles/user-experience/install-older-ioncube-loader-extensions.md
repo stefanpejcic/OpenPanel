@@ -19,10 +19,10 @@ After placing the files on your server:
 
 To confirm whether IonCube Loader is active for your PHP version, you can use any of the following methods:
 
-From terminal run:
+From terminal run, replacing `USERNAME` and the PHP version with your own:
 
 ```bash
-php -i | grep ioncube
+opencli podman USERNAME exec php-fpm-8.3 php -i | grep ioncube
 ```
 
 Or create a file named **info.php** in your domain’s public directory with the following content:

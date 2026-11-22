@@ -16,6 +16,7 @@ When creating a user, you can set the webserver type to be used:
 - OpenResty + Varnish
 - OpenLitespeed
 - OpenLitespeed + Varnish
+- LiteSpeed Enterprise (reads Apache configs and `.htaccess`, starts on a trial license)
 
 
 **Web servers comparison**:
@@ -29,7 +30,8 @@ When creating a user, you can set the webserver type to be used:
 | **Performance (dynamic PHP)**    | Moderate                           | High                                     | High                                     | Very High                                        |
 | **Ease of User Overrides**       | .htaccess or VHost Editor | Only via VHost Editor       | Only via VHost Editor          | .htaccess or VHost Editor      |
 | **Memory Footprint**      | Moderate (~50–100 MB per process) | Low (~10–30 MB per worker)              | Low (~15–40 MB per worker)              | Moderate (~30–60 MB per process)                |
-| **Docker Size**            | ~200 MB                           | ~120 MB                                 | ~150 MB                                 | ~1000 MB                                         || **Recommended Use Cases**        | Legacy apps, .htaccess-heavy sites | High-performance static or dynamic sites | Advanced Lua scripting, high concurrency | High-performance PHP hosting, WordPress, Laravel |
+| **Image Size**            | ~200 MB                           | ~120 MB                                 | ~150 MB                                 | ~1000 MB                                         |
+| **Recommended Use Cases**        | Legacy apps, .htaccess-heavy sites | High-performance static or dynamic sites | Advanced Lua scripting, high concurrency | High-performance PHP hosting, WordPress, Laravel |
 
 > **Notes:**
 >
@@ -70,7 +72,7 @@ To make Apache the default for all newly created users:
 
 ## Nginx
 
-[Nginx](https://httpd.apache.org/) can be assigned either to all new users by default or to individual users during account creation.
+[Nginx](https://nginx.org/) can be assigned either to all new users by default or to individual users during account creation.
 
 ### Set for a Single User
 

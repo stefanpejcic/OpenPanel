@@ -17,7 +17,7 @@ Enabling Fail2Ban support requires granting at least the `NET_ADMIN` capability 
 
 ## 1. Enable Fail2ban
 
-To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Enable Services' select **fail2ban** then click on 'Save Stack'.
+To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Services' select **fail2ban** then click on 'Save services'.
 
 [![2025-07-17-14-33.png](/img/docs-content/G3q4ByVh-2025-07-17-14-33.png)](pathname:///img/docs-content/G3q4ByVh-2025-07-17-14-33.png)
 

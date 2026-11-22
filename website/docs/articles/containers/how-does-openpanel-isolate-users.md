@@ -12,17 +12,16 @@ Isolation Layers:
   Each OpenPanel user corresponds to a system user on the host machine. These users have no login access or passwords and are strictly used for enforcing **storage quotas and ownership**.
 
 * **User Isolation**
-  Every OpenPanel account runs inside a **dedicated Docker context**. This ensures one user cannot access, interfere with, or even detect the existence of other users or their containers.
+  Every OpenPanel account runs inside a **dedicated rootless Podman instance**. This ensures one user cannot access, interfere with, or even detect the existence of other users or their containers.
 
 * **Service Isolation**
   Each service within a user’s environment (e.g., PHP, MySQL, Redis) runs in its **own container**. Services are sandboxed even from each other, so if one is compromised (e.g., MySQL), it **cannot affect other containers**, even within the same user.
 
 * **Network Isolation**
-  User services are segmented into **internal Docker networks**, such as:
+  User services are segmented into **internal container networks**, such as:
 
-  * `www` for web-facing components (PHP, Nginx, file manager)
-  * `db` for databases (MySQL, MariaDB, PostgreSQL)
-  * `none` for isolated services (Redis, Memcached)
+  * `www` for web-facing and caching components (PHP, Nginx, Redis, Memcached)
+  * `db` for databases (MySQL, MariaDB, PostgreSQL, MongoDB)
 
   This design allows fine-grained control over what services can communicate and also supports **per-user bandwidth throttling**.
 
@@ -36,7 +35,7 @@ Isolation Layers:
 ║  • 🌐 Caddy – Reverse Proxy & SSL                              ║
 ║  • 🔍 BIND9 – DNS Server                                       ║
 ║  • 🗄️ MySQL – User Management & Metadata                       ║
-║  • 🐳 Docker Engine – Container Orchestration                  ║
+║  • 🐳 Podman – Container Engine                                ║
 ╚════════════════════════════════════════════════════════════════╝
                                                    │   
         ┌──────────────────────────────────────────┼──────────────────────────────────────────┐

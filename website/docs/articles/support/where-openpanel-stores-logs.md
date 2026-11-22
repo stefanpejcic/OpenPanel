@@ -33,4 +33,4 @@ Services used by OpenPanel have the following logs:
 |`podman logs openpanel_dns`|DNS service logs|
 
 
-Logs can be viewed from the [OpenAdmin > Services > Log Viewer](/docs/admin/services/logs/) and Administrators can even [add custom log files to OpenAdmin Log Viewer](/docs/admin/services/logs/#settings).
+Logs can be viewed from the [OpenAdmin > Services > Log Files](/docs/admin/services/logs/) and Administrators can even [add custom log files to OpenAdmin Log Viewer](/docs/admin/services/logs/#settings).

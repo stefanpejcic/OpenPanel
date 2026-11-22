@@ -41,7 +41,7 @@ Data is refreshed periodically, but the system administrator can also force an i
 | Server public IPv4 address                                               | 3600           |
 | OpenPanel version                                                        | 7200           |
 | SSL certificate existence for user panel                                  | 360            |
-| Domain set for OpenPanel UI                                              | 3600               |
+| Domain set for OpenPanel UI                                              | 360            |
 | OpenPanel configuration                                                  | 6000           |
 | User websites in search results                                          | 600            |
 | User websites in dashboard statistics widget                              | 300            |
@@ -93,7 +93,7 @@ Data is refreshed periodically, but the system administrator can also force an i
 | Available PHP versions for user                                          | 3600           |
 | Running PHP services for user                                            | 10             |
 | NodeJS/Python container logs                                             | 60             |
-| NodeJS/Python Docker Hub tags                                            | 86400          |
+| NodeJS/Python/Ruby/Java Docker Hub tags                                  | 86400          |
 | Webserver used by user                                                   | 300            |
 | Domain settings for temporary links API (OpenPanel)                       | 7200           |
 | Temporary link for website (API)                                         | 800            |

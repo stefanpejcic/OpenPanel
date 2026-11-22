@@ -18,7 +18,7 @@ To enable access to the FOSSBilling server's IP, first check the ip address on t
 curl ip.openpanel.com
 ```
 
-Login to OpenAdmin and under **Settings > Firewall** add the FOSSBilling server's IP under **Allow IP address**:
+Login to OpenAdmin and under **Security > Firewall** add the FOSSBilling server's IP under **Allow IP address**:
 
 ![whitelist ip](/img/docs-content/433M6LBr-2024-08-04-16-10.png)
 

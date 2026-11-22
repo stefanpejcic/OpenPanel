@@ -44,7 +44,7 @@ and add the netdata section:
       - /sys:/host/sys:ro
       - /etc/os-release:/host/etc/os-release:ro
       - /var/log:/host/var/log:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/podman/podman.sock:/var/run/docker.sock:ro
       - /run/dbus:/run/dbus:ro
 ```
 
@@ -84,7 +84,7 @@ Save the file and refresh the page in OpenAdmin - service is immediately visible
 We can also receive notifications when the service is not running. For this edit the file: `/etc/openpanel/openadmin/config/notifications.ini` and add service name (`netdata`) under services:
 
 ```
-services=panel,admin,caddy,mysql,docker,csf,netdata
+services=panel,admin,caddy,podman,mysql,csf,phpmyadmin,netdata
 ```
 
 save the file and exit. Sentinel service will now also check if the netdata container is running and if not, send alerts to **OpenAdmin > Notifications** and if emails are enabled then to email as well.

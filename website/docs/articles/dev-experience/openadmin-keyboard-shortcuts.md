@@ -14,7 +14,7 @@ To view all available shortcuts: `Ctrl` + `K`
 |-----------------------------|----------------------------------|-------------------------------|
 | `Ctrl` + `Escape`           | Logout                           | `/logout`                    |
 | `Ctrl` + `Shift` + `H`      | Dashboard                        | `/dashboard`                 |
-| `Ctrl` + `Shift` + `N`      | Notifications                    | `/view_notifications`        |
+| `Ctrl` + `Shift` + `N`      | Notifications                    | `/notifications`             |
 | `Ctrl` + `Shift` + `U`      | Users                            | `/users`                     |
 | `Ctrl` + `Shift` + `R`      | Resellers                        | `/resellers`                 |
 | `Ctrl` + `Shift` + `A`      | Administrators                   | `/administrators`            |

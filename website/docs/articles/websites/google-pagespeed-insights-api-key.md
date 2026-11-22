@@ -35,9 +35,9 @@ To prevent this, OpenPanel users can generate a **free Google PageSpeed Insights
 
 Administrators can configure a global API key that will apply to all users who haven’t set their own key.
 
-1. Go to **OpenAdmin > Settings > Custom Code**.
-2. Paste your API key in the **PageSpeed API Key** field.
-3. Click **Save**.
+1. Go to **OpenAdmin > Settings > OpenPanel**.
+2. Paste your API key in the **PageSpeed API key** field.
+3. Click **Save changes**.
 
 ![admin key](/img/panel/v2/admin_add_key.png)
 

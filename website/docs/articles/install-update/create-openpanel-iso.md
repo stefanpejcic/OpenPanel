@@ -19,7 +19,7 @@ Some settings can be configured automatically during deployment, like the hostna
 ### Example: Update panel domain
 
 ```bash
-opencli domain YOUR_DOMAIN
+opencli domain set YOUR_DOMAIN
 ```
 
 Additionally, it is recommended to **change the MySQL root password** and update it in `/etc/my.cnf` to ensure security.

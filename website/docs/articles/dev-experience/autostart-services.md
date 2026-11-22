@@ -11,7 +11,7 @@ Services in OpenPanel start only when they are actually needed, to avoid wasting
 Upon installing OpenPanel, only the following services are started:
 
 - **OpenAdmin** – For managing the entire server and users.
-- **Docker** – Needed for all other containerized services and user accounts.
+- **Podman** – Needed for all other containerized services and user accounts.
 - **Database** – MySQL database is created and initialized. This database holds Plans, Websites, Domains, and Users.
 - **Firewall** – [Sentinel Firewall](https://sentinelfirewall.org/) is installed and started.
 
@@ -20,7 +20,7 @@ Other services are installed and started only when required.
 | Service                | Installed | Auto-start                |
 |------------------------|-----------|---------------------------|
 | OpenAdmin              | ✔       | On installation            |
-| Docker                 | ✔       | On installation            |
+| Podman                 | ✔       | On installation            |
 | Database               | ✔       | On installation            |
 | Sentinel Firewall   | ✔       | On installation            |
 | OpenPanel              | ✘        | After adding first user account |

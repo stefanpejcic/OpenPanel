@@ -10,10 +10,11 @@ This setup ensures that containers within the same network can communicate secur
 
 ## Available Networks
 
-Containers can be assigned to one of three networks:
+Containers can be assigned to the following networks:
 
 * **`db`** – containers that need database access
 * **`www`** – containers that need webserver or caching access
+* **`socket-proxy`** – used by the cron and backup services to reach the user's Podman socket through a proxy container
 * **`no network`** – containers with no access to other containers
 
 Communication between containers in the same network can be done using container names as hostnames. For example, PHP containers can connect to MySQL simply by using `mysql` or `mariadb` as the hostname. PHP can also use `localhost`, which goes through the MySQL Unix socket shared with the PHP containers instead of the network, see [Connecting to MySQL from applications](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
@@ -28,8 +29,10 @@ By default, this network includes:
 
 * MySQL
 * MariaDB
-* phpMyAdmin
 * PostgreSQL
+* MongoDB
+* OpenLiteSpeed
+* LiteSpeed
 * Tor
 * PHP-FPM services
 
@@ -44,11 +47,14 @@ The **www** network is used for services that need access to webservers, caching
 By default, this network includes:
 
 * OpenLiteSpeed
+* LiteSpeed
 * Apache
 * Nginx
+* OpenResty
 * Varnish
 * Tor
 * Redis
+* Valkey
 * Memcached
 * Elasticsearch
 * OpenSearch

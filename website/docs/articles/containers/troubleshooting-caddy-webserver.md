@@ -75,8 +75,8 @@ nano /root/.env
 2. Adjust the values:
 
 ```
-CADDY_CPU="1.0"
-CADDY_RAM="1.0G"
+CADDY_CPUS="1.0"
+CADDY_RAM="1g"
 ```
 
 3. Save the file and rebuild the container:

@@ -34,9 +34,9 @@ A status overview of the user’s own systemd service manager will be displayed:
 
 ![containersAdminSSH1](/img/docs-content/FKRzQY0S-containers-Admin-SSH1.png)
 
-`machinectl shell $username@ /bin/bash -c 'journalctl --user -u $docker'` (replace $username with the OpenPanel user)
+`machinectl shell $username@ /bin/bash -c 'journalctl --user -u podman'` (replace $username with the OpenPanel user)
 
-The Docker service logs will be displayed:
+The Podman service logs will be displayed:
 
 ![containersAdminSSH2](/img/docs-content/6qjwc0mJ-containers-Admin-SSH2.png)
 
