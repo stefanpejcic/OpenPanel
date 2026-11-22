@@ -68,7 +68,7 @@ See [OpenPanel settings - Branding](/docs/admin/settings/openpanel/#branding).
 
 Customers usually start in your billing system, not in the panel. Connect OpenPanel to it so accounts are created, suspended and upgraded automatically, and customers log in with one click from the client area:
 
-[WHMCS](/docs/articles/extensions/openpanel-and-whmcs/) · [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/) · [Blesta](/docs/articles/extensions/openpanel-and-blesta/) · [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) · [WISECP](/docs/articles/extensions/openpanel-and-wisecp/)
+[WHMCS](/docs/articles/extensions/openpanel-and-whmcs/) · [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/) · [Blesta](/docs/articles/extensions/openpanel-and-blesta/) · [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) · [WISECP](/docs/articles/extensions/openpanel-and-wisecp/) · [ClientFence](https://clientfence.com/)
 
 ---
 

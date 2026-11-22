@@ -21,6 +21,7 @@ sidebar_position: 1
 - [Blesta](/docs/articles/extensions/openpanel-and-blesta/)
 - [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/)
 - [WISECP](/docs/articles/extensions/openpanel-and-wisecp/)
+- [ClientFence](https://clientfence.com/)
 
 # Transfers
 - [Import account from cPanel backup](/docs/articles/transfers/import-cpanel-backup-to-openpanel/)

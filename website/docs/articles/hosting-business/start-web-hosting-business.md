@@ -107,6 +107,7 @@ Automate sign-up, payment, account creation, suspension for unpaid invoices and 
 | [Blesta](/docs/articles/extensions/openpanel-and-blesta/) | Paid, developer-friendly |
 | [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) | Paid |
 | [WISECP](/docs/articles/extensions/openpanel-and-wisecp/) | Paid |
+| [ClientFence](https://clientfence.com/) | Free, open source, OpenPanel support built in |
 
 Customers order on your website, pay, and receive their login automatically - with single sign-on into OpenPanel from the client area.
 

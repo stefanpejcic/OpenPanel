@@ -679,6 +679,13 @@ export const integrations: IntegrationsType = {
             status: "enterprise",
         },
         {
+            name: "ClientFence",
+            icon: WHMCS,
+            description: "Provision OpenPanel accounts from ClientFence, free open-source billing.",
+            url: "https://clientfence.com/",
+            status: "enterprise",
+        },
+        {
             name: "API",
             icon: API,
             description:

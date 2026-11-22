@@ -58,7 +58,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 
 - focus on [security](https://openpanel.com/docs/articles/security/securing-openpanel/)
 - lightweight: uses only **~53 MB of RAM at idle** (OpenPanel ~20 MB, OpenAdmin ~33 MB) and **~324 MB on disk** (OpenPanel 278 MB, OpenAdmin 34.5 MB, OpenCLI 11.4 MB) and with ~0% CPU[^3]
-- billing integrations: [FOSSBilling](https://openpanel.com/billing/fossbilling-module/), [WHMCS](https://openpanel.com/billing/whmcs-module/), [Blesta](https://openpanel.com/billing/blesta-module/), [ClientExec](https://openpanel.com/billing/clientexec-module/), [WISECP](https://openpanel.com/billing/wisecp-module/)
+- billing integrations: [FOSSBilling](https://openpanel.com/billing/fossbilling-module/), [WHMCS](https://openpanel.com/billing/whmcs-module/), [Blesta](https://openpanel.com/billing/blesta-module/), [ClientExec](https://openpanel.com/billing/clientexec-module/), [WISECP](https://openpanel.com/billing/wisecp-module/), [ClientFence](https://clientfence.com/)
 - dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [detailed activity log](https://openpanel.com/docs/panel/account/account_activity/#recorded-actions) for all user actions.

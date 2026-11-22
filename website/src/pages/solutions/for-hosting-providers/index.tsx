@@ -214,7 +214,7 @@ export default function ForHostingProviders() {
                 },
                 {
                     question: "Does it work with my billing system?",
-                    answer: "Free provisioning modules are available for WHMCS, Blesta, FOSSBilling, ClientExec and WiseCP, and everything else can be automated through the REST API or the opencli command line.",
+                    answer: "Free provisioning modules are available for WHMCS, Blesta, FOSSBilling, ClientExec and WiseCP, ClientFence has OpenPanel support built in, and everything else can be automated through the REST API or the opencli command line.",
                 },
                 {
                     question: "Can I try it before buying?",
