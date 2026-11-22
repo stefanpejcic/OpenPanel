@@ -157,7 +157,7 @@ const GROUPS: Group[] = [
                 label: "Swap size (GB)",
                 kind: "number",
                 placeholder: "Sized by RAM",
-                description: "Swap file size, 1 to 10 GB. By default it's sized by RAM: twice the RAM up to 2 GB, then 4 GB up to 8 GB of RAM and 8 GB up to 32 GB. Servers with more than 32 GB of RAM get no swap unless you set a size.",
+                description: "Swap file size, 1 to 10 GB. By default it's sized by RAM.",
                 validate: (v) => (/^\d+$/.test(v) && +v >= 1 && +v <= 10 ? undefined : "A whole number from 1 to 10."),
             },
             {
