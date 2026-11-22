@@ -27,7 +27,7 @@ func TestIsValidHost(t *testing.T) {
 
 func TestIsValidEmailUsername(t *testing.T) {
 	valid := []string{"john", "john.doe", "john_doe", "john+tag", "john%doe", "john-doe", "j123"}
-	invalid := []string{"", "john@doe", "@proba.digital", "john@", "john doe", "john\ndoe"}
+	invalid := []string{"", "john@doe", "@proba.digital", "john@", "john doe", "..", ".", "a..b", ".john", "john.", "-john", "john\ndoe"}
 	for _, s := range valid {
 		if !IsValidEmailUsername(s) {
 			t.Errorf("expected %q to be a valid email username", s)
