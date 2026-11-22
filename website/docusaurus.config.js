@@ -152,6 +152,13 @@ const siteConfig = {
                             ),
                         ];
                     }
+                    // the separate 2.0.10 docs are gone, its old URLs land on the current page with the same path
+                    if (
+                        existingPath.startsWith("/docs/") &&
+                        !/^\/docs\/(0|1)\.X\.X(\/|$)/.test(existingPath)
+                    ) {
+                        return [existingPath.replace(/^\/docs\//, "/docs/2.0.10/")];
+                    }
                     return undefined; // Return a falsy value: no redirect created
                 },
             },
