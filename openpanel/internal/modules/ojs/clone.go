@@ -109,6 +109,12 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	// the symlink target must be the container-visible path, not the host filesystem path - same gotcha install.go's symlink call documents
 	const wwwBaseDirectory = "/var/www/html/"
 	dstHostOSPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, htmlVolume, 1)
+	if !strings.HasPrefix(dstHostOSPath, htmlVolume) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid destination path."})
+		_ = tenantfs.RemoveAll(dstApprootHostPath)
+		_ = tenantfs.RemoveAll(dstFilesHostPath)
+		return
+	}
 	if _, statErr := tenantfs.Lstat(dstHostOSPath); statErr == nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination path " + docroot + " already exists."})
 		_ = tenantfs.RemoveAll(dstApprootHostPath)

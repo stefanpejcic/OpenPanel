@@ -23,6 +23,9 @@ var (
 	dbNameRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 )
 
+// subfolderRE is a relative path under the destination docroot, same shape cmsapp.IsValidSubdirectory takes
+var subfolderRE = regexp.MustCompile(`^[A-Za-z0-9_-][A-Za-z0-9._-]*(/[A-Za-z0-9_-][A-Za-z0-9._-]*)*/?$`)
+
 // ValidDomain/ValidDB/ValidDocroot replace the identical validation helpers every CMS clone.go used to define for itself
 func ValidDomain(name string) bool { return name != "" && domainRE.MatchString(name) }
 func ValidDB(name string) bool     { return name != "" && dbNameRE.MatchString(name) }
@@ -50,7 +53,14 @@ func ResolveDestination(ctx context.Context, a *appctx.App, dstDomain, dstFolder
 	}
 	dstDomainWithSubdir = dstDomain
 	if dstFolder != "" {
+		// filepath.Join would quietly resolve ../ out of /var/www/html before anything downstream could see it
+		if strings.Contains(dstFolder, "..") || !subfolderRE.MatchString(dstFolder) {
+			return 0, "", "", "", false
+		}
 		docroot = filepath.Join(docroot, dstFolder)
+		if !ValidDocroot(docroot) {
+			return 0, "", "", "", false
+		}
 		dstDomainWithSubdir = dstDomain + "/" + dstFolder
 	}
 	return domainID, docroot, phpVersion, dstDomainWithSubdir, true
