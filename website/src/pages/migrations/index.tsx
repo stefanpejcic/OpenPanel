@@ -149,7 +149,7 @@ const Migrations: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div className="not-prose flex flex-col gap-14 pt-8 lg:pt-16 pb-32 max-w-[1000px] w-full mx-auto px-4">
+                <div className="not-prose flex flex-col gap-14 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
                     <section className="flex flex-col gap-5">
                         <span className="self-start rounded-full px-3 py-1 text-xs font-semibold bg-refine-blue/10 text-refine-blue dark:bg-refine-cyan-alt/10 dark:text-refine-cyan-alt">
                             Included with annual Enterprise licenses

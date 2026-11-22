@@ -303,7 +303,7 @@ const Install: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div className="not-prose flex-1 flex flex-col gap-8 pt-8 lg:pt-16 pb-32 max-w-[960px] w-full mx-auto px-4">
+                <div className="not-prose flex-1 flex flex-col gap-8 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
                     <div className="flex flex-col gap-3">
                         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-0 m-0">
                             Install OpenPanel

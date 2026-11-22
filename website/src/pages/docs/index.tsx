@@ -78,7 +78,7 @@ const Docs: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div className="not-prose flex flex-col gap-12 pt-8 lg:pt-16 pb-32 max-w-[1200px] w-full mx-auto px-4">
+                <div className="not-prose flex flex-col gap-12 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
                     <section className="flex flex-col gap-4 max-w-[760px]">
                         <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-gray-0 m-0">Documentation</h1>
                         <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 m-0">
