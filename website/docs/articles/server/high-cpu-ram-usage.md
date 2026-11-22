@@ -30,10 +30,9 @@ If Sentinel sent a notification, its crash report in `/var/log/openpanel/admin/c
 Every account's services run as that account's own containers. List the busiest containers across all accounts:
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
 for u in $(ls /home); do
   [ -f /home/$u/docker-compose.yml ] || continue
-  podman_user $u stats --no-stream --format "{{.CPUPerc}} {{.MemUsage}} $u/{{.Name}}" 2>/dev/null
+  opencli podman $u stats --no-stream --format "{{.CPUPerc}} {{.MemUsage}} $u/{{.Name}}" 2>/dev/null
 done | sort -rn | head -15
 ```
 

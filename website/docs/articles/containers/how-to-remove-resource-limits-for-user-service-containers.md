@@ -40,12 +40,11 @@ sed -i '/deploy:/,/^[^[:space:]]/{
 If the user already has running services, stop and restart them to apply the changes (replace `dorotea` with the username):
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
 USERNAME=dorotea && \
 cd /home/$USERNAME && \
-running_services=$(podman_user $USERNAME ps --format '{{.Names}}') && \
-podman_compose_user $USERNAME down && \
-podman_compose_user $USERNAME up -d $running_services
+running_services=$(opencli podman $USERNAME ps --format '{{.Names}}') && \
+opencli podman $USERNAME compose down && \
+opencli podman $USERNAME compose up -d $running_services
 ```
 
 

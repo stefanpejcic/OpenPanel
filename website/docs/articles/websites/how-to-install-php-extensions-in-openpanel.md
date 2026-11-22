@@ -92,8 +92,7 @@ The exact list depends on the PHP version (for example `random`, `lexbor` and `u
 4. **Exit and restart** the PHP container:
 ```
    exit
-   source /usr/local/opencli/lib/podman.sh
-   podman_user USERNAME_HERE restart php-fpm-8.5
+   opencli podman USERNAME_HERE restart php-fpm-8.5
 ```
 
 ## Adding Custom PHP Extensions

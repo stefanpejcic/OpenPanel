@@ -95,13 +95,12 @@ Stop the old PHP containers through the user's own podman socket, then remove th
 
 ```bash
 VERSIONS="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1"
-source /usr/local/opencli/lib/podman.sh
 for f in /home/*/docker-compose.yml; do
   u=$(basename "$(dirname "$f")")
   cp -p "$f" "$f.bak"
   for v in $VERSIONS; do
     grep -q "^  php-fpm-$v:" "$f" || continue
-    (cd "/home/$u" && CONTAINER_HOST=$(podman_user_socket "$u") podman-compose down "php-fpm-$v") >/dev/null 2>&1
+    (cd "/home/$u" && CONTAINER_HOST=$(opencli podman "$u" --socket) podman-compose down "php-fpm-$v") >/dev/null 2>&1
     awk -v svc="php-fpm-$v" '
       $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
       skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }

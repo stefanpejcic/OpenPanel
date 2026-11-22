@@ -40,11 +40,10 @@ for v in 8.2 8.3 8.4 8.5; do
 done
 
 # what the users' running php-fpm containers run:
-source /usr/local/opencli/lib/podman.sh
 for f in /home/*/docker-compose.yml; do
   u=$(basename "$(dirname "$f")")
-  for c in $(podman_user "$u" ps --format '{{.Names}}' | grep '^php-fpm-'); do
-    echo "$u/$c: $(podman_user "$u" exec -u 0 "$c" php -r 'echo PHP_VERSION;')"
+  for c in $(opencli podman "$u" ps --format '{{.Names}}' | grep '^php-fpm-'); do
+    echo "$u/$c: $(opencli podman "$u" exec -u 0 "$c" php -r 'echo PHP_VERSION;')"
   done
 done
 ```
@@ -133,23 +132,22 @@ Never pull or load into the shared store with `podman --root /var/lib/containers
 Then recreate the running `php-fpm-<version>` containers on the new image, through each user's own podman socket, and reload the user's web server so it connects to the new container:
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
 for f in /home/*/docker-compose.yml; do
   u=$(basename "$(dirname "$f")")
-  podman_user "$u" ps --format '{{.Names}}' | grep -qx "php-fpm-$v" || continue
-  (cd "/home/$u" && CONTAINER_HOST=$(podman_user_socket "$u") podman-compose up -d --no-deps --force-recreate "php-fpm-$v")
-  until podman_user "$u" logs --since 5m "php-fpm-$v" 2>&1 | grep -q 'ready to handle connections'; do sleep 1; done
-  podman_user "$u" exec nginx nginx -s reload 2>/dev/null ||
-    podman_user "$u" exec openresty openresty -s reload 2>/dev/null ||
-    podman_user "$u" exec apache apachectl -k graceful 2>/dev/null || true
-  echo "$u: $(podman_user "$u" exec -u 0 "php-fpm-$v" php -r 'echo PHP_VERSION;')"
+  opencli podman "$u" ps --format '{{.Names}}' | grep -qx "php-fpm-$v" || continue
+  (cd "/home/$u" && CONTAINER_HOST=$(opencli podman "$u" --socket) podman-compose up -d --no-deps --force-recreate "php-fpm-$v")
+  until opencli podman "$u" logs --since 5m "php-fpm-$v" 2>&1 | grep -q 'ready to handle connections'; do sleep 1; done
+  opencli podman "$u" exec nginx nginx -s reload 2>/dev/null ||
+    opencli podman "$u" exec openresty openresty -s reload 2>/dev/null ||
+    opencli podman "$u" exec apache apachectl -k graceful 2>/dev/null || true
+  echo "$u: $(opencli podman "$u" exec -u 0 "php-fpm-$v" php -r 'echo PHP_VERSION;')"
 done
 ```
 
 php-fpm listens about 20 seconds after its container starts (the image runs its own start tasks first), and the user's sites answer 502 meanwhile. Check the version printed for each user:
 
 - If a user's web server was created depending on php-fpm, podman-compose cannot remove php-fpm and leaves it on the old image. Recreate that user's web server together with it.
-- A user whose own image store holds a copy of the image uses that copy instead of the shared one. Load and tag the rebuild there too: `podman_user <user> load -i shinsenter-$v.tar`, then `podman_user <user> tag localhost/php-rebuild/shinsenter-$v $img`.
+- A user whose own image store holds a copy of the image uses that copy instead of the shared one. Load and tag the rebuild there too: `opencli podman <user> load -i shinsenter-$v.tar`, then `opencli podman <user> tag localhost/php-rebuild/shinsenter-$v $img`.
 
 OpenLiteSpeed runs its own `lsphp`, not shinsenter/php, and is not covered here.
 

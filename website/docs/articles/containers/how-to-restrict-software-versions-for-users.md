@@ -35,8 +35,7 @@ Users keep the versions they have now, and you decide which versions are used:
 ```bash
 USERNAME=dorotea
 sed -i 's/^REDIS_VERSION=.*/REDIS_VERSION="8.6.2-alpine"/' /home/$USERNAME/.env
-source /usr/local/opencli/lib/podman.sh
-cd /home/$USERNAME && CONTAINER_HOST=$(podman_user_socket "$USERNAME") podman-compose up -d --force-recreate redis
+cd /home/$USERNAME && CONTAINER_HOST=$(opencli podman "$USERNAME" --socket) podman-compose up -d --force-recreate redis
 ```
 
 :::warning

@@ -266,6 +266,10 @@ opencli php-domain
 Description: View or change the PHP version used for a single domain name.
 Usage: opencli php-domain <DOMAIN_NAME> [--update <PHP_VERSION>]
 ------------------------
+opencli podman
+Description: Run podman or podman-compose against a user's rootless podman, replaces podman_user and podman_compose_user from lib/podman.sh.
+Usage: opencli podman <USERNAME> [compose] <ARGS...> | opencli podman <USERNAME> --socket
+------------------------
 opencli phpmyadmin
 Description: View and set domain/ip for phpmyadmin access.
 Usage: opencli phpmyadmin [set <domain_name> | ip]

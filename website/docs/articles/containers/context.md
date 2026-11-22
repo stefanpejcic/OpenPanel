@@ -88,7 +88,6 @@ Services are defined in `/home/USERNAME/docker-compose.yml`. You can extend this
 As root, load the OpenPanel Podman helpers first - they run `podman` and `podman-compose` against the user's own rootless instance:
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
 ```
 
 Examples:
@@ -96,21 +95,21 @@ Examples:
 * **List running services:**
 
 ```bash
-podman_user USERNAME ps -a
+opencli podman USERNAME ps -a
 ```
 
 * **Stop a service:**
 
 ```bash
-podman_user USERNAME stop mysql
+opencli podman USERNAME stop mysql
 ```
 
 * **Restart a service:**
 
 ```bash
 cd /home/USERNAME && \
-podman_compose_user USERNAME down mysql && \
-podman_compose_user USERNAME up -d mysql
+opencli podman USERNAME compose down mysql && \
+opencli podman USERNAME compose up -d mysql
 ```
 
 * **Open a shell in a service:**
@@ -124,13 +123,13 @@ Run `opencli docker USERNAME` without a container name to pick one from a list. 
 * **View resource usage:**
 
 ```bash
-podman_user USERNAME stats --no-stream
+opencli podman USERNAME stats --no-stream
 ```
 
 * **View a service's logs:**
 
 ```bash
-podman_user USERNAME logs --tail 100 mysql
+opencli podman USERNAME logs --tail 100 mysql
 ```
 
 ---
@@ -188,7 +187,7 @@ PMA_PORT="32779:80"
 POSTGRES_PORT="0:5432"
 ```
 
-* Ports are generated during user creation but can be modified by the administrator. After changes, run `podman_compose_user USERNAME down` and `podman_compose_user USERNAME up -d` from `/home/USERNAME` for the changes to take effect.
+* Ports are generated during user creation but can be modified by the administrator. After changes, run `opencli podman USERNAME compose down` and `opencli podman USERNAME compose up -d` from `/home/USERNAME` for the changes to take effect.
 * ⚠️ Rootless Podman prevents the use of ports under **1024**.
 * Services should not expose ports externally unless remote access is required (e.g., phpMyAdmin, or remote MySQL).
 

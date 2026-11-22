@@ -57,8 +57,7 @@ You should see a **cron service running for the user**.
 ### If it is NOT running, start it manually (terminal):
 
 ``` bash
-source /usr/local/opencli/lib/podman.sh
-cd /home/USERNAME && podman_compose_user USERNAME up -d cron
+cd /home/USERNAME && opencli podman USERNAME compose up -d cron
 ```
 
 
@@ -149,8 +148,7 @@ actually exists inside the container.
 If jobs still don't run, inspect the cron container itself:
 
 ``` bash
-source /usr/local/opencli/lib/podman.sh
-podman_user USERNAME logs cron
+opencli podman USERNAME logs cron
 ```
 
 Look for:
@@ -207,7 +205,7 @@ command = php -q /var/www/html/example.com/apps/console/console.php daily
 ### ❓ "Cron doesn't run at all"
 
 Check: - Is cron service running? → Services page\
-- Is there a cron container? → `source /usr/local/opencli/lib/podman.sh && podman_user USERNAME ps | grep cron`\
+- Is there a cron container? → `opencli podman USERNAME ps | grep cron`\
 - Does `/home/USERNAME/crons.ini` exist?
 
 ### ❓ "Cron runs but command fails"

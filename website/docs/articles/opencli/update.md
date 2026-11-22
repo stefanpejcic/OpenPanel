@@ -30,7 +30,7 @@ opencli update
 ===== Starting update to version 2.0.12 =====
 [INFO] Update log: /var/log/openpanel/updates/2.0.12.log
 ---- Updating OpenCLI ----
-[INFO] Downloading terminal scripts from github: https://github.com/stefanpejcic/opencli/archive/refs/heads/podman.tar.gz
+[INFO] Downloading terminal commands from github: https://github.com/stefanpejcic/opencli/releases/latest/download/opencli-amd64
 [INFO] [✔] Terminal commands updated successfully
 ---- Updating OpenPanel container image ----
 ...
@@ -113,7 +113,7 @@ opencli update --force
 ===== Starting update to version 2.0.12 =====
 [INFO] Update log: /var/log/openpanel/updates/2.0.12.log
 ---- Updating OpenCLI ----
-[INFO] Downloading terminal scripts from github: https://github.com/stefanpejcic/opencli/archive/refs/heads/podman.tar.gz
+[INFO] Downloading terminal commands from github: https://github.com/stefanpejcic/opencli/releases/latest/download/opencli-amd64
 [INFO] [✔] Terminal commands updated successfully
 ---- Updating OpenPanel container image ----
 ...
@@ -172,7 +172,7 @@ openpanel
 
 ## Terminal
 
-Update only OpenCLI *(`/usr/local/opencli/` from [stefanpejcic/opencli](https://github.com/stefanpejcic/opencli))*:
+Update only OpenCLI *(the `/usr/local/opencli/opencli` binary from the latest [stefanpejcic/opencli release](https://github.com/stefanpejcic/opencli/releases), checked against its `SHA256SUMS`)*:
 ```bash
 opencli update --cli
 ```
@@ -183,7 +183,7 @@ opencli update --cli
 ```bash
 # opencli update --cli
 Updating OpenCLI
-[INFO] Downloading terminal scripts from github: https://github.com/stefanpejcic/opencli/archive/refs/heads/podman.tar.gz
+[INFO] Downloading terminal commands from github: https://github.com/stefanpejcic/opencli/releases/latest/download/opencli-amd64
 [INFO] [✔] Terminal commands updated successfully
 ```
 </details>

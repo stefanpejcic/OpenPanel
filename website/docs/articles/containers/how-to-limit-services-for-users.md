@@ -73,10 +73,9 @@ A service that is running has data or websites that depend on it. Check before y
 
 ```bash
 SERVICE=elasticsearch
-source /usr/local/opencli/lib/podman.sh
 for f in /home/*/docker-compose.yml; do
   u=$(basename "$(dirname "$f")")
-  podman_user "$u" ps --format '{{.Names}}' 2>/dev/null | grep -qx "$SERVICE" && echo "$u"
+  opencli podman "$u" ps --format '{{.Names}}' 2>/dev/null | grep -qx "$SERVICE" && echo "$u"
 done
 ```
 
@@ -88,11 +87,10 @@ This skips users that run the service, and checks that each file is still valid 
 
 ```bash
 SERVICE=elasticsearch
-source /usr/local/opencli/lib/podman.sh
 for f in /home/*/docker-compose.yml; do
   u=$(basename "$(dirname "$f")")
   grep -q "^  $SERVICE:" "$f" || continue
-  if podman_user "$u" ps --format '{{.Names}}' 2>/dev/null | grep -qx "$SERVICE"; then echo "$u: runs $SERVICE, skipped"; continue; fi
+  if opencli podman "$u" ps --format '{{.Names}}' 2>/dev/null | grep -qx "$SERVICE"; then echo "$u: runs $SERVICE, skipped"; continue; fi
   cp -p "$f" "$f.bak"
   awk -v svc="$SERVICE" '
     $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }

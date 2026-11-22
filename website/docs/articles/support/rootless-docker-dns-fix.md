@@ -15,12 +15,11 @@ Containers of an OpenPanel user have no outbound internet access, and DNS resolu
 **Example errors** (run as root on the server):
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
 
-podman_user <user> exec apache wget -q --spider --timeout=5 https://example.com/feed.xml
+opencli podman <user> exec apache wget -q --spider --timeout=5 https://example.com/feed.xml
 # wget: bad address 'example.com'
 
-podman_user <user> exec apache nslookup example.com 8.8.8.8
+opencli podman <user> exec apache nslookup example.com 8.8.8.8
 # ;; connection timed out; no servers could be reached
 ```
 
@@ -37,8 +36,7 @@ OpenPanel runs each user's containers with rootless **Podman**. The DNS servers 
 Test from the container that actually makes the outbound request - usually the PHP-FPM container, not the web server:
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
-podman_user <user> exec <phpfpm-container> curl -sI https://example.com/
+opencli podman <user> exec <phpfpm-container> curl -sI https://example.com/
 ```
 
 ### 2. Check the user's DNS configuration
@@ -62,10 +60,9 @@ If the file or the `dns_servers` line is missing (for example for an account cre
 DNS settings apply when a container is created, so recreate the running services:
 
 ```bash
-source /usr/local/opencli/lib/podman.sh
 cd /home/<user>
-podman_compose_user <user> down
-podman_compose_user <user> up -d <service> [<service> ...]
+opencli podman <user> compose down
+opencli podman <user> compose up -d <service> [<service> ...]
 ```
 
 Only start the services the user actually uses (for example `apache php-fpm-8.3 mysql`).
@@ -73,8 +70,8 @@ Only start the services the user actually uses (for example `apache php-fpm-8.3 
 ### 4. Verify
 
 ```bash
-podman_user <user> exec <phpfpm-container> curl -sI https://example.com/
-podman_user <user> exec apache wget -q -O- https://example.com/feed.xml
+opencli podman <user> exec <phpfpm-container> curl -sI https://example.com/
+opencli podman <user> exec apache wget -q -O- https://example.com/feed.xml
 ```
 
 Both should now return output instead of timing out.
@@ -85,8 +82,8 @@ Collect this output before contacting support:
 
 ```bash
 opencli report --public
-podman_user <user> info
-podman_user <user> network ls
+opencli podman <user> info
+opencli podman <user> network ls
 cat /etc/containers/containers.conf.d/*.conf
 ```
 
