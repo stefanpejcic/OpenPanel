@@ -192,7 +192,7 @@ To have a PHP extension automatically available for **all newly created users**,
 
    * This increases PHP container startup time by the time needed to compile the extension
 
-> These approaches are intended for advanced users. If you need help, please contact the OpenPanel community forum or Discord channel.
+> These approaches are intended for advanced users. If you need help, ask on [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) or the Discord channel.
 
 ---
 
