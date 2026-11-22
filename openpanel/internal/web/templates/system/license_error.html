@@ -1,6 +1,7 @@
 {{define "layout"}}<!-- START templates/system/license_error.html -->
 
-<script src="{{static "vendor/tailwindcss/tailwindcss-browser-v4.js"}}"></script>
+<link rel="stylesheet" href="{{static "dist/output.css"}}">
+<script>if (matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.classList.add("dark")</script>
 
 <div class="flex min-h-screen items-center justify-center bg-gray-50 p-4 dark:bg-gray-950">
   <div class="w-full max-w-md rounded-md border border-gray-200 bg-white p-8 text-sm text-gray-600 dark:border-gray-900 dark:bg-gray-900 dark:text-gray-400">
