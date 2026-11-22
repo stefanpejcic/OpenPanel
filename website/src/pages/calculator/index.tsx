@@ -52,17 +52,19 @@ interface AddonCost {
 }
 
 const COMMUNITY_ADDONS: Record<string, AddonCost> = {
+    // 2.0.28: openpanel/openpanel image 278 MB, whole container ~119 MB RAM, 0% CPU idle and ~15% of a core under load
     openpanelui: {
-        cpu: 0.5,
-        ramGb: 0.5,
-        diskGb: 2.6,
+        cpu: 0.25,
+        ramGb: 0.15,
+        diskGb: 0.3,
         label: "OpenPanel UI",
         description: "Web-based user interface for managing hosting accounts.",
     },
+    // 2.0.28: ~33 MB RAM, 34.5 MB on disk, plus the 11.4 MB opencli binary
     openadminui: {
         cpu: 0,
-        ramGb: 0.02,
-        diskGb: 0.025,
+        ramGb: 0.035,
+        diskGb: 0.05,
         label: "OpenAdmin UI",
         description: "Interface for admin users and resellers.",
     },

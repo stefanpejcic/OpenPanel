@@ -79,7 +79,7 @@ These aren't services a user selects - they're the always-on containers every in
 
 | Service | Image | Size |
 |---|---|---|
-| OpenPanel UI | `openpanel/openpanel-ui` | 2.41 GB (includes Playwright) |
+| OpenPanel UI | `openpanel/openpanel` | 278 MB (2.0.28, Go; the old `openpanel/openpanel-ui` image used in this benchmark was 2.41 GB with Playwright) |
 | phpMyAdmin | `phpmyadmin` | 589 MB |
 | Caddy | `openpanel/caddy-coraza` | 116 MB |
 | DNS | `ubuntu/bind9` | 99 MB |
@@ -89,11 +89,13 @@ These aren't services a user selects - they're the always-on containers every in
 With 15 users running the 5 services above:
 
 - **User images (all versions/services combined):** 11.18 GB
-- **System images** (UI, mysql, redis, caddy, phpmyadmin): 4.60 GB - the UI image alone is 2.41GB of that, mostly Playwright
+- **System images** (UI, mysql, redis, caddy, phpmyadmin): 4.60 GB - the UI image alone was 2.41GB of that, mostly Playwright. Since 2.0.28 the UI image is 278 MB, which brings this to ~2.47 GB. OpenAdmin (34.5 MB) and OpenCLI (11.4 MB) are binaries on the host, not images
 - **Actual container storage on disk:** `du -sh /var/lib/containers/` → **5.1 GB** - far below the naive 11.18 + 4.60 GB sum, because shared images are stored once and reused
 - **Per-additional-user disk delta observed:** ~100 MB/user (writable layer + account data, on top of the shared images)
 
 ## RAM usage
+
+**The panel itself** (measured on 2.0.28): the `openpanel` process ~20 MB and `openadmin` ~33 MB of resident memory at idle, ~0% CPU. The whole OpenPanel container, with the tools it runs, uses ~119 MB.
 
 **Bare/idle account** (no services or domain yet): ~15MB RAM.
 
