@@ -1,4 +1,18 @@
+---
+title: Changelog
+description: "What's new in OpenPanel: the latest release, what's in progress, recent highlights and every version with its release date."
+hide_table_of_contents: true
+---
+
+import ChangelogOverview from "@site/src/components/changelog-overview";
+
 # Changelog
+
+OpenPanel ships small, frequent releases. Here's the latest, what's coming next and the biggest changes lately, with every version listed below.
+
+<ChangelogOverview />
+
+## All releases
 
 ### Upcoming version
 
