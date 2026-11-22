@@ -91,13 +91,15 @@ const siteConfig = {
                                   return item;
                               });
 
-                              // Docusaurus sorts file names as text (2.0.19 before 2.0.2), so put changelog versions in numeric order
+                              // changelog menu: newest version first in numeric order (Docusaurus sorts 2.0.19 before 2.0.2 as text), the intro page stays reachable but isn't listed
                               if (args.item.dirName === 'changelog') {
                                   const isVersion = (item) => item.type === 'doc' && /\/\d+(\.\d+)*$/.test(item.id);
+                                  const isIntro = (item) => item.type === 'doc' && /\/intro$/.test(item.id);
                                   const versions = modifiedSidebarItems
                                       .filter(isVersion)
-                                      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-                                  return modifiedSidebarItems.map((item) => (isVersion(item) ? versions.shift() : item));
+                                      .sort((a, b) => b.id.localeCompare(a.id, undefined, { numeric: true }));
+                                  const rest = modifiedSidebarItems.filter((item) => !isVersion(item) && !isIntro(item));
+                                  return [...versions, ...rest];
                               }
 
                               return modifiedSidebarItems;
