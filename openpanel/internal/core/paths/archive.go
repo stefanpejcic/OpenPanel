@@ -70,15 +70,41 @@ func (c ctxReader) Read(p []byte) (int, error) {
 // ErrTooLarge is returned once an extraction writes more than the limit set with WithSizeLimit
 var ErrTooLarge = errors.New("archive expands past the size limit")
 
+// ErrTooManyFiles is returned once an extraction creates more entries than DefaultExtractMaxEntries
+var ErrTooManyFiles = errors.New("archive has too many files")
+
+// limits for extractions whose caller didn't set its own, root writes these so the account's disk quota doesn't stop them
+const (
+	DefaultExtractMaxBytes   int64 = 10 << 30
+	DefaultExtractMaxEntries int64 = 500000
+)
+
 type sizeLimitKey struct{}
 
-type sizeBudget struct{ left atomic.Int64 }
+type sizeBudget struct{ left, entries atomic.Int64 }
 
 // WithSizeLimit caps how many bytes every extraction run with ctx may write in total, a tiny archive can otherwise expand to anything
 func WithSizeLimit(ctx context.Context, maxBytes int64) context.Context {
 	b := &sizeBudget{}
 	b.left.Store(maxBytes)
+	b.entries.Store(DefaultExtractMaxEntries)
 	return context.WithValue(ctx, sizeLimitKey{}, b)
+}
+
+// withDefaultLimit gives ctx the default budget unless the caller already set one
+func withDefaultLimit(ctx context.Context) context.Context {
+	if _, ok := ctx.Value(sizeLimitKey{}).(*sizeBudget); ok {
+		return ctx
+	}
+	return WithSizeLimit(ctx, DefaultExtractMaxBytes)
+}
+
+// takeEntry counts one more extracted file or dir against the budget
+func takeEntry(ctx context.Context) error {
+	if b, ok := ctx.Value(sizeLimitKey{}).(*sizeBudget); ok && b.entries.Add(-1) < 0 {
+		return ErrTooManyFiles
+	}
+	return nil
 }
 
 // extracted files get the archive's mode minus a 022 umask, like tar --no-same-permissions
@@ -95,6 +121,7 @@ func extractMode(mode os.FileMode, dir bool) os.FileMode {
 
 // ExtractTar unpacks tr under destRel through root, strip works like tar --strip-components
 func ExtractTar(ctx context.Context, root *os.Root, destRel string, tr *tar.Reader, strip int) error {
+	ctx = withDefaultLimit(ctx)
 	for {
 		if err := ctx.Err(); err != nil {
 			return err
@@ -112,6 +139,9 @@ func ExtractTar(ctx context.Context, root *os.Root, destRel string, tr *tar.Read
 		}
 		if target == "" {
 			continue
+		}
+		if err := takeEntry(ctx); err != nil {
+			return err
 		}
 		mode := hdr.FileInfo().Mode()
 		switch hdr.Typeflag {
@@ -162,6 +192,7 @@ func ExtractTarReader(ctx context.Context, root *os.Root, destRel string, r io.R
 
 // ExtractZip unpacks zr under destRel through root, strip works like tar --strip-components
 func ExtractZip(ctx context.Context, root *os.Root, destRel string, zr *zip.Reader, strip int) error {
+	ctx = withDefaultLimit(ctx)
 	for _, f := range zr.File {
 		if err := ctx.Err(); err != nil {
 			return err
@@ -172,6 +203,9 @@ func ExtractZip(ctx context.Context, root *os.Root, destRel string, zr *zip.Read
 		}
 		if target == "" {
 			continue
+		}
+		if err := takeEntry(ctx); err != nil {
+			return err
 		}
 		mode := f.Mode()
 		switch {
