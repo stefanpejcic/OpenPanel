@@ -342,7 +342,7 @@ const Features: React.FC = () => {
                             {[
                                 ["Isolated", "containers for every account"],
                                 ["~53 MB", "RAM for OpenPanel and OpenAdmin at idle"],
-                                [`${FEATURES.length}+`, "features, all listed below"],
+                                [`${FEATURES.length}+`, "features, each one on or off per hosting plan"],
                             ].map(([big, small]) => (
                                 <div key={big} className="rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                                     <div className="text-2xl font-bold text-gray-900 dark:text-gray-0">{big}</div>

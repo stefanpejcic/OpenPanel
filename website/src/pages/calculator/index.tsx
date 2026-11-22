@@ -130,104 +130,26 @@ const ALL_ADDONS: Record<string, AddonCost> = {
 
 const round = (value: number, step: number) => Math.ceil(value / step) * step;
 
-const simpleIconProps = {
-    width: 24,
-    height: 24,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.5,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-};
 
-const UsersIcon = () => (
-    <svg {...simpleIconProps}>
-        <circle cx="9" cy="8" r="3" />
-        <path d="M3.5 20c0-3 2.5-5.5 5.5-5.5s5.5 2.5 5.5 5.5" />
-        <circle cx="17" cy="8.5" r="2.3" />
-        <path d="M15.7 14.7c2.5.3 4.3 2.5 4.3 5.3" />
-    </svg>
-);
-
-const LayersIcon = () => (
-    <svg {...simpleIconProps}>
-        <path d="M12 3l9 4.5-9 4.5-9-4.5L12 3Z" />
-        <path d="M3 12l9 4.5 9-4.5" />
-        <path d="M3 16.5l9 4.5 9-4.5" />
-    </svg>
-);
-
-const SparkleIcon = () => (
-    <svg {...simpleIconProps}>
-        <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" />
-        <path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" />
-    </svg>
-);
-
-const gradientAccentA = clsx(
-    "text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r",
-    "from-[#0FBDBD] to-[#26D97F]",
-);
-
-const gradientAccentB = clsx(
-    "text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r",
-    "from-[#FF9933] to-[#FF4C4D]",
-);
-
-const sectionHeading = clsx(
-    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-    "tracking-tight",
-    "p-0",
-    "dark:text-gray-0 text-gray-900",
-);
-
-const sectionAccent = clsx(
-    "font-semibold",
-    "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-    "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
-);
-
-const cardShell = clsx(
-    "not-prose",
-    "p-4 landing-sm:p-10",
-    "flex",
-    "flex-col landing-sm:flex-row",
-    "items-start",
-    "gap-6",
-    "dark:bg-landing-noise",
-    "dark:bg-gray-800 bg-gray-50",
-    "rounded-2xl landing-sm:rounded-3xl",
-);
-
-const fieldLabel = clsx(
-    "text-sm font-semibold",
-    "dark:text-gray-0 text-gray-900",
-    "mb-2 block",
-);
-
-const fieldHint = clsx(
-    "text-sm",
-    "mt-2",
-    "dark:text-gray-400 text-gray-600",
-);
-
+const card = "rounded-2xl border border-gray-300 dark:border-gray-700 p-5 sm:p-6 flex flex-col gap-5";
+const cardTitle = "text-lg font-semibold text-gray-900 dark:text-gray-0 m-0";
+const cardLead = "text-sm text-gray-600 dark:text-gray-400 m-0";
+const fieldLabel = "text-sm font-semibold text-gray-900 dark:text-gray-100";
+const fieldHint = "text-sm text-gray-600 dark:text-gray-400";
 const fieldInput = clsx(
-    "w-full",
-    "px-4 py-3",
-    "text-sm",
-    "dark:text-gray-0 text-gray-900",
-    "dark:bg-gray-900 bg-white",
-    "border dark:border-gray-700 border-gray-200",
-    "rounded-xl",
-    "outline-none",
-    "focus:border-refine-blue dark:focus:border-refine-cyan-alt",
+    "w-full rounded-lg border border-gray-300 dark:border-gray-700",
+    "bg-gray-0 dark:bg-gray-900 text-gray-900 dark:text-gray-100",
+    "px-3 py-2 text-sm outline-none",
+    "focus:ring-2 focus:ring-refine-blue/40 dark:focus:ring-refine-cyan-alt/40",
 );
-
-const checkboxInput = clsx(
-    "w-4 h-4",
-    "accent-refine-blue dark:accent-refine-cyan-alt",
-);
+const toggleCard = (on: boolean) =>
+    clsx(
+        "flex items-start gap-3 rounded-xl p-3 cursor-pointer border",
+        on
+            ? "border-refine-blue dark:border-refine-cyan-alt bg-refine-blue-2-light dark:bg-refine-blue-2 dark:bg-opacity-10"
+            : "border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500",
+    );
+const link = "text-refine-react-light-link dark:text-refine-react-dark-link hover:underline";
 
 const Calculator: React.FC = () => {
     const [users, setUsers] = useState(10);
@@ -438,73 +360,102 @@ const Calculator: React.FC = () => {
         webserver !== "openlitespeed";
     const monthlyPrice = isFree ? 0 : ENTERPRISE_MONTHLY_PRICE;
 
-    const renderAddonGrid = (addonDefs: Record<string, AddonCost>) =>
-        Object.entries(addonDefs).map(([key, addon]) => (
-            <label
-                key={key}
-                htmlFor={key}
-                className={clsx(
-                    "not-prose cursor-pointer",
-                    "flex flex-col gap-3",
-                    "p-6",
-                    "rounded-2xl landing-sm:rounded-3xl",
-                    "border",
-                    "transition-colors duration-150",
-                    addons[key]
-                        ? clsx(
-                              "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                              "dark:border-refine-cyan-alt border-refine-blue",
-                          )
-                        : clsx(
-                              "dark:bg-landing-noise dark:bg-gray-800 bg-gray-50",
-                              "dark:border-gray-700 border-gray-200",
-                          ),
-                )}
-            >
-                <div className={clsx("flex items-center justify-between")}>
-                    <span
-                        className={clsx(
-                            "flex items-center gap-2",
-                            "text-lg font-semibold",
-                            "dark:text-gray-0 text-gray-900",
-                        )}
-                    >
-                        <SparkleIcon />
-                        {addon.label}
-                    </span>
+
+    const [copied, setCopied] = useState(false);
+    const copyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+        } catch {
+            setCopied(false);
+        }
+    };
+
+    const renderAddonGrid = (addonDefs: Record<string, AddonCost>) => (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {Object.entries(addonDefs).map(([key, addon]) => (
+                <label key={key} htmlFor={key} className={toggleCard(addons[key])}>
                     <input
                         type="checkbox"
                         id={key}
                         name={key}
                         checked={addons[key]}
                         onChange={handleAddonChange}
-                        className={checkboxInput}
+                        className="mt-1 h-4 w-4 shrink-0 accent-refine-blue"
                     />
-                </div>
-                <p className={clsx("m-0 text-sm", "dark:text-gray-400 text-gray-600")}>
-                    {addon.description}
-                </p>
-                <p
-                    className={clsx(
-                        "m-0 text-xs font-semibold",
-                        "dark:text-gray-500 text-gray-500",
-                    )}
-                >
-                    +{addon.cpu} core &middot; +{addon.ramGb}GB RAM &middot; +
-                    {addon.diskGb}GB disk
-                </p>
-            </label>
-        ));
+                    <span className="flex flex-col gap-1">
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{addon.label}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{addon.description}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                            +{addon.cpu} core · +{addon.ramGb} GB RAM · +{addon.diskGb} GB disk
+                        </span>
+                    </span>
+                </label>
+            ))}
+        </div>
+    );
 
     const resultStats = [
-        { value: `${recommendedDiskGb} GB`, label: "Minimum disk usage needed" },
         { value: `${recommendedCpu}`, label: "CPU cores" },
         { value: `${recommendedRamGb} GB`, label: "Memory" },
+        { value: `${recommendedDiskGb} GB`, label: "Disk, minimum" },
         {
             value: isFree ? "Free" : `€${monthlyPrice.toFixed(2)}`,
             label: isFree ? "OpenPanel license" : "OpenPanel license / month",
         },
     ];
+
+    const numberField = (
+        id: string,
+        label: string,
+        hint: string,
+        value: number,
+        set: (n: number) => void,
+        min: number,
+        max: number,
+        step = 1,
+        disabled = false,
+    ) => (
+        <div className="flex flex-col gap-1.5">
+            <label htmlFor={id} className={fieldLabel}>
+                {label}
+            </label>
+            <input
+                id={id}
+                type="number"
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                disabled={disabled}
+                onChange={(e) => set(Math.max(min, Math.min(max, Number(e.target.value))))}
+                className={clsx(fieldInput, disabled && "opacity-50 cursor-not-allowed")}
+            />
+            <span className={fieldHint}>{hint}</span>
+        </div>
+    );
+
+    const selectField = (
+        id: string,
+        label: string,
+        value: string,
+        set: (v: string) => void,
+        options: [string, string][],
+    ) => (
+        <div className="flex flex-col gap-1.5">
+            <label htmlFor={id} className={fieldLabel}>
+                {label}
+            </label>
+            <select id={id} value={value} onChange={(e) => set(e.target.value)} className={fieldInput}>
+                {options.map(([v, l]) => (
+                    <option key={v} value={v}>
+                        {l}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
 
     return (
         <CommonLayout
@@ -522,475 +473,170 @@ const Calculator: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div
-                    className={clsx(
-                        "flex flex-col",
-                        "gap-16 landing-sm:gap-20 landing-md:gap-28",
-                        "w-full max-w-[592px] landing-sm:max-w-[656px] landing-md:max-w-[896px] landing-lg:max-w-[1200px]",
-                        "px-2 landing-sm:px-0",
-                        "pt-8 landing-sm:pt-12 landing-lg:pt-20",
-                        "pb-16 landing-sm:pb-24 landing-md:pb-32",
-                        "mx-auto",
-                        "not-prose",
-                    )}
-                >
-                    {/* Hero */}
-                    <div className={clsx("px-4 landing-md:px-10")}>
-                        <h1
-                            className={clsx(
-                                "text-3xl landing-sm:text-[40px] landing-sm:leading-[48px]",
-                                "font-semibold",
-                                "tracking-tight",
-                                "text-center",
-                                "max-w-3xl mx-auto",
-                                "p-0",
-                                "dark:text-gray-0 text-gray-900",
-                            )}
-                        >
-                            Find the right{" "}
-                            <span className={gradientAccentA}>server size</span> for
-                            your{" "}
-                            <span className={gradientAccentB}>hosting business</span>.
+                <div className="not-prose flex-1 flex flex-col gap-8 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
+                    <div className="flex flex-col gap-3">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-0 m-0">
+                            Resource calculator
                         </h1>
-                        <p
-                            className={clsx(
-                                "mt-4 landing-sm:mt-6",
-                                "max-w-lg mx-auto",
-                                "text-base text-center",
-                                "dark:text-gray-400 text-gray-600",
-                            )}
-                        >
-                            Estimate the CPU, RAM, and disk you need based on real
-                            OpenPanel benchmarks, and see what your OpenPanel license
-                            would cost.
+                        <p className="text-base text-gray-600 dark:text-gray-400 m-0 max-w-[720px]">
+                            Find the right server size for your hosting business. Estimates are based on real OpenPanel
+                            benchmarks, change the options below and the numbers update as you go.
                         </p>
                     </div>
 
-                    {/* Users */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Tell us about your{" "}
-                                <span className={sectionAccent}>users</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
+                    <div
+                        ref={resultsRef}
+                        className={clsx(
+                            "sticky top-[72px] z-[5] scroll-mt-24",
+                            "rounded-2xl border border-gray-300 dark:border-gray-700",
+                            "bg-gray-0/95 dark:bg-gray-900/95 backdrop-blur shadow-sm",
+                            "p-4 flex flex-col gap-3",
+                        )}
+                    >
+                        <div className="flex items-center justify-between gap-3">
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Recommended server</span>
+                            <button
+                                type="button"
+                                onClick={copyLink}
+                                className="rounded-full px-4 py-1.5 text-xs font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110"
                             >
-                                How many hosting accounts, and how big each one's plan
-                                is.
-                            </p>
+                                {copied ? "Copied" : "Copy link"}
+                            </button>
                         </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "px-4 landing-md:px-10",
-                            )}
-                        >
-                            <div className={cardShell}>
-                                <div className={clsx("hidden landing-sm:block")}>
-                                    <UsersIcon />
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {resultStats.map((s) => (
+                                <div key={s.label} className="rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-3">
+                                    <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-0" data-testid={`result-${s.label}`}>
+                                        {s.value}
+                                    </div>
+                                    <div className="text-xs text-gray-600 dark:text-gray-400">{s.label}</div>
                                 </div>
-                                <div
-                                    className={clsx(
-                                        "w-full",
-                                        "grid",
-                                        "grid-cols-1 landing-sm:grid-cols-3",
-                                        "gap-6",
-                                    )}
-                                >
-                                    <div>
-                                        <label htmlFor="users" className={fieldLabel}>
-                                            Number of users
-                                        </label>
-                                        <input
-                                            id="users"
-                                            type="number"
-                                            min={1}
-                                            value={users}
-                                            onChange={(e) =>
-                                                setUsers(
-                                                    Math.max(1, Number(e.target.value)),
-                                                )
-                                            }
-                                            className={fieldInput}
-                                        />
-                                        <div className={fieldHint}>
-                                            Hosting accounts you plan to run.
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="cpu-per-user" className={fieldLabel}>
-                                            CPU cores / user plan
-                                        </label>
-                                        <input
-                                            id="cpu-per-user"
-                                            type="number"
-                                            min={0}
-                                            max={16}
-                                            step={0.5}
-                                            value={cpuPerUser}
-                                            onChange={(e) =>
-                                                setCpuPerUser(
-                                                    Math.max(
-                                                        0,
-                                                        Math.min(16, Number(e.target.value)),
-                                                    ),
-                                                )
-                                            }
-                                            className={fieldInput}
-                                        />
-                                        <div className={fieldHint}>
-                                            Cap assigned per user, not typical usage.
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="ram-per-user" className={fieldLabel}>
-                                            RAM (GB) / user plan
-                                        </label>
-                                        <input
-                                            id="ram-per-user"
-                                            type="number"
-                                            min={0}
-                                            max={16}
-                                            step={0.5}
-                                            value={ramPerUser}
-                                            onChange={(e) =>
-                                                setRamPerUser(
-                                                    Math.max(
-                                                        0,
-                                                        Math.min(16, Number(e.target.value)),
-                                                    ),
-                                                )
-                                            }
-                                            className={fieldInput}
-                                        />
-                                        <div className={fieldHint}>
-                                            Cap assigned per user, not typical usage.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Services */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Choose your{" "}
-                                <span className={sectionAccent}>services</span>.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Shared, read-only images used by your users - each one
-                                is downloaded once and reused, no matter how many users
-                                run it.
+                    <section className={card}>
+                        <div className="flex flex-col gap-1">
+                            <h2 className={cardTitle}>Users</h2>
+                            <p className={cardLead}>How many hosting accounts, and how big each one's plan is.</p>
+                        </div>
+                        <div className="grid gap-5 sm:grid-cols-3">
+                            {numberField("users", "Number of users", "Hosting accounts you plan to run.", users, setUsers, 1, 100000)}
+                            {numberField("cpu-per-user", "CPU cores / user plan", "Cap assigned per user, not typical usage.", cpuPerUser, setCpuPerUser, 0, 16, 0.5)}
+                            {numberField("ram-per-user", "RAM (GB) / user plan", "Cap assigned per user, not typical usage.", ramPerUser, setRamPerUser, 0, 16, 0.5)}
+                        </div>
+                    </section>
+
+                    <section className={card}>
+                        <div className="flex flex-col gap-1">
+                            <h2 className={cardTitle}>Services</h2>
+                            <p className={cardLead}>
+                                Shared, read-only images used by your users, each one is downloaded once and reused no matter how
+                                many users run it.
                             </p>
                         </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "px-4 landing-md:px-10",
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            {selectField("database", "Database", database, setDatabase, [
+                                ["mariadb", "MariaDB"],
+                                ["mysql", "MySQL"],
+                            ])}
+                            {selectField("webserver", "Web server", webserver, setWebserver, [
+                                ["nginx", "Nginx"],
+                                ["apache", "Apache"],
+                                ["openlitespeed", "OpenLiteSpeed"],
+                                ["openresty", "OpenResty"],
+                            ])}
+                            {numberField(
+                                "php-versions",
+                                "PHP versions",
+                                webserver === "openlitespeed"
+                                    ? "OpenLiteSpeed only supports one PHP version."
+                                    : "How many distinct PHP versions your users need, each its own shared image.",
+                                phpVersions,
+                                setPhpVersions,
+                                0,
+                                15,
+                                1,
+                                webserver === "openlitespeed",
                             )}
-                        >
-                            <div className={cardShell}>
-                                <div className={clsx("hidden landing-sm:block")}>
-                                    <LayersIcon />
-                                </div>
-                                <div
-                                    className={clsx(
-                                        "w-full",
-                                        "grid",
-                                        "grid-cols-2 landing-sm:grid-cols-3",
-                                        "gap-6",
-                                    )}
-                                >
-                                    <div>
-                                        <label htmlFor="database" className={fieldLabel}>
-                                            Database
-                                        </label>
-                                        <select
-                                            id="database"
-                                            value={database}
-                                            onChange={(e) => setDatabase(e.target.value)}
-                                            className={fieldInput}
-                                        >
-                                            <option value="mariadb">MariaDB</option>
-                                            <option value="mysql">MySQL</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="webserver" className={fieldLabel}>
-                                            Web server
-                                        </label>
-                                        <select
-                                            id="webserver"
-                                            value={webserver}
-                                            onChange={(e) => setWebserver(e.target.value)}
-                                            className={fieldInput}
-                                        >
-                                            <option value="nginx">Nginx</option>
-                                            <option value="apache">Apache</option>
-                                            <option value="openlitespeed">
-                                                OpenLiteSpeed
-                                            </option>
-                                            <option value="openresty">OpenResty</option>
-                                        </select>
-                                    </div>
-                                    <div
-                                        title={
-                                            webserver === "openlitespeed"
-                                                ? "OpenLiteSpeed only supports one PHP version, so this can't be changed."
-                                                : undefined
-                                        }
-                                    >
-                                        <label htmlFor="php-versions" className={fieldLabel}>
-                                            PHP versions
-                                        </label>
-                                        <input
-                                            id="php-versions"
-                                            type="number"
-                                            min={0}
-                                            max={15}
-                                            value={phpVersions}
-                                            disabled={webserver === "openlitespeed"}
-                                            onChange={(e) =>
-                                                setPhpVersions(
-                                                    Math.max(
-                                                        0,
-                                                        Math.min(15, Number(e.target.value)),
-                                                    ),
-                                                )
-                                            }
-                                            className={clsx(
-                                                fieldInput,
-                                                webserver === "openlitespeed" &&
-                                                    "opacity-50 cursor-not-allowed",
-                                            )}
-                                        />
-                                        <div className={fieldHint}>
-                                            {webserver === "openlitespeed"
-                                                ? "OpenLiteSpeed only supports one PHP version."
-                                                : "How many distinct PHP versions your users need, each its own shared image."}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="caching" className={fieldLabel}>
-                                            Caching
-                                        </label>
-                                        <select
-                                            id="caching"
-                                            value={caching}
-                                            onChange={(e) => setCaching(e.target.value)}
-                                            className={fieldInput}
-                                        >
-                                            <option value="none">None</option>
-                                            <option value="memcached">Memcached</option>
-                                            <option value="valkey">Valkey</option>
-                                            <option value="redis">Redis</option>
-                                        </select>
-                                    </div>
-                                    <div
-                                        className={clsx(
-                                            "flex items-center gap-2",
-                                            "landing-sm:mt-7",
-                                        )}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            id="cron"
-                                            checked={cronEnabled}
-                                            onChange={(e) =>
-                                                setCronEnabled(e.target.checked)
-                                            }
-                                            className={checkboxInput}
-                                        />
-                                        <label htmlFor="cron" className="font-semibold">
-                                            Cron
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
+                            {selectField("caching", "Caching", caching, setCaching, [
+                                ["none", "None"],
+                                ["memcached", "Memcached"],
+                                ["valkey", "Valkey"],
+                                ["redis", "Redis"],
+                            ])}
+                            <label htmlFor="cron" className={clsx(toggleCard(cronEnabled), "self-start sm:mt-6")}>
+                                <input
+                                    type="checkbox"
+                                    id="cron"
+                                    checked={cronEnabled}
+                                    onChange={(e) => setCronEnabled(e.target.checked)}
+                                    className="mt-1 h-4 w-4 shrink-0 accent-refine-blue"
+                                />
+                                <span className="flex flex-col gap-1">
+                                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Cron</span>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Scheduled jobs for your users.</span>
+                                </span>
+                            </label>
                         </div>
-                    </div>
+                    </section>
 
-                    {/* Core Community services */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Core{" "}
-                                <span className={sectionAccent}>Community</span>{" "}
-                                services.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Included with every OpenPanel install, free to use, and
-                                each one can be disabled if you don't need it.
+                    <section className={card}>
+                        <div className="flex flex-col gap-1">
+                            <h2 className={cardTitle}>Core Community services</h2>
+                            <p className={cardLead}>
+                                Included with every OpenPanel install, free to use, and each one can be disabled if you don't need it.
                             </p>
                         </div>
+                        {renderAddonGrid(COMMUNITY_ADDONS)}
+                    </section>
 
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-3",
-                                "gap-4 landing-sm:gap-6",
-                            )}
-                        >
-                            {renderAddonGrid(COMMUNITY_ADDONS)}
+                    <section className={card}>
+                        <div className="flex flex-col gap-1">
+                            <h2 className={cardTitle}>Optional Enterprise services</h2>
+                            <p className={cardLead}>Shared, system-wide services available on the Enterprise Edition.</p>
                         </div>
-                    </div>
+                        {renderAddonGrid(ENTERPRISE_ADDONS)}
+                    </section>
 
-                    {/* Enterprise services */}
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Optional{" "}
-                                <span className={sectionAccent}>Enterprise</span>{" "}
-                                services.
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Shared, system-wide services available on the
-                                Enterprise Edition.
+                    <section className="flex flex-col gap-3">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-0 m-0">How these numbers work</h2>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 m-0">
+                            This assumes typical usage, where most users are idle most of the time, the same pattern we see across
+                            real OpenPanel servers. If every single user maxed out their plan at the exact same moment, you'd need{" "}
+                            <strong className="text-gray-900 dark:text-gray-0">{round(maxCpu, 1)}</strong> cores and{" "}
+                            <strong className="text-gray-900 dark:text-gray-0">{round(maxRamGb, 0.5)}</strong> GB RAM. Oversell
+                            between the two is normal and expected, the same way every shared hosting platform is priced.
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500 m-0">
+                            Figures are based on internal OpenPanel benchmarks (idle overhead of ~{PER_USER_IDLE_CPU} core and
+                            ~{PER_USER_IDLE_RAM_MB}MB RAM per user, ~{PER_USER_DISK_MB}MB disk per user, and a ~{SYSTEM_BASE_DISK_GB}GB
+                            shared system image baseline) and are an estimate, actual usage varies with real traffic.{" "}
+                            <Link to="/calculator/benchmark/" className={link}>
+                                See how we benchmarked these numbers
+                            </Link>
+                            .
+                        </p>
+                    </section>
+
+                    <section className="rounded-2xl border border-gray-300 dark:border-gray-700 p-6 sm:p-8 flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-0 m-0">Got your server?</h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 m-0">
+                                Check the{" "}
+                                <a href="/docs/articles/install-update/system-requirements/" className={link}>
+                                    system requirements
+                                </a>{" "}
+                                and install OpenPanel with one command.
                             </p>
                         </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "px-4 landing-md:px-10",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-3",
-                                "gap-4 landing-sm:gap-6",
-                            )}
+                        <a
+                            href="/install/"
+                            className="self-start sm:self-auto rounded-full px-5 py-2.5 text-sm font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110 no-underline whitespace-nowrap"
                         >
-                            {renderAddonGrid(ENTERPRISE_ADDONS)}
-                        </div>
-                    </div>
-
-                    {/* Recommended VPS */}
-                    <div ref={resultsRef} className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2 className={sectionHeading}>
-                                Your{" "}
-                                <span className={sectionAccent}>recommended</span> VPS.
-                            </h2>
-                        </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "px-4 landing-md:px-10",
-                            )}
-                        >
-                            <div
-                                className={clsx(
-                                    "grid",
-                                    "grid-cols-2 landing-sm:grid-cols-4",
-                                    "gap-4",
-                                )}
-                            >
-                                {resultStats.map((stat, index) => (
-                                    <div
-                                        key={index}
-                                        className={clsx(
-                                            "not-prose",
-                                            "flex flex-col items-center text-center",
-                                            "gap-2",
-                                            "p-6",
-                                            "dark:bg-landing-noise",
-                                            "dark:bg-gray-800 bg-gray-50",
-                                            "rounded-2xl",
-                                        )}
-                                    >
-                                        <div
-                                            className={clsx(
-                                                "text-2xl landing-sm:text-3xl",
-                                                "font-semibold",
-                                                "dark:text-refine-cyan-alt text-refine-blue",
-                                            )}
-                                        >
-                                            {stat.value}
-                                        </div>
-                                        <div
-                                            className={clsx(
-                                                "text-sm",
-                                                "dark:text-gray-400 text-gray-600",
-                                            )}
-                                        >
-                                            {stat.label}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <p
-                                className={clsx(
-                                    "mt-6",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                This assumes typical usage, where most users are idle
-                                most of the time - the same pattern we see across real
-                                OpenPanel servers. If every single user maxed out their
-                                plan at the exact same moment, you'd need{" "}
-                                <strong className="dark:text-gray-0 text-gray-900">
-                                    {round(maxCpu, 1)}
-                                </strong>{" "}
-                                cores and{" "}
-                                <strong className="dark:text-gray-0 text-gray-900">
-                                    {round(maxRamGb, 0.5)}
-                                </strong>{" "}
-                                GB RAM - oversell between the two is normal and
-                                expected, the same way every shared hosting platform is
-                                priced.
-                            </p>
-                            <p
-                                className={clsx(
-                                    "text-sm",
-                                    "dark:text-gray-500 text-gray-500",
-                                )}
-                            >
-                                Figures are based on internal OpenPanel benchmarks
-                                (idle overhead of ~{PER_USER_IDLE_CPU} core and ~15MB
-                                RAM per user, ~100MB disk per user, and a ~
-                                {SYSTEM_BASE_DISK_GB}GB shared system image baseline)
-                                and are an estimate - actual usage varies with real
-                                traffic.{" "}
-                                <Link to="/calculator/benchmark/">
-                                    See how we benchmarked these numbers
-                                </Link>
-                                .
-                            </p>
-                        </div>
-                    </div>
+                            Install command
+                        </a>
+                    </section>
                 </div>
                 <BlogFooter />
             </div>
