@@ -132,7 +132,10 @@ func themeAssetHash(d *themeDef, rel string) string {
 		sum := sha256.Sum256(b)
 		h = hex.EncodeToString(sum[:6])
 	}
-	assetHashes.Store(key, h)
+	// only real files get cached, otherwise every made-up /static/ URL would add a map entry for good
+	if h != "" {
+		assetHashes.Store(key, h)
+	}
 	return h
 }
 
