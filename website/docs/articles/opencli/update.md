@@ -138,7 +138,7 @@ opencli update --force
 
 ## Admin
 
-Update only OpenAdmin UI *(`/usr/local/admin/` from [stefanpejcic/openadmin](https://github.com/stefanpejcic/openadmin))*:
+Update only OpenAdmin UI *(the `/usr/local/admin/openadmin-amd64` or `openadmin-arm64` binary from the [stefanpejcic/openadmin release](https://github.com/stefanpejcic/openadmin/releases), checked against its `SHA256SUMS` and that it runs before the `admin` service is stopped; a bad download keeps the current OpenAdmin)*:
 ```bash
 opencli update --admin
 ```

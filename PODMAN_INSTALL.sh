@@ -497,14 +497,19 @@ download_files() {
     rm -rf /tmp/main.tar.gz "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
-    # openadmin
+    # openadmin, checked against the release's SHA256SUMS and that it runs
     local admin_binary="openadmin-amd64"
     [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm64"
+    local admin_url="https://github.com/stefanpejcic/openadmin/releases/download/${PANEL_VERSION%%-beta}"
     echo "Downloading openadmin to /usr/local/admin/$admin_binary"
     mkdir -p /usr/local/admin/
-    curl -sSL "https://github.com/stefanpejcic/openadmin/releases/download/${PANEL_VERSION%%-beta}/$admin_binary" -o "/usr/local/admin/$admin_binary"
-    [[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
-    chmod +x "/usr/local/admin/$admin_binary"
+    curl -fsSL --retry 3 "$admin_url/$admin_binary" -o "/usr/local/admin/$admin_binary.new" || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
+    local admin_sum
+    admin_sum=$(curl -fsSL --retry 3 "$admin_url/SHA256SUMS" | awk -v f="$admin_binary" '$2 == f {print $1}')
+    [[ -n "$admin_sum" && "$(sha256sum "/usr/local/admin/$admin_binary.new" | awk '{print $1}')" == "$admin_sum" ]] || { rm -f "/usr/local/admin/$admin_binary.new"; die 1 "Checksum of the downloaded OpenAdmin binary doesn't match SHA256SUMS."; }
+    chmod +x "/usr/local/admin/$admin_binary.new"
+    "/usr/local/admin/$admin_binary.new" --version >/dev/null 2>&1 || { rm -f "/usr/local/admin/$admin_binary.new"; die 1 "Downloaded OpenAdmin binary ${admin_binary} doesn't run."; }
+    mv -f "/usr/local/admin/$admin_binary.new" "/usr/local/admin/$admin_binary"
     sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
 
     # opencli is a single Go binary from the latest release, checked against the release's SHA256SUMS
