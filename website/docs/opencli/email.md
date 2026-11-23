@@ -555,7 +555,7 @@ id=limit_stefan_rate ; sender=~.+@example.com$ ; protocol_state==RCPT
 
 Rules for users and domains are generated with [`opencli email-ratelimit`](#rate-limits).
 
-Any `opencli email-server postfwd` command also updates the postfwd service in `compose.yml` to start with `CACHE=0` and `EXTRA=--summary=600 --noidlestats --keep_rates` and recreates the container if that changed, cached answers aren't counted and a reload would otherwise reset the hourly counters.
+Any `opencli email-server postfwd` command also updates the postfwd service in `compose.yml` to start with `CACHE=0` and `EXTRA=--summary=600 --noidlestats --keep_rates` and recreates the container if that changed, cached answers aren't counted and a reload would otherwise reset the hourly counters. It also removes `depends_on: postfwd` from the mailserver service. A mailserver created with that dependency blocks removing postfwd, in that case the command prints how to recreate both (`podman rm -f --depend postfwd && cd /usr/local/mail/openmail && podman-compose up -d`, email is down for about a minute).
 
 ### Supervisor
 
