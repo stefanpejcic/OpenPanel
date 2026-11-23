@@ -4,6 +4,8 @@ package auth
 import (
 	"context"
 	"net/http"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 )
 
 type ctxKey int
@@ -11,7 +13,7 @@ type ctxKey int
 const (
 	userIDKey ctxKey = iota
 	authViaKey
-	mcpReadOnlyKey
+	mcpTokenKey
 	sessionTokenKey
 	jwtPwdKey
 )
@@ -40,9 +42,22 @@ func Via(r *http.Request) AuthVia {
 	return ViaNone
 }
 
+// MCPToken is the token behind a ViaMCP request, so handlers can see its scope and name
+type MCPToken struct {
+	ID    int
+	Name  string
+	Scope mcptokens.Scope
+}
+
+// MCPTokenInfo returns the token this request authenticated with, false for anything that isn't an MCP token
+func MCPTokenInfo(r *http.Request) (MCPToken, bool) {
+	v, ok := r.Context().Value(mcpTokenKey).(MCPToken)
+	return v, ok
+}
+
 func MCPReadOnly(r *http.Request) bool {
-	v, _ := r.Context().Value(mcpReadOnlyKey).(bool)
-	return v
+	t, ok := MCPTokenInfo(r)
+	return ok && t.Scope.Mode == mcptokens.ModeReadOnly
 }
 
 // SessionToken returns the session_token read during LoadUser, so downstream middleware doesn't need to re-decode the session
@@ -62,8 +77,8 @@ func WithAIAssistant(r *http.Request, userID int) *http.Request {
 	return withAuth(r, userID, ViaAI)
 }
 
-func withMCPReadOnly(r *http.Request, readOnly bool) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), mcpReadOnlyKey, readOnly))
+func withMCPToken(r *http.Request, t MCPToken) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), mcpTokenKey, t))
 }
 
 func withSessionToken(r *http.Request, token string) *http.Request {

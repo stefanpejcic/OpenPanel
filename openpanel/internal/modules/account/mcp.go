@@ -1,6 +1,7 @@
 package account
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -54,32 +55,46 @@ func handleMCPCreateToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	if len(name) > 100 {
 		name = name[:100]
 	}
-	readOnly := r.Form.Get("read_only") == "on"
 	expiresInDays, _ := strconv.Atoi(r.Form.Get("expires_in_days"))
+	scope := mcptokens.Scope{Mode: mcptokens.ModeFull, Features: mcptokens.CleanFeatures(r.Form["features"])}
+	switch {
+	case r.Form.Get("read_only") == "on":
+		scope.Mode = mcptokens.ModeReadOnly
+	// scope_form is only on the new form, so an old cached page without the box still makes a full token
+	case r.Form.Get("scope_form") != "" && r.Form.Get("allow_destructive") != "on":
+		scope.Mode = mcptokens.ModeModify
+	}
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-
-	rawToken, err := mcptokens.CreateTokenForUser(ctx, a.DB, userID, name, readOnly, expiresInDays)
-	if err != nil {
-		flash.Add(sess, "error", "Could not create token: database is unavailable. Please try again.")
+	fail := func(msg string) {
+		flash.Add(sess, "error", msg)
 		_ = a.Sessions.Save(r, w, sess)
 		http.Redirect(w, r, "/account/mcp", http.StatusFound)
+	}
+	if bad := unknownMCPFeatures(scope.Features); len(bad) > 0 {
+		fail("Could not create token: unknown feature " + strings.Join(bad, ", ") + ".")
+		return
+	}
+
+	rawToken, err := mcptokens.CreateTokenForUser(ctx, a.DB, userID, name, scope, expiresInDays)
+	if errors.Is(err, mcptokens.ErrScopesUnavailable) {
+		fail("Could not create a limited token: the panel database is missing the columns for it. Ask your hosting provider to restart OpenPanel, or create a read-only or full-access token.")
+		return
+	}
+	if err != nil {
+		fail("Could not create token: database is unavailable. Please try again.")
 		return
 	}
 
 	data, injectErr := a.InjectData(ctx, userID)
 	if injectErr == nil {
 		username, _ := data["current_username"].(string)
-		scopeNote := ""
-		if readOnly {
-			scopeNote = ", read-only"
-		}
 		expiryNote := ""
 		if expiresInDays > 0 {
 			expiryNote = ", expires in " + strconv.Itoa(expiresInDays) + "d"
 		}
-		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+scopeNote+expiryNote+")", reqip.ClientIP(r))
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(readOnly, expiresInDays), true))
+		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+tokenScopeNote(scope)+expiryNote+")", reqip.ClientIP(r))
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(scope, expiresInDays), true))
 	}
 
 	sess.Values["mcp_new_token"] = rawToken

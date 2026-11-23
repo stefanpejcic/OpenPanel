@@ -13,7 +13,10 @@ import (
 	"github.com/gorilla/sessions"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/apirisk"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
@@ -260,15 +263,45 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 				return
 			}
 
+			if via == ViaMCP && !isMCPTransport {
+				tok, _ := MCPTokenInfo(r)
+				if msg, hint := MCPScopeBlock(tok.Scope, featureName, r); msg != "" {
+					log.Printf("APP - API user %d (%s): MCP token #%d blocked %s %s: %s", userID, details.Username, tok.ID, r.Method, r.URL.Path, msg)
+					writeJSONError(w, http.StatusForbidden, msg, hint)
+					return
+				}
+			}
+
 			if r.Method != http.MethodGet && a.DemoMode {
 				log.Printf("APP - API user %d (%s): write blocked by demo mode (%s %s)", userID, details.Username, r.Method, r.URL.Path)
 				writeJSONError(w, http.StatusForbidden, "Disabled in demo mode", "")
 				return
 			}
 
+			// handlers log what changed, this adds which token did it
+			if via == ViaMCP && !isMCPTransport && r.Method != http.MethodGet && r.Method != http.MethodHead {
+				tok, _ := MCPTokenInfo(r)
+				_ = logger.RecordUserAction(a.Config, details.Username, fmt.Sprintf("used MCP token \"%s\" (#%d) for %s %s", tok.Name, tok.ID, r.Method, r.URL.Path), reqip.ClientIP(r))
+			}
+
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// MCPScopeBlock says why a scoped token may not make this request, empty when it may
+func MCPScopeBlock(scope mcptokens.Scope, featureName string, r *http.Request) (string, string) {
+	// a narrower token minting a wider one would undo its own limits
+	if scope.Limited() && strings.HasPrefix(r.URL.Path, "/api/account/mcp") && r.Method != http.MethodGet && r.Method != http.MethodHead {
+		return "This token can't create or revoke tokens", "Only a full-access token without feature limits can manage tokens"
+	}
+	if len(scope.Features) > 0 && featureName != "api" && featureName != "mcp" && !contains(scope.Features, featureName) {
+		return "This token isn't allowed to use the '" + featureName + "' feature", "Generate a token that includes it"
+	}
+	if scope.Mode == mcptokens.ModeModify && apirisk.ForRequest(r) == apirisk.Destructive {
+		return "This token can't delete or overwrite things", "Use a full-access token for deletes, restores, password changes and similar actions"
+	}
+	return "", ""
 }
 
 func writeJSONError(w http.ResponseWriter, status int, errMsg, hint string) {

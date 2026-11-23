@@ -560,6 +560,90 @@ https://srv.example.com:2083/login_autologin?admin_token=b7f3c9e2a1d84f06&userna
 ```
 </details>
 
+### AI Assistant (MCP) tokens
+
+Command: `opencli user-mcp` creates an [AI Assistant (MCP)](/docs/panel/account/mcp/) token for a user and prints how to connect Claude Code, Claude Desktop, Codex, Cursor, VS Code or Gemini CLI with it. It can also list and revoke the user's tokens.
+
+The server needs the Enterprise edition, and the user needs the `api` and `mcp` features. The command still creates the token when a feature or module is off, and prints a warning saying what to enable.
+
+```bash
+opencli user-mcp <USERNAME> [--name=NAME] [--readonly|--no-deletes] [--features=a,b] [--expires=DAYS] [--client=NAME] [--json]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-mcp stefan --client=claude-code
+Created MCP token "opencli 2026-11-23" for user stefan.
+It is shown only once. Revoke it with: opencli user-mcp stefan --revoke=<ID from --list>
+
+MCP URL: https://server.example.com:2083/mcp
+Token:   op_mcp_Xq3...
+
+Claude Code (run in a terminal):
+
+  claude mcp add --transport http openpanel https://server.example.com:2083/mcp \
+    --header "Authorization: Bearer op_mcp_Xq3..."
+
+```
+</details>
+
+| Option | What it does |
+|---|---|
+| `--name=NAME` | Token name, shown on the user's token page. Default `opencli YYYY-MM-DD`. |
+| `--readonly` | The token can only look things up. |
+| `--no-deletes` | The token can create and change things, but not delete, restore, change passwords or overwrite config. |
+| `--features=a,b` | Limit the token to these features, for example `dns,domains`. |
+| `--expires=DAYS` | The token stops working after this many days. Default: never. |
+| `--client=NAME` | Print setup for one client only: `claude-code`, `claude-desktop`, `codex`, `cursor`, `vscode` or `gemini`. Without it, all six are printed. |
+| `--json` | Print the token and MCP URL as JSON instead of setup instructions. |
+
+The token is shown only once. Only its SHA-256 hash is stored, the same as tokens made on the user's token page.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-mcp stefan --no-deletes --features=dns,domains --expires=30 --json
+{"token":"op_mcp_Xq3...","url":"https://server.example.com:2083/mcp","name":"opencli 2026-11-23","mode":"modify","features":"dns,domains","expires_in_days":30}
+```
+</details>
+
+To list a user's tokens (the token values are never shown):
+
+```bash
+opencli user-mcp <USERNAME> --list [--json]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-mcp stefan --list
+ID  NAME                TOKEN          ACCESS      FEATURES     CREATED              EXPIRES              LAST USED
+4   opencli 2026-11-23  op_mcp_Xq3aBc  no deletes  dns,domains  2026-11-23 10:00:00  2026-12-23 10:00:00
+5   Laptop              op_mcp_GhIjKl  read-only                2026-11-20 11:00:00                       2026-11-23 12:00:00
+```
+</details>
+
+To revoke a token by its ID:
+
+```bash
+opencli user-mcp <USERNAME> --revoke=<ID>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-mcp stefan --revoke=4
+Revoked MCP token #4 (opencli 2026-11-23) for user stefan. Clients using it stop working right away.
+```
+</details>
+
+Creating and revoking tokens is written to the user's activity log.
+
 ### Change Plan
 
 Command: `opencli user-change_plan` allows you to change plan for a user.

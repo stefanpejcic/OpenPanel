@@ -386,6 +386,10 @@ opencli user-loginlog
 Description: View user's .lastlogin file with last 20 successfull logins.
 Usage: opencli user-loginlog <USERNAME> [--table|--text|--json]
 ------------------------
+opencli user-mcp
+Description: Create, list or revoke AI Assistant (MCP) tokens for an OpenPanel user and print client setup.
+Usage: opencli user-mcp <username> [--name=NAME] [--readonly|--no-deletes] [--features=a,b] [--expires=DAYS] [--client=NAME] [--json]
+------------------------
 opencli user-password
 Description: Reset password for a user.
 Usage: opencli user-password <USERNAME> <NEW_PASSWORD | random>

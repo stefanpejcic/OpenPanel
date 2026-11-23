@@ -35,6 +35,9 @@ type fakeToken struct {
 	id, uid int
 	hash    string
 	ro      bool
+	name    string
+	mode    any
+	feats   any
 }
 
 // fakeStore is a tiny in-memory stand-in for the handful of panel tables the auth paths touch
@@ -45,6 +48,8 @@ type fakeStore struct {
 	nextID   int
 	passkeys map[int]int
 	execs    []string
+	// scoped pretends mcp_tokens already has the mode and allowed_features columns
+	scoped bool
 }
 
 var (
@@ -114,7 +119,11 @@ func (st *fakeStmt) Exec(args []driver.Value) (driver.Result, error) {
 	s.execs = append(s.execs, st.q)
 	switch {
 	case strings.HasPrefix(st.q, "INSERT INTO mcp_tokens"):
-		s.tokens = append(s.tokens, fakeToken{id: s.nextID, uid: argInt(args[0]), hash: args[3].(string), ro: argBool(args[4])})
+		tok := fakeToken{id: s.nextID, uid: argInt(args[0]), name: fmt.Sprint(args[1]), hash: args[3].(string), ro: argBool(args[4])}
+		if len(args) >= 8 {
+			tok.mode, tok.feats = args[6], args[7]
+		}
+		s.tokens = append(s.tokens, tok)
 		s.nextID++
 		return driver.RowsAffected(1), nil
 	case strings.HasPrefix(st.q, "DELETE FROM mcp_tokens WHERE id = ? AND user_id = ?"):
@@ -151,6 +160,23 @@ func (st *fakeStmt) Query(args []driver.Value) (driver.Rows, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	switch {
+	case strings.Contains(st.q, "FROM information_schema.COLUMNS"):
+		if !s.scoped {
+			return &fakeRows{cols: []string{"n"}}, nil
+		}
+		n := int64(2)
+		if len(args) == 1 {
+			n = 1
+		}
+		return &fakeRows{cols: []string{"n"}, vals: [][]driver.Value{{n}}}, nil
+	case strings.Contains(st.q, "mode, allowed_features") && strings.Contains(st.q, "WHERE token_hash"):
+		cols := []string{"id", "user_id", "name", "read_only", "mode", "allowed_features", "expires_at", "last_used_at"}
+		for _, t := range s.tokens {
+			if t.hash == args[0].(string) {
+				return &fakeRows{cols: cols, vals: [][]driver.Value{{int64(t.id), int64(t.uid), t.name, t.ro, t.mode, t.feats, nil, nil}}}, nil
+			}
+		}
+		return &fakeRows{cols: cols}, nil
 	case strings.Contains(st.q, "FROM mcp_tokens WHERE token_hash"):
 		cols := []string{"id", "user_id", "read_only", "expires_at", "last_used_at"}
 		for _, t := range s.tokens {
@@ -193,6 +219,32 @@ func (s *fakeStore) addToken(uid int, raw string, ro bool) int {
 	s.tokens = append(s.tokens, fakeToken{id: id, uid: uid, hash: hex.EncodeToString(sum[:]), ro: ro})
 	s.nextID++
 	return id
+}
+
+// addScopedToken stores a token with a mode and comma-separated features, as the scoped schema would
+func (s *fakeStore) addScopedToken(uid int, raw, name, mode, feats string) int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	sum := sha256.Sum256([]byte(raw))
+	id := s.nextID
+	var f any
+	if feats != "" {
+		f = feats
+	}
+	s.tokens = append(s.tokens, fakeToken{id: id, uid: uid, name: name, hash: hex.EncodeToString(sum[:]), ro: mode == "readonly", mode: mode, feats: f})
+	s.nextID++
+	return id
+}
+
+func (s *fakeStore) tokenByName(name string) (fakeToken, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, t := range s.tokens {
+		if t.name == name {
+			return t, true
+		}
+	}
+	return fakeToken{}, false
 }
 
 func (s *fakeStore) tokenCount(uid int) int {

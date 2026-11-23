@@ -1,6 +1,10 @@
 package account
 
-import "testing"
+import (
+	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
+)
 
 func TestBuildNotificationCards(t *testing.T) {
 	prefs := []NotificationPref{{Key: "notify_account_login", Value: "1"}, {Key: "notify_account_login_for_known_netblock", Value: "0"}}
@@ -42,10 +46,14 @@ func TestBrowserFromUserAgent(t *testing.T) {
 }
 
 func TestTokenScope(t *testing.T) {
-	if got := tokenScope(true, 30); got != " with read-only access that expires in 30 days" {
+	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeReadOnly}, 30); got != " with read-only access that expires in 30 days" {
 		t.Errorf("got %q", got)
 	}
-	if got := tokenScope(false, 0); got != " with full access that never expires" {
+	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeFull}, 0); got != " with full access that never expires" {
+		t.Errorf("got %q", got)
+	}
+	got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeModify, Features: []string{"dns", "domains"}}, 0)
+	if got != " with access to make changes but not delete, limited to DNS Zone Editor; Domains, that never expires" {
 		t.Errorf("got %q", got)
 	}
 }

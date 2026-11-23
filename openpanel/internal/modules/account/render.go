@@ -303,9 +303,11 @@ func renderLoginHistoryPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // MCPPageData is user/mcp.html's template context.
 type MCPPageData struct {
 	web.LayoutData
-	Tokens   []mcptokens.Token
-	MCPURL   string
-	NewToken string
+	Tokens         []mcptokens.Token
+	MCPURL         string
+	NewToken       string
+	FeatureOptions []mcpFeatureOption
+	FeatureLabels  map[string]string
 }
 
 func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens []mcptokens.Token, mcpURL, newToken string) {
@@ -315,7 +317,10 @@ func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens
 		return
 	}
 	layout.BulkActions = mcpBulkActions(layout.T)
-	data := MCPPageData{LayoutData: layout, Tokens: tokens, MCPURL: mcpURL, NewToken: newToken}
+	data := MCPPageData{
+		LayoutData: layout, Tokens: tokens, MCPURL: mcpURL, NewToken: newToken,
+		FeatureOptions: mcpFeatureOptions(layout.UserAllowed), FeatureLabels: mcpFeatureLabels(),
+	}
 	if err := mcpPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - mcp template render error: %v", err)
 	}

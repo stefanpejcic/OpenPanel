@@ -2,6 +2,7 @@ package account
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,13 +23,15 @@ func RegisterMCPAPI(mux *http.ServeMux, a *appctx.App) {
 }
 
 type apiMCPTokenEntry struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	TokenPrefix string `json:"token_prefix"`
-	ReadOnly    bool   `json:"read_only"`
-	CreatedAt   string `json:"created_at"`
-	LastUsedAt  string `json:"last_used_at,omitempty"`
-	ExpiresAt   string `json:"expires_at,omitempty"`
+	ID          int      `json:"id"`
+	Name        string   `json:"name"`
+	TokenPrefix string   `json:"token_prefix"`
+	ReadOnly    bool     `json:"read_only"`
+	Mode        string   `json:"mode"`
+	Features    []string `json:"features"`
+	CreatedAt   string   `json:"created_at"`
+	LastUsedAt  string   `json:"last_used_at,omitempty"`
+	ExpiresAt   string   `json:"expires_at,omitempty"`
 }
 
 // apiMCPList returns the caller's MCP tokens, never the raw secret (only ever known at creation time)
@@ -43,7 +46,7 @@ func apiMCPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	entries := make([]apiMCPTokenEntry, len(tokens))
 	for i, t := range tokens {
 		entries[i] = apiMCPTokenEntry{
-			ID: t.ID, Name: t.Name, TokenPrefix: t.TokenPrefix, ReadOnly: t.ReadOnly,
+			ID: t.ID, Name: t.Name, TokenPrefix: t.TokenPrefix, ReadOnly: t.ReadOnly, Mode: t.Mode, Features: t.Features,
 			CreatedAt: t.CreatedAt, LastUsedAt: t.LastUsedAt.String, ExpiresAt: t.ExpiresAt.String,
 		}
 	}
@@ -56,15 +59,29 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var body struct {
-		Name          string `json:"name"`
-		ReadOnly      bool   `json:"read_only"`
-		ExpiresInDays int    `json:"expires_in_days"`
+		Name          string   `json:"name"`
+		ReadOnly      bool     `json:"read_only"`
+		Mode          string   `json:"mode"`
+		Features      []string `json:"features"`
+		ExpiresInDays int      `json:"expires_in_days"`
 	}
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
 		_ = r.ParseForm()
 		body.Name = r.Form.Get("name")
 		body.ReadOnly = r.Form.Get("read_only") == "true" || r.Form.Get("read_only") == "on"
+		body.Mode = r.Form.Get("mode")
+		body.Features = r.Form["features"]
 		body.ExpiresInDays, _ = strconv.Atoi(r.Form.Get("expires_in_days"))
+	}
+	body.Mode = strings.ToLower(strings.TrimSpace(body.Mode))
+	if body.Mode != "" && !mcptokens.ValidMode(body.Mode) {
+		writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "mode must be readonly, modify or full"})
+		return
+	}
+	scope := mcptokens.Scope{Mode: mcptokens.ParseMode(body.Mode, body.ReadOnly), Features: mcptokens.CleanFeatures(body.Features)}
+	if bad := unknownMCPFeatures(scope.Features); len(bad) > 0 {
+		writeAPIAccountJSON(w, http.StatusBadRequest, map[string]any{"error": "Unknown features", "features": bad})
+		return
 	}
 	name := strings.TrimSpace(body.Name)
 	if name == "" {
@@ -74,7 +91,11 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		name = name[:100]
 	}
 
-	rawToken, err := mcptokens.CreateTokenForUser(ctx, a.DB, userID, name, body.ReadOnly, body.ExpiresInDays)
+	rawToken, err := mcptokens.CreateTokenForUser(ctx, a.DB, userID, name, scope, body.ExpiresInDays)
+	if errors.Is(err, mcptokens.ErrScopesUnavailable) {
+		writeAPIAccountJSON(w, http.StatusConflict, map[string]string{"error": "Limited tokens need the mode and allowed_features columns on mcp_tokens, which couldn't be added"})
+		return
+	}
 	if err != nil {
 		writeAPIAccountJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not create token"})
 		return
@@ -83,20 +104,16 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, injectErr := a.InjectData(ctx, userID)
 	if injectErr == nil {
 		username, _ := data["current_username"].(string)
-		scopeNote := ""
-		if body.ReadOnly {
-			scopeNote = ", read-only"
-		}
 		expiryNote := ""
 		if body.ExpiresInDays > 0 {
 			expiryNote = ", expires in " + strconv.Itoa(body.ExpiresInDays) + "d"
 		}
-		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+scopeNote+expiryNote+") via API", reqip.ClientIP(r))
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(body.ReadOnly, body.ExpiresInDays)+" through the OpenPanel API", true))
+		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+tokenScopeNote(scope)+expiryNote+") via API", reqip.ClientIP(r))
+		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(scope, body.ExpiresInDays)+" through the OpenPanel API", true))
 	}
 
 	writeAPIAccountJSON(w, http.StatusCreated, map[string]any{
-		"token": rawToken, "name": name, "read_only": body.ReadOnly, "expires_in_days": body.ExpiresInDays,
+		"token": rawToken, "name": name, "read_only": scope.Mode == mcptokens.ModeReadOnly, "mode": scope.Mode, "features": scope.Features, "expires_in_days": body.ExpiresInDays,
 	})
 }
 

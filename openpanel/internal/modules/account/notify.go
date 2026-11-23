@@ -15,6 +15,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -77,15 +78,50 @@ func mcpTokenEmail(a *appctx.App, r *http.Request, username, name, scope string,
 }
 
 // tokenScope describes a new token's access for the email, like " with read-only access that expires in 30 days"
-func tokenScope(readOnly bool, expiresInDays int) string {
-	scope := " with full access"
-	if readOnly {
-		scope = " with read-only access"
+func tokenScope(scope mcptokens.Scope, expiresInDays int) string {
+	text := " with full access"
+	switch scope.Mode {
+	case mcptokens.ModeReadOnly:
+		text = " with read-only access"
+	case mcptokens.ModeModify:
+		text = " with access to make changes but not delete"
+	}
+	if len(scope.Features) > 0 {
+		text += ", limited to " + strings.Join(featureLabelList(scope.Features), "; ") + ","
 	}
 	if expiresInDays > 0 {
-		return scope + " that expires in " + strconv.Itoa(expiresInDays) + " days"
+		return text + " that expires in " + strconv.Itoa(expiresInDays) + " days"
 	}
-	return scope + " that never expires"
+	return text + " that never expires"
+}
+
+// featureLabelList turns feature names into the group names people see on the token page
+func featureLabelList(features []string) []string {
+	labels := mcpFeatureLabels()
+	out := make([]string, 0, len(features))
+	for _, f := range features {
+		if l := labels[f]; l != "" {
+			out = append(out, l)
+		} else {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// tokenScopeNote is the short form for the activity log, like ", no deletes, features: dns, domains"
+func tokenScopeNote(scope mcptokens.Scope) string {
+	note := ""
+	switch scope.Mode {
+	case mcptokens.ModeReadOnly:
+		note = ", read-only"
+	case mcptokens.ModeModify:
+		note = ", no deletes"
+	}
+	if len(scope.Features) > 0 {
+		note += ", features: " + strings.Join(scope.Features, " ")
+	}
+	return note
 }
 
 // rowName reads a passkey or token name before it's deleted, so the email can say which one it was

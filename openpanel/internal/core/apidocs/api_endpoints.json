@@ -33,6 +33,20 @@
         "description": "Create a new database.",
         "body": {
           "name": "mydb"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "maxLength": 64,
+              "description": "Database name, letters, digits and underscore only; the account's database prefix is added if missing and the full prefixed name must be 64 characters or less."
+            }
+          },
+          "required": [
+            "name"
+          ]
         }
       },
       {
@@ -48,18 +62,41 @@
       {
         "method": "POST",
         "path": "/api/mysql/databases/<db_name>/optimize",
-        "description": "Run OPTIMIZE TABLE on every table in the database."
+        "description": "Run OPTIMIZE TABLE on every table in the database.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/mysql/databases/<db_name>/repair",
-        "description": "Run REPAIR TABLE on every table in the database."
+        "description": "Run REPAIR TABLE on every table in the database.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
         "path": "/api/mysql/databases/<db_name>/export",
         "description": "Download a database dump (sql or gzip).",
-        "params": "?format=sql"
+        "params": "?format=sql",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "enum": [
+                "sql",
+                "gzip"
+              ],
+              "default": "sql",
+              "description": "Dump format, sql for a plain .sql file or gzip for a gzip-compressed one."
+            }
+          },
+          "required": []
+        }
       },
       {
         "method": "GET",
@@ -74,13 +111,51 @@
           "username": "u",
           "password": "p",
           "host": "%"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "maxLength": 32,
+              "description": "Database user name, letters, digits and underscore only; the account's database prefix is added if missing and the full prefixed name must be 32 characters or less."
+            },
+            "password": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Password for the new database user."
+            },
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "default": "%",
+              "description": "Host the user may connect from, % for any host, or a hostname or IP (letters, digits, underscore, dot, hyphen)."
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
         }
       },
       {
         "method": "DELETE",
         "path": "/api/mysql/users/<db_user>",
         "description": "Delete a database user.",
-        "params": "?host=%"
+        "params": "?host=%",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "default": "%",
+              "description": "Host part of the user account to drop, % for the any-host account."
+            }
+          },
+          "required": []
+        }
       },
       {
         "method": "PATCH",
@@ -89,18 +164,48 @@
         "body": {
           "password": "newpass",
           "host": "%"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "password": {
+              "type": "string",
+              "minLength": 1,
+              "description": "New password for the database user."
+            },
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "default": "%",
+              "description": "Host part of the user account to change, % for the any-host account."
+            }
+          },
+          "required": [
+            "password"
+          ]
         }
       },
       {
         "method": "GET",
         "path": "/api/mysql/users/<db_user>/privileges/<db_name>",
         "description": "Get a user's privileges on a database.",
-        "params": "?host=%"
+        "params": "?host=%",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "type": "string",
+              "default": "%",
+              "description": "Host part of the user account to look up, % for the any-host account."
+            }
+          },
+          "required": []
+        }
       },
       {
         "method": "POST",
         "path": "/api/mysql/grants",
-        "description": "Grant privileges to a user on a database.",
+        "description": "Grant privileges to a user on a database, replacing the privileges the user had on it. Names must include the account prefix.",
         "body": {
           "username": "u",
           "database": "mydb",
@@ -108,6 +213,61 @@
             "ALL PRIVILEGES"
           ],
           "host": "%"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Existing database user name, used as-is with no prefix added."
+            },
+            "database": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Existing database name, used as-is with no prefix added; system databases are rejected."
+            },
+            "privileges": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "ALL PRIVILEGES",
+                  "ALTER",
+                  "ALTER ROUTINE",
+                  "CREATE",
+                  "CREATE ROUTINE",
+                  "CREATE TEMPORARY TABLES",
+                  "CREATE VIEW",
+                  "DELETE",
+                  "DROP",
+                  "EVENT",
+                  "EXECUTE",
+                  "INDEX",
+                  "INSERT",
+                  "LOCK TABLES",
+                  "REFERENCES",
+                  "SELECT",
+                  "SHOW VIEW",
+                  "TRIGGER",
+                  "UPDATE"
+                ]
+              },
+              "description": "Privileges to grant (matched case-insensitively); replaces any existing grants on the database, and ALL PRIVILEGES overrides the rest."
+            },
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "default": "%",
+              "description": "Host part of the user account to grant to, % for the any-host account."
+            }
+          },
+          "required": [
+            "username",
+            "database",
+            "privileges"
+          ]
         }
       },
       {
@@ -118,6 +278,31 @@
           "username": "u",
           "database": "mydb",
           "host": "%"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database user to revoke from; system users are rejected."
+            },
+            "database": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database to revoke all privileges on; system databases are rejected."
+            },
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "default": "%",
+              "description": "Host part of the user account, % for the any-host account."
+            }
+          },
+          "required": [
+            "username",
+            "database"
+          ]
         }
       },
       {
@@ -133,7 +318,11 @@
       {
         "method": "POST",
         "path": "/api/mysql/processlist/<id>/kill",
-        "description": "Kill a running MySQL query (KILL QUERY)."
+        "description": "Kill a running MySQL query (KILL QUERY).",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
@@ -146,6 +335,22 @@
         "description": "Enable/disable remote access.",
         "body": {
           "action": "enable"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "enable",
+                "disable"
+              ],
+              "description": "enable exposes the MySQL port on all interfaces, disable binds it to 127.0.0.1; the MySQL service restarts either way."
+            }
+          },
+          "required": [
+            "action"
+          ]
         }
       },
       {
@@ -156,6 +361,32 @@
           "username": "u",
           "host": "1.2.3.4",
           "password": "p"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "maxLength": 32,
+              "description": "Database user name; the account prefix is added unless a user with the exact unprefixed name already exists, and the final name must be 32 characters or less."
+            },
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "description": "Remote host or IP the user may connect from, or % for any host."
+            },
+            "password": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Password for the new user@host account."
+            }
+          },
+          "required": [
+            "username",
+            "host",
+            "password"
+          ]
         }
       },
       {
@@ -166,6 +397,31 @@
           "username": "u",
           "old_host": "1.2.3.4",
           "new_host": "5.6.7.8"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database user whose host entry is changed, used as-is with no prefix added."
+            },
+            "old_host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "description": "Current host of the user@host account."
+            },
+            "new_host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "description": "New host for the account; same as old_host returns 200 with no change."
+            }
+          },
+          "required": [
+            "username",
+            "old_host",
+            "new_host"
+          ]
         }
       },
       {
@@ -175,6 +431,25 @@
         "body": {
           "username": "u",
           "host": "1.2.3.4"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database user whose host entry is removed, used as-is with no prefix added."
+            },
+            "host": {
+              "type": "string",
+              "pattern": "^(%|[\\w.\\-]+)$",
+              "description": "Host of the user@host account to drop."
+            }
+          },
+          "required": [
+            "username",
+            "host"
+          ]
         }
       },
       {
@@ -185,9 +460,287 @@
       {
         "method": "PUT",
         "path": "/api/mysql/configuration",
-        "description": "Update MySQL server configuration (restarts the service).",
+        "description": "Update MySQL server configuration. Unknown keys are ignored, and the response says whether the service had to restart.",
         "body": {
           "max_connections": "200"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "Map of my.cnf keys to new values. Keys outside the allowed list are silently dropped; at least one allowed key is required. The allowed list is the default set below unless the admin overrides it in /etc/openpanel/mysql/keys.txt (GET /api/mysql/configuration returns the live list as available_keys).",
+          "minProperties": 1,
+          "properties": {
+            "max_allowed_packet": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf max_allowed_packet value."
+            },
+            "max_connect_errors": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf max_connect_errors value."
+            },
+            "max_connections": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf max_connections value."
+            },
+            "open_files_limit": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf open_files_limit value."
+            },
+            "performance_schema": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf performance_schema value."
+            },
+            "sql_mode": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf sql_mode value."
+            },
+            "thread_cache_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf thread_cache_size value."
+            },
+            "interactive_timeout": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf interactive_timeout value."
+            },
+            "wait_timeout": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf wait_timeout value."
+            },
+            "log_output": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf log_output value."
+            },
+            "log_error": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf log_error value."
+            },
+            "log_error_verbosity": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf log_error_verbosity value."
+            },
+            "general_log": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf general_log value."
+            },
+            "general_log_file": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf general_log_file value."
+            },
+            "long_query_time": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf long_query_time value."
+            },
+            "slow_query_log": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf slow_query_log value."
+            },
+            "slow_query_log_file": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf slow_query_log_file value."
+            },
+            "join_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf join_buffer_size value."
+            },
+            "key_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf key_buffer_size value."
+            },
+            "read_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf read_buffer_size value."
+            },
+            "read_rnd_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf read_rnd_buffer_size value."
+            },
+            "sort_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf sort_buffer_size value."
+            },
+            "innodb_log_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_log_buffer_size value."
+            },
+            "innodb_log_file_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_log_file_size value."
+            },
+            "innodb_sort_buffer_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_sort_buffer_size value."
+            },
+            "innodb_buffer_pool_chunk_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_buffer_pool_chunk_size value."
+            },
+            "innodb_buffer_pool_instances": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_buffer_pool_instances value."
+            },
+            "innodb_buffer_pool_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_buffer_pool_size value."
+            },
+            "max_heap_table_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf max_heap_table_size value."
+            },
+            "tmp_table_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf tmp_table_size value."
+            },
+            "table_open_cache": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf table_open_cache value."
+            },
+            "table_definition_cache": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf table_definition_cache value."
+            },
+            "innodb_flush_log_at_trx_commit": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "my.cnf innodb_flush_log_at_trx_commit value."
+            }
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
         }
       },
       {
@@ -198,12 +751,48 @@
       {
         "method": "POST",
         "path": "/api/mysql/databases/<db_name>/import",
-        "description": "Import a SQL dump into the database (multipart/form-data, field name 'file')."
+        "description": "Import a SQL dump into the database (multipart/form-data, field name 'file').",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "multipart/form-data",
+          "properties": {
+            "file": {
+              "type": "string",
+              "format": "binary",
+              "description": "SQL dump to import, filename must end in .sql or .sql.gz; size limit is the server's mysql_import_max_size_gb setting (default 1 GB)."
+            }
+          },
+          "required": [
+            "file"
+          ]
+        }
       },
       {
         "method": "GET",
         "path": "/api/mysql/size",
-        "description": "Get per-database disk usage."
+        "description": "Get per-database disk usage.",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "unit": {
+              "type": "string",
+              "enum": [
+                "bytes",
+                "kb",
+                "mb",
+                "gb"
+              ],
+              "default": "mb",
+              "description": "Unit for the reported sizes, matched case-insensitively."
+            },
+            "show_all": {
+              "type": "string",
+              "description": "Any non-empty value includes system databases in the result."
+            }
+          },
+          "required": []
+        },
+        "params": "?unit=mb"
       }
     ]
   },
@@ -252,6 +841,19 @@
         "description": "Create a new database.",
         "body": {
           "name": "mydb"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database name, letters, digits and underscore only, used as-is with no prefix added; reserved names are rejected."
+            }
+          },
+          "required": [
+            "name"
+          ]
         }
       },
       {
@@ -267,7 +869,21 @@
       {
         "method": "POST",
         "path": "/api/postgresql/databases/<db_name>/import",
-        "description": "Import a SQL dump into the database (multipart/form-data, field name 'file')."
+        "description": "Import a SQL dump into the database (multipart/form-data, field name 'file').",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "multipart/form-data",
+          "properties": {
+            "file": {
+              "type": "string",
+              "format": "binary",
+              "description": "Plain SQL dump to run with psql against the database."
+            }
+          },
+          "required": [
+            "file"
+          ]
+        }
       },
       {
         "method": "GET",
@@ -281,6 +897,25 @@
         "body": {
           "username": "u",
           "password": "p"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Role name, letters, digits and underscore only, used as-is with no prefix added; reserved names are rejected."
+            },
+            "password": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Password for the new role."
+            }
+          },
+          "required": [
+            "username",
+            "password"
+          ]
         }
       },
       {
@@ -294,6 +929,19 @@
         "description": "Change a PostgreSQL user's password.",
         "body": {
           "password": "newpass"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "password": {
+              "type": "string",
+              "minLength": 1,
+              "description": "New password for the role."
+            }
+          },
+          "required": [
+            "password"
+          ]
         }
       },
       {
@@ -303,6 +951,25 @@
         "body": {
           "username": "u",
           "database": "mydb"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Existing role that gets ALL PRIVILEGES on the database plus USAGE and CREATE on its public schema."
+            },
+            "database": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Existing database to grant on; system databases are rejected."
+            }
+          },
+          "required": [
+            "username",
+            "database"
+          ]
         }
       },
       {
@@ -312,6 +979,25 @@
         "body": {
           "username": "u",
           "database": "mydb"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Role to revoke from; system roles are rejected."
+            },
+            "database": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database to revoke all privileges on; system databases are rejected."
+            }
+          },
+          "required": [
+            "username",
+            "database"
+          ]
         }
       },
       {
@@ -327,7 +1013,11 @@
       {
         "method": "POST",
         "path": "/api/postgresql/processlist/<pid>/kill",
-        "description": "Cancel a running PostgreSQL query (pg_cancel_backend)."
+        "description": "Cancel a running PostgreSQL query (pg_cancel_backend).",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
@@ -340,6 +1030,22 @@
         "description": "Enable/disable remote access.",
         "body": {
           "action": "enable"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "enable",
+                "disable"
+              ],
+              "description": "enable exposes the PostgreSQL port on all interfaces, disable binds it to 127.0.0.1; the postgres service restarts either way."
+            }
+          },
+          "required": [
+            "action"
+          ]
         }
       },
       {
@@ -350,9 +1056,183 @@
       {
         "method": "PUT",
         "path": "/api/postgresql/configuration",
-        "description": "Update PostgreSQL server configuration (restarts the service).",
+        "description": "Update PostgreSQL server configuration. Unknown keys are ignored, and the response says whether the service had to restart.",
         "body": {
           "max_connections": "200"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "Map of postgresql.conf keys to new values. Keys outside the allowed list are silently dropped; at least one allowed key is required. The allowed list is the default set below unless the admin overrides it in /etc/openpanel/postgres/keys.txt (GET /api/postgresql/configuration returns the live list as available_keys).",
+          "minProperties": 1,
+          "properties": {
+            "max_connections": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf max_connections value."
+            },
+            "shared_buffers": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf shared_buffers value."
+            },
+            "work_mem": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf work_mem value."
+            },
+            "maintenance_work_mem": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf maintenance_work_mem value."
+            },
+            "effective_cache_size": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf effective_cache_size value."
+            },
+            "max_worker_processes": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf max_worker_processes value."
+            },
+            "max_parallel_workers": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf max_parallel_workers value."
+            },
+            "wal_level": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf wal_level value."
+            },
+            "synchronous_commit": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf synchronous_commit value."
+            },
+            "checkpoint_timeout": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf checkpoint_timeout value."
+            },
+            "checkpoint_completion_target": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf checkpoint_completion_target value."
+            },
+            "logging_collector": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf logging_collector value."
+            },
+            "log_directory": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf log_directory value."
+            },
+            "log_filename": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf log_filename value."
+            },
+            "log_min_duration_statement": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf log_min_duration_statement value."
+            },
+            "log_statement": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf log_statement value."
+            },
+            "autovacuum": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf autovacuum value."
+            },
+            "autovacuum_max_workers": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf autovacuum_max_workers value."
+            },
+            "autovacuum_naptime": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf autovacuum_naptime value."
+            },
+            "autovacuum_vacuum_scale_factor": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ],
+              "description": "postgresql.conf autovacuum_vacuum_scale_factor value."
+            }
+          },
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          }
         }
       },
       {
@@ -377,6 +1257,38 @@
         "description": "Add a new domain (docroot defaults to /var/www/html/<domain>; .onion domains also require hs_ed25519_public_key and hs_ed25519_secret_key).",
         "body": {
           "domain": "example.com"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9.-]+$",
+              "description": "Domain name to add; it is trimmed, lowercased and a trailing dot is dropped before the character check."
+            },
+            "docroot": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._/-]+$",
+              "description": "Document root, must resolve to a path inside /var/www/html/ and not inside /var/www/html/backups; defaults to /var/www/html/<domain> when empty."
+            },
+            "skip_containers": {
+              "type": "string",
+              "description": "Passed verbatim as an extra argument to opencli domains-add; the web form sends the literal value --skip_containers."
+            },
+            "hs_ed25519_public_key": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._/-]+$",
+              "description": "Path inside /var/www/html/ to the onion service public key file; required only for .onion domains."
+            },
+            "hs_ed25519_secret_key": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._/-]+$",
+              "description": "Path inside /var/www/html/ to the onion service secret key file; required only for .onion domains."
+            }
+          },
+          "required": [
+            "domain"
+          ]
         }
       },
       {
@@ -392,12 +1304,20 @@
       {
         "method": "POST",
         "path": "/api/domains/<domain>/suspend",
-        "description": "Suspend a domain."
+        "description": "Suspend a domain.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/domains/<domain>/unsuspend",
-        "description": "Unsuspend a domain."
+        "description": "Unsuspend a domain.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
@@ -410,6 +1330,19 @@
         "description": "Change the domain's document root (must be inside /var/www/html/).",
         "body": {
           "docroot": "/var/www/html/example.com"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "docroot": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._/-]+$",
+              "description": "New document root; must resolve to a path inside /var/www/html/ and not inside /var/www/html/backups."
+            }
+          },
+          "required": [
+            "docroot"
+          ]
         }
       },
       {
@@ -423,6 +1356,19 @@
         "description": "Set a redirect for the domain.",
         "body": {
           "redirect_url": "https://example.com"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "redirect_url": {
+              "type": "string",
+              "pattern": "^https?://[!#-&(-\\[\\]-_a-z|~]+$",
+              "description": "Full http:// or https:// URL to redirect visitors to; no spaces or { } \" ` \\ characters, and it must not point back at this domain or form a redirect loop with another of your domains."
+            }
+          },
+          "required": [
+            "redirect_url"
+          ]
         }
       },
       {
@@ -441,6 +1387,34 @@
         "description": "Issue/renew SSL cert (action: autossl, generate, switch_and_generate, or custom; custom also requires public_path and private_path).",
         "body": {
           "action": "autossl"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "autossl",
+                "generate",
+                "switch_and_generate",
+                "custom"
+              ],
+              "description": "autossl switches the domain to AutoSSL, generate requests a certificate, switch_and_generate does both, custom installs certificate files you supply."
+            },
+            "public_path": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._/-]+$",
+              "description": "Path inside /var/www/html/ to the certificate file; required when action is custom."
+            },
+            "private_path": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9._/-]+$",
+              "description": "Path inside /var/www/html/ to the private key file; required when action is custom."
+            }
+          },
+          "required": [
+            "action"
+          ]
         }
       },
       {
@@ -454,6 +1428,19 @@
         "description": "Save the domain's VHost config content.",
         "body": {
           "vhost": "...vhost content..."
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "vhost": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Full VHost config content that replaces the current file."
+            }
+          },
+          "required": [
+            "vhost"
+          ]
         }
       },
       {
@@ -467,6 +1454,18 @@
         "description": "Save raw DNS zone content.",
         "body": {
           "zone_content": "$ORIGIN example.com.\n..."
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "zone_content": {
+              "type": "string",
+              "description": "Full BIND zone file content; no carriage returns, only $TTL and $ORIGIN directives allowed, and it must pass named-checkzone."
+            }
+          },
+          "required": [
+            "zone_content"
+          ]
         }
       },
       {
@@ -478,6 +1477,40 @@
           "ttl": "3600",
           "type": "A",
           "value": "1.2.3.4"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Record owner name, e.g. www; a name ending in the domain gets a trailing dot added."
+            },
+            "ttl": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "default": "3600",
+              "description": "Time to live in seconds, as a number or string; defaults to 3600 when empty."
+            },
+            "type": {
+              "type": "string",
+              "description": "Record type such as A, AAAA, CNAME, MX or TXT; uppercased before use."
+            },
+            "value": {
+              "type": "string",
+              "description": "Record data; TXT values are wrapped in double quotes if not already quoted."
+            },
+            "priority": {
+              "type": "string",
+              "description": "Priority written between the type and the value, for MX and SRV records."
+            }
+          },
+          "required": [
+            "name",
+            "type",
+            "value"
+          ]
         }
       },
       {
@@ -488,6 +1521,26 @@
           "content": "www 3600 IN A 5.6.7.8",
           "end_row_id": 5,
           "serial": "2025010101"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "description": "Replacement zone line(s) written in place of rows row_id through end_row_id."
+            },
+            "end_row_id": {
+              "type": "integer",
+              "description": "Last line number (1-based, inclusive) of the record being replaced, for multi-line records; defaults to row_id and must be a JSON number."
+            },
+            "serial": {
+              "type": "string",
+              "description": "Zone serial you last read; if given and it differs from the current serial the update is refused with 409."
+            }
+          },
+          "required": [
+            "content"
+          ]
         }
       },
       {
@@ -496,12 +1549,25 @@
         "description": "Delete a DNS record by line number.",
         "body": {
           "end_row_id": 5
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "end_row_id": {
+              "type": "integer",
+              "description": "Last line number (1-based, inclusive) to delete for a multi-line record; when omitted or not greater than row_id only that one line is removed."
+            }
+          }
         }
       },
       {
         "method": "POST",
         "path": "/api/domains/<domain>/dns/restart",
-        "description": "Reset the domain's DNS zone to the default template."
+        "description": "Reset the domain's DNS zone to the default template.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
@@ -512,7 +1578,22 @@
         "method": "GET",
         "path": "/api/domains/<domain>/logs",
         "description": "Get access logs for the domain.",
-        "params": "?page=1&show_all=false"
+        "params": "?page=1&show_all=false",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "integer",
+              "default": 1,
+              "description": "Page number, 1-based; values below 1 or non-numbers are treated as 1. Page size is the server's domain_log_per_page setting (default 1000)."
+            },
+            "show_all": {
+              "type": "boolean",
+              "default": false,
+              "description": "Only the literal value true returns every entry without paging."
+            }
+          }
+        }
       },
       {
         "method": "GET",
@@ -525,6 +1606,19 @@
         "description": "Set the domain's display-case override.",
         "body": {
           "capitalized_domain": "Example.com"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "capitalized_domain": {
+              "type": "string",
+              "minLength": 1,
+              "description": "How the domain name should be displayed, e.g. Example.com."
+            }
+          },
+          "required": [
+            "capitalized_domain"
+          ]
         }
       },
       {
@@ -798,21 +1892,107 @@
           "command": "/usr/bin/php script.php",
           "container": "php-fpm-8.1",
           "comment": "my job"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "schedule": {
+              "type": "string",
+              "description": "Cron schedule with 6 fields, seconds first (seconds minutes hours day month weekday), or an @-descriptor such as @daily or @every 1h."
+            },
+            "command": {
+              "type": "string",
+              "description": "Command to run inside the container; no newlines, and must not contain image=, network=, job-run, job-local or job-service-run."
+            },
+            "container": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+              "description": "Name of one of your own compose services to run the command in, as listed by GET /api/crons."
+            },
+            "comment": {
+              "type": "string",
+              "maxLength": 30,
+              "pattern": "^[^\"\\\\]*$",
+              "description": "Job name, unique among your jobs, no double quotes or backslashes; when empty it defaults to the container name with -1, -2 appended if taken."
+            },
+            "no_overlap": {
+              "type": "boolean",
+              "default": false,
+              "description": "When true, a new run is skipped while the previous run is still going."
+            }
+          },
+          "required": [
+            "schedule",
+            "command",
+            "container"
+          ]
         }
       },
       {
         "method": "PATCH",
         "path": "/api/crons",
-        "description": "Edit cron job. All original_* fields must match the existing job exactly.",
+        "description": "Edit cron job. All original_* fields must match the existing job exactly. Leaving out no_overlap turns it off.",
         "body": {
           "original_schedule": "0 0 * * * *",
           "original_command": "...",
           "original_container": "php-fpm-8.1",
           "original_comment": "my job",
-          "schedule": "30 * * * *",
+          "schedule": "0 30 * * * *",
           "command": "...",
           "container": "php-fpm-8.1",
           "comment": "my job"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "original_schedule": {
+              "type": "string",
+              "description": "Current schedule of the job to edit, matched exactly after trimming."
+            },
+            "original_command": {
+              "type": "string",
+              "description": "Current command of the job to edit, matched exactly after trimming."
+            },
+            "original_container": {
+              "type": "string",
+              "description": "Current container of the job to edit, matched exactly after trimming."
+            },
+            "original_comment": {
+              "type": "string",
+              "description": "Current name of the job to edit, matched exactly after trimming."
+            },
+            "schedule": {
+              "type": "string",
+              "description": "New cron schedule with 6 fields, seconds first, or an @-descriptor such as @daily."
+            },
+            "command": {
+              "type": "string",
+              "description": "New command; no newlines, and must not contain image=, network=, job-run, job-local or job-service-run."
+            },
+            "container": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+              "description": "New container, must be one of your own compose services."
+            },
+            "comment": {
+              "type": "string",
+              "description": "New job name; when empty the original name is kept."
+            },
+            "no_overlap": {
+              "type": "boolean",
+              "default": false,
+              "description": "When true, a new run is skipped while the previous run is still going; omitting it turns the setting off."
+            }
+          },
+          "required": [
+            "original_schedule",
+            "original_command",
+            "original_container",
+            "original_comment",
+            "schedule",
+            "command",
+            "container"
+          ]
         }
       },
       {
@@ -824,6 +2004,33 @@
           "command": "...",
           "container": "php-fpm-8.1",
           "comment": "my job"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "schedule": {
+              "type": "string",
+              "description": "Schedule of the job to delete, matched exactly after trimming."
+            },
+            "command": {
+              "type": "string",
+              "description": "Command of the job to delete, matched exactly after trimming."
+            },
+            "container": {
+              "type": "string",
+              "description": "Container of the job to delete, matched exactly after trimming."
+            },
+            "comment": {
+              "type": "string",
+              "description": "Name of the job to delete, matched exactly after trimming."
+            }
+          },
+          "required": [
+            "schedule",
+            "command",
+            "container",
+            "comment"
+          ]
         }
       },
       {
@@ -837,6 +2044,18 @@
         "description": "Save the raw cron file, one [job-exec \"name\"] section per job with a 6-field schedule.",
         "body": {
           "content": "[job-exec \"my job\"]\nschedule = 0 0 * * * *\ncontainer = php-fpm-8.3\ncommand = /usr/bin/php script.php\n"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "description": "Whole crons.ini: blocks of [job-exec \"name\"], schedule = , container = , command = and an optional no-overlap line, one blank line between blocks; containers must be your own and image=, network=, job-run, job-local, job-service-run are refused. An empty string clears the file."
+            }
+          },
+          "required": [
+            "content"
+          ]
         }
       },
       {
@@ -850,13 +2069,41 @@
         "description": "Set the cron time zone and recreate the cron service.",
         "body": {
           "timezone": "Europe/Belgrade"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "timezone": {
+              "type": "string",
+              "description": "IANA time zone name such as Europe/Belgrade, or UTC; must be in the panel's PHP time zone list."
+            }
+          },
+          "required": [
+            "timezone"
+          ]
         }
       },
       {
         "method": "GET",
         "path": "/api/crons/log",
         "description": "Tail cron log.",
-        "params": "?job=<filter>&lines=100"
+        "params": "?job=<filter>&lines=100",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "job": {
+              "type": "string",
+              "maxLength": 50,
+              "description": "Job name; only log lines containing [Job \"<job>\" are returned. Empty returns all lines."
+            },
+            "lines": {
+              "type": "integer",
+              "default": 100,
+              "description": "How many of the newest matching log lines to return, 1 or more. Default 100.",
+              "minimum": 1
+            }
+          }
+        }
       }
     ]
   },
@@ -987,17 +2234,35 @@
         "description": "Start container.",
         "body": {
           "pull": false
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "pull": {
+              "type": "boolean",
+              "default": false,
+              "description": "Pull the service's image before starting it. A missing or non-JSON body means false."
+            }
+          }
         }
       },
       {
         "method": "POST",
         "path": "/api/containers/<service>/stop",
-        "description": "Stop container."
+        "description": "Stop container.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/containers/<service>/restart",
-        "description": "Restart container."
+        "description": "Restart container.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "PATCH",
@@ -1005,15 +2270,60 @@
         "description": "Update CPU/RAM/PIDs limits.",
         "body": {
           "cpu": "1",
-          "ram": "512m",
+          "ram": "1.5",
           "pids": "512"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body; if it does not decode as JSON the handler falls back to form fields with the same names. At least one of cpu, ram or pids must be non-empty, otherwise 400.",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit as a number of cores, e.g. \"1\" or \"0.5\". \"0\" resets it to the plan's total CPU."
+            },
+            "ram": {
+              "type": "string",
+              "description": "Memory limit in gigabytes, e.g. \"1\" or \"1.5\"; a \"G\" suffix is appended unless the value already ends in G. \"0\" resets it to the plan's total RAM. Megabyte values like \"512m\" are not converted and end up as \"512mG\"."
+            },
+            "pids": {
+              "type": "string",
+              "description": "Maximum number of processes, e.g. \"512\". \"0\" removes the limit (unlimited)."
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "cpu"
+              ]
+            },
+            {
+              "required": [
+                "ram"
+              ]
+            },
+            {
+              "required": [
+                "pids"
+              ]
+            }
+          ]
         }
       },
       {
         "method": "GET",
         "path": "/api/containers/<service>/logs",
         "description": "Tail container logs.",
-        "params": "?lines=100"
+        "params": "?lines=100",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "lines": {
+              "type": "integer",
+              "default": 100,
+              "description": "Number of log lines to return from the end (podman logs --tail). Non-numeric values fall back to 100; there is no upper bound."
+            }
+          }
+        }
       },
       {
         "method": "POST",
@@ -1021,18 +2331,156 @@
         "description": "Add a new compose service.",
         "body": {
           "service_name": "myservice",
-          "image": "myimage:tag",
+          "image": "nginx:latest",
           "cpu": "1",
-          "ram": "512m"
+          "ram": "512m",
+          "network": "www"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body; if it does not decode as JSON the handler falls back to form fields (service_name, image, cpu, ram, network, healthcheck, environment, add_socket, and parallel volume_name/volume_mount/volume_readonly arrays).",
+          "properties": {
+            "service_name": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]{2,}$",
+              "description": "New compose service name: starts with a lowercase letter, only lowercase letters and digits, at least 3 characters. Must not already exist."
+            },
+            "image": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,254}$",
+              "description": "Container image reference, e.g. nginx:latest or ghcr.io/owner/app:1.0."
+            },
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit as a positive number of cores, e.g. \"1\" or \"0.5\"."
+            },
+            "ram": {
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[gGmM]$",
+              "description": "Memory limit as a positive number followed by M or G, e.g. \"512M\" or \"1.5G\"."
+            },
+            "network": {
+              "type": "string",
+              "description": "Name of a network already declared in the account's docker-compose.yml to attach the service to."
+            },
+            "healthcheck": {
+              "type": "string",
+              "description": "Optional compose healthcheck block written as a YAML string; rejected with 400 if it does not parse."
+            },
+            "environment": {
+              "type": "string",
+              "description": "Environment variables, one per line as KEY=value or key: value; each is stored in .env under the service's prefix and referenced from the compose file."
+            },
+            "add_socket": {
+              "type": "boolean",
+              "description": "Mount the user's podman socket read-only at /var/run/docker.sock inside the container."
+            },
+            "volumes": {
+              "type": "array",
+              "description": "Volume mounts. Entries with an empty name or mount are skipped.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Existing or new named volume (new names: 3-64 lowercase letters, digits or _, starting with a letter), or a relative folder inside the account like ./data."
+                  },
+                  "mount": {
+                    "type": "string",
+                    "description": "Absolute path inside the container to mount the volume at."
+                  },
+                  "readonly": {
+                    "type": "boolean",
+                    "description": "Mount the volume read-only."
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "service_name",
+            "image",
+            "cpu",
+            "ram",
+            "network"
+          ]
         }
       },
       {
         "method": "PATCH",
         "path": "/api/containers/<service>",
-        "description": "Edit a compose service's definition.",
+        "description": "Edit a compose service's definition. Replaces the whole service definition, so send every setting you want to keep.",
         "body": {
+          "image": "nginx:latest",
           "cpu": "1",
-          "ram": "512m"
+          "ram": "1g",
+          "network": "www"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "Replaces the whole service definition, not a partial update: volumes, environment, healthcheck and add_socket that are left out are removed (only labels and extra_hosts are carried over). JSON body with the same form-field fallback as POST /api/containers. A running container is restarted afterwards.",
+          "properties": {
+            "service_name": {
+              "type": "string",
+              "description": "Optional; if sent it must equal the <service> path value, since renaming is not supported."
+            },
+            "image": {
+              "type": "string",
+              "description": "Container image reference matching ^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,254}$, or an image with a ${VAR} templated tag such as nginx:${NGINX_VERSION:-latest}."
+            },
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit as a positive number of cores, e.g. \"1\" or \"0.5\"."
+            },
+            "ram": {
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[gGmM]$",
+              "description": "Memory limit as a positive number followed by M or G, e.g. \"512M\" or \"1.5G\"."
+            },
+            "network": {
+              "type": "string",
+              "description": "Name of a network already declared in the account's docker-compose.yml."
+            },
+            "healthcheck": {
+              "type": "string",
+              "description": "Compose healthcheck block as a YAML string; rejected with 400 if it does not parse. Left out means no healthcheck."
+            },
+            "environment": {
+              "type": "string",
+              "description": "Environment variables, one per line as KEY=value or key: value. Replaces all of the service's existing variables; left out means none."
+            },
+            "add_socket": {
+              "type": "boolean",
+              "description": "Mount the user's podman socket read-only at /var/run/docker.sock inside the container."
+            },
+            "volumes": {
+              "type": "array",
+              "description": "Full list of volume mounts for the service; left out means no volumes.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Existing or new named volume (new names: 3-64 lowercase letters, digits or _, starting with a letter), or a relative folder inside the account like ./data."
+                  },
+                  "mount": {
+                    "type": "string",
+                    "description": "Absolute path inside the container to mount the volume at."
+                  },
+                  "readonly": {
+                    "type": "boolean",
+                    "description": "Mount the volume read-only."
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "image",
+            "cpu",
+            "ram",
+            "network"
+          ]
         }
       },
       {
@@ -1632,12 +3080,40 @@
       {
         "method": "GET",
         "path": "/api/files",
-        "description": "List the docroot root."
+        "description": "List the docroot root.",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "hidden_files": {
+              "type": "string",
+              "description": "Set to \"false\" to leave out dotfiles; any other value or none lists them."
+            },
+            "page": {
+              "type": "integer",
+              "default": 1,
+              "description": "Page of the listing to return; clamped to the range 1..total pages. Page size is the server's filemanager_files_per_page setting (default 500)."
+            }
+          }
+        }
       },
       {
         "method": "GET",
         "path": "/api/files/<path>",
-        "description": "List a directory."
+        "description": "List a directory.",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "hidden_files": {
+              "type": "string",
+              "description": "Set to \"false\" to leave out dotfiles; any other value or none lists them."
+            },
+            "page": {
+              "type": "integer",
+              "default": 1,
+              "description": "Page of the listing to return; clamped to the range 1..total pages. Page size is the server's filemanager_files_per_page setting (default 500)."
+            }
+          }
+        }
       },
       {
         "method": "GET",
@@ -1656,6 +3132,23 @@
         "body": {
           "path": "subdir",
           "filename": "notes.txt"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post (application/x-www-form-urlencoded or multipart) is also accepted, but then the directory key is path_param instead of path.",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html to create the file in; empty or omitted means the docroot root. A leading / is stripped."
+            },
+            "filename": {
+              "type": "string",
+              "description": "Name of the new file. Fails with 409 if it already exists."
+            }
+          },
+          "required": [
+            "filename"
+          ]
         }
       },
       {
@@ -1665,12 +3158,50 @@
         "body": {
           "path": "subdir",
           "foldername": "images"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post is also accepted, but then the directory key is path_param instead of path.",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Parent directory relative to /var/www/html; empty or omitted means the docroot root. A leading / is stripped."
+            },
+            "foldername": {
+              "type": "string",
+              "description": "Name of the new directory; must not contain a slash. Fails with 409 if it already exists."
+            }
+          },
+          "required": [
+            "foldername"
+          ]
         }
       },
       {
         "method": "POST",
         "path": "/api/file-manager/upload",
-        "description": "Upload files (multipart/form-data, field name 'files')."
+        "description": "Upload files (multipart/form-data, field name 'files').",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "multipart/form-data",
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "binary"
+              },
+              "description": "One or more files to upload, each sent as a form part named files. Existing files with the same name are overwritten. Each file is limited to the server's filemanager_upload_size (MB) and one request to twice that."
+            },
+            "path_param": {
+              "type": "string",
+              "description": "Destination directory relative to /var/www/html; empty or omitted means the docroot root."
+            }
+          },
+          "required": [
+            "files"
+          ]
+        }
       },
       {
         "method": "POST",
@@ -1680,12 +3211,57 @@
           "path": "subdir",
           "old_name": "old.txt",
           "new_name": "new.txt"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post is also accepted, but then the directory key is path_param instead of path.",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the item; empty or omitted means the docroot root."
+            },
+            "old_name": {
+              "type": "string",
+              "description": "Current name of the file or directory inside path; it must exist."
+            },
+            "new_name": {
+              "type": "string",
+              "description": "New name inside path. Fails with 409 if that name already exists."
+            }
+          },
+          "required": [
+            "old_name",
+            "new_name"
+          ]
         }
       },
       {
         "method": "DELETE",
         "path": "/api/file-manager/delete",
-        "description": "Delete a file or directory (permanently, or move to trash)."
+        "description": "Delete a file or directory (permanently, or move to trash).",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "filename": {
+              "type": "string",
+              "description": "Name of the file or directory to delete inside path_param. Not checked for emptiness: if omitted, path_param itself is the target."
+            },
+            "path_param": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the item; empty or omitted means the docroot root."
+            },
+            "item_type": {
+              "type": "string",
+              "default": "file",
+              "description": "\"directory\" deletes recursively; any other value deletes a single file. Ignored for symlinks, which are always just unlinked."
+            },
+            "mode": {
+              "type": "string",
+              "default": "permanent",
+              "description": "\"trash\" moves the item to the trash; any other value, including the default, deletes it permanently."
+            }
+          }
+        }
       },
       {
         "method": "POST",
@@ -1697,22 +3273,117 @@
             "a.txt"
           ],
           "permissions": "644"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post is also accepted, with keys path_param, filename (repeated), permissions, folder_permissions and recursive=on.",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the files; empty or omitted means the docroot root."
+            },
+            "filenames": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Names of the files or directories inside path to change. Names that fail are returned in the errored list."
+            },
+            "permissions": {
+              "type": "string",
+              "pattern": "^0?[0-7]{3}$",
+              "description": "Octal mode such as 644 or 0755. Setuid, setgid and sticky bits are refused."
+            },
+            "folder_permissions": {
+              "type": "string",
+              "pattern": "^0?[0-7]{3}$",
+              "description": "Octal mode for directories when recursive is set; defaults to permissions when empty."
+            },
+            "recursive": {
+              "type": "boolean",
+              "description": "For a selected directory, apply folder_permissions to it and every folder under it and permissions to the files; symlinks are skipped."
+            }
+          },
+          "required": [
+            "permissions"
+          ]
         }
       },
       {
         "method": "POST",
         "path": "/api/file-manager/copy",
-        "description": "Copy a file or directory."
+        "description": "Copy a file or directory.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "item_name": {
+              "type": "string",
+              "description": "Name of the file or directory to copy, inside path_param."
+            },
+            "item_type": {
+              "type": "string",
+              "description": "\"directory\" copies the whole tree; any other value copies a single file."
+            },
+            "path_param": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the item; empty means the docroot root."
+            },
+            "destination_path": {
+              "type": "string",
+              "description": "Destination relative to /var/www/html. If it is an existing directory the item is copied into it under the same name; otherwise it is the new path. Defaults to path_param. Fails with 409 if the destination exists."
+            }
+          },
+          "required": [
+            "item_name"
+          ]
+        }
       },
       {
         "method": "POST",
         "path": "/api/file-manager/move",
-        "description": "Move a file or directory."
+        "description": "Move a file or directory.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "item_name": {
+              "type": "string",
+              "description": "Name of the file or directory to move, inside path_param."
+            },
+            "path_param": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the item; empty means the docroot root."
+            },
+            "destination_path": {
+              "type": "string",
+              "description": "Destination relative to /var/www/html; empty means the docroot root. If it is an existing directory the item is moved into it under the same name; otherwise it is the new path. Fails with 409 if the destination exists."
+            }
+          },
+          "required": [
+            "item_name"
+          ]
+        }
       },
       {
         "method": "GET",
         "path": "/api/file-manager/edit-file/<path>",
-        "description": "Get a file's content."
+        "description": "Get a file's content.",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "new": {
+              "type": "string",
+              "description": "Set to \"true\" to get an empty string instead of a 404 when the file does not exist yet."
+            }
+          }
+        }
       },
       {
         "method": "PUT",
@@ -1720,12 +3391,34 @@
         "description": "Save a file's content.",
         "body": {
           "content": "new file content"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post is also accepted with the text in editor_content or content.",
+          "properties": {
+            "content": {
+              "type": "string",
+              "description": "Full new file content; replaces the file atomically. An empty string is allowed and empties the file. Line endings are normalised to LF for some file types."
+            }
+          },
+          "required": [
+            "content"
+          ]
         }
       },
       {
         "method": "GET",
         "path": "/api/file-manager/download-file/<path>",
-        "description": "Download a file."
+        "description": "Download a file.",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "path_param": {
+              "type": "string",
+              "description": "Optional directory relative to /var/www/html that is prepended to the <path> in the URL."
+            }
+          }
+        }
       },
       {
         "method": "GET",
@@ -1740,6 +3433,27 @@
           "archive_name": "backup.zip",
           "path": "subdir",
           "extract_destination": "subdir/extracted"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post is also accepted, with keys archiveName, path_param and extractDestination.",
+          "properties": {
+            "archive_name": {
+              "type": "string",
+              "description": "Archive file name inside path. Must end in .zip, .tar, .tar.gz, .tgz or .gz (case-insensitive), otherwise 400."
+            },
+            "path": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the archive; empty means the docroot root."
+            },
+            "extract_destination": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html to extract into, created if missing. \"/\" means the docroot root; empty or omitted means the same directory as path."
+            }
+          },
+          "required": [
+            "archive_name"
+          ]
         }
       },
       {
@@ -1754,12 +3468,67 @@
             "a.txt",
             "b.txt"
           ]
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON body. A form post is also accepted, with keys archiveName, extension, pathParam and selectedFiles[].",
+          "properties": {
+            "archive_name": {
+              "type": "string",
+              "description": "Archive path relative to /var/www/html (not to path); .<extension> is appended unless already present. A leading / is stripped. Overwrites an existing file."
+            },
+            "extension": {
+              "type": "string",
+              "enum": [
+                "zip",
+                "tar",
+                "tar.gz"
+              ],
+              "description": "Archive format."
+            },
+            "path": {
+              "type": "string",
+              "description": "Directory relative to /var/www/html that holds the selected files; empty means the docroot root."
+            },
+            "selected_files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "description": "Names of files or directories inside path to put in the archive."
+            }
+          },
+          "required": [
+            "archive_name",
+            "extension",
+            "selected_files"
+          ]
         }
       },
       {
         "method": "POST",
         "path": "/api/file-manager/wget",
-        "description": "Download a file from a URL (multipart/form-data)."
+        "description": "Download a file from a URL (multipart/form-data).",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "multipart/form-data",
+          "description": "Read with ParseMultipartForm, which also picks up urlencoded bodies and query-string keys. Returns a download_id to poll at /api/file-manager/wget/status/<download_id>.",
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri",
+              "description": "http:// or https:// URL to download. Its host must resolve, and only to public IP addresses. The saved file name comes from the URL; 409 if that file already exists."
+            },
+            "path_param": {
+              "type": "string",
+              "description": "Destination directory relative to /var/www/html; empty or omitted means the docroot root."
+            }
+          },
+          "required": [
+            "url"
+          ]
+        }
       },
       {
         "method": "GET",
@@ -1843,7 +3612,16 @@
       {
         "method": "GET",
         "path": "/api/git",
-        "description": "List the account's git repositories with branch, deploy mode, target folder, last pull/deploy and webhook URL. Optional ?domain= filters by domain."
+        "description": "List the account's git repositories with branch, deploy mode, target folder, last pull/deploy and webhook URL. Optional ?domain= filters by domain.",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "description": "Only list repositories attached to this exact domain name."
+            }
+          }
+        }
       },
       {
         "method": "POST",
@@ -1852,6 +3630,96 @@
         "body": {
           "action": "deploy",
           "repo": "mysite"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "Flat JSON object when Content-Type is application/json, otherwise read as form values. In JSON, true is sent on as \"1\", false and null are dropped, numbers are stringified; arrays and objects are not supported. Which fields apply depends on action.",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "create",
+                "pull",
+                "deploy",
+                "settings",
+                "reset_password",
+                "delete"
+              ],
+              "description": "What to do. Anything else returns 400 Invalid action."
+            },
+            "repo": {
+              "type": "string",
+              "description": "Name of the existing repository to act on; needed for every action except create."
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "remote",
+                "local"
+              ],
+              "description": "create only: clone from a remote URL, or create a local repository you push to over HTTPS."
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+              "description": "create only: repository name; must not end in .git or .lock or contain \"..\". Defaults to the last URL segment for remote, or to the domain for local."
+            },
+            "remote_url": {
+              "type": "string",
+              "description": "create with source=remote: http(s)://host/path, git@host:path or ssh://user@host/path URL. Must not start with - or contain \"..\"."
+            },
+            "remote_user": {
+              "type": "string",
+              "description": "create or settings: username for an HTTPS remote; ignored for SSH URLs. In settings, sending this key (even empty) updates the credentials, and an empty value clears them."
+            },
+            "remote_pass": {
+              "type": "string",
+              "description": "create or settings: password or token for an HTTPS remote. In settings, empty keeps the saved password."
+            },
+            "branch": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$",
+              "description": "create or settings: branch to deploy; must not contain \"..\", \"//\" or \"/.\" or end in / or .lock. Local repos default to main. In settings, a remote repo's branch must already be known (pull first)."
+            },
+            "domain": {
+              "type": "string",
+              "description": "create only: domain the repository belongs to; it must be owned by the account. Its docroot is the default target_dir."
+            },
+            "target_dir": {
+              "type": "string",
+              "description": "create or settings: deploy target inside /var/www/html, absolute or relative to it; must not contain \"..\"."
+            },
+            "deploy_mode": {
+              "type": "string",
+              "enum": [
+                "automatic",
+                "manual",
+                "none"
+              ],
+              "description": "create or settings: automatic deploys on pull/push (create defaults to automatic and deploys a remote repo right away), manual waits for a deploy action, none never deploys."
+            },
+            "actions_enabled": {
+              "type": "boolean",
+              "description": "create or settings: must be true for actions and actions_container to be saved; otherwise deploy actions are cleared."
+            },
+            "actions": {
+              "type": "string",
+              "maxLength": 4000,
+              "description": "Shell commands to run after each deploy, one per line, inside actions_container."
+            },
+            "actions_container": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$",
+              "description": "Name of one of the account's containers to run the deploy actions in; required when actions is non-empty."
+            },
+            "actions_present": {
+              "type": "boolean",
+              "description": "settings only: must be true for actions_enabled/actions/actions_container to be applied; otherwise the saved deploy actions are left alone."
+            }
+          },
+          "required": [
+            "action"
+          ]
         }
       }
     ]
@@ -2774,22 +4642,50 @@
         "method": "GET",
         "path": "/api/pm2/<domain>/logs",
         "description": "Tail app logs.",
-        "params": "?lines=100"
+        "params": "?lines=100",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "lines": {
+              "type": "integer",
+              "default": 100,
+              "description": "Number of log lines to return from the end. Non-numeric values fall back to 100; there is no upper bound."
+            }
+          }
+        }
       },
       {
         "method": "POST",
         "path": "/api/pm2/<domain>/start",
-        "description": "Start application container."
+        "description": "Start application container.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/pm2/<domain>/stop",
-        "description": "Stop application container."
+        "description": "Stop application container.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/pm2/<domain>/restart",
-        "description": "Pull latest image and restart."
+        "description": "Restart the application, which fetches its git repository again on start. Pulls the newest image first unless no_pull is true.",
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "no_pull": {
+              "type": "boolean",
+              "default": false,
+              "description": "Skip pulling the runtime image, which is slow and only needed to pick up a newer image."
+            }
+          }
+        }
       },
       {
         "method": "PATCH",
@@ -2799,6 +4695,41 @@
           "version": "20",
           "cpu": "1",
           "ram": "1"
+        },
+        "body_schema": {
+          "type": "object",
+          "description": "JSON only (no form fallback; a body that fails to decode is treated as empty). Each non-empty field rewrites the matching line in the account's .env, except requirements, which is always rewritten. Restart the app for changes to take effect.",
+          "properties": {
+            "version": {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$",
+              "description": "Runtime image tag, e.g. \"20\" or \"3.12\"; Java tags may carry _NN and -jdk-jammy suffixes."
+            },
+            "requirements": {
+              "type": "string",
+              "description": "\"1\", \"on\", \"true\" or \"yes\" (case-insensitive) runs the dependency install (npm/pip/bundle/mvn) before start; anything else, including leaving it out, turns it off."
+            },
+            "startup_file": {
+              "type": "string",
+              "description": "Absolute path under /var/www/html/ ending in .py, .js, .rb or .java, with no \"..\" segments or newlines."
+            },
+            "custom_cmd": {
+              "type": "string",
+              "description": "Custom startup command that replaces the default run command; must not contain \"..\" or newlines."
+            },
+            "workdir": {
+              "type": "string",
+              "description": "Working directory: absolute path under /var/www/html/ with no \"..\" segments or newlines."
+            },
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit as a positive number of cores, e.g. \"1\" or \"0.5\"."
+            },
+            "ram": {
+              "type": "string",
+              "description": "Memory limit as a positive number of gigabytes, e.g. \"1\"; G is appended unless already present."
+            }
+          }
         }
       },
       {
@@ -2820,22 +4751,432 @@
       {
         "method": "POST",
         "path": "/api/nodejs/install",
-        "description": "Install a new Node.js app (form-encoded body; response streams newline-delimited JSON progress events)."
+        "description": "Install a new Node.js app (form-encoded body; response streams newline-delimited JSON progress events).",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "application/x-www-form-urlencoded",
+          "description": "Read with r.FormValue, so urlencoded, multipart and query-string keys all work; JSON is not read. Validation errors come back as an {\"error\": ...} line in the application/x-ndjson stream, not as an HTTP error status.",
+          "properties": {
+            "domain_id": {
+              "type": "integer",
+              "description": "ID of one of the account's domains (domains.domain_id) to install the app on."
+            },
+            "service_name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "description": "Compose service name for the app; lowercased before use. Must not already exist."
+            },
+            "subdirectory": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$",
+              "description": "Optional path under the domain to serve the app from (lowercased, no \"..\" or \".\" segments). Omit for the domain root. A root install is refused if the domain already has subdirectory sites, and a subdirectory install is refused if a root app exists."
+            },
+            "version": {
+              "type": "string",
+              "default": "latest",
+              "description": "Runtime image tag: \"latest\" or a tag matching ^[0-9]+(\\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$."
+            },
+            "startup_file": {
+              "type": "string",
+              "description": "Optional absolute path under /var/www/html/ ending in .py, .js, .rb or .java (no \"..\" segments or newlines). Defaults to index.js."
+            },
+            "custom_cmd": {
+              "type": "string",
+              "description": "Optional command that replaces the default run command; must not contain \"..\" or newlines."
+            },
+            "requirements": {
+              "type": "string",
+              "description": "\"1\", \"on\", \"true\" or \"yes\" (case-insensitive) runs npm install before starting the app; anything else skips it."
+            },
+            "git_repo_url": {
+              "type": "string",
+              "maxLength": 500,
+              "pattern": "^https://[^'\\n\\r \\t]*$",
+              "description": "Optional https:// repository to fetch into the app folder on every container start. Silently ignored when the git module is not enabled for the user."
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Port the app listens on inside the container, used for the reverse proxy. If omitted, the proxy targets the service without an explicit port."
+            },
+            "cpu_limit": {
+              "type": "number",
+              "default": 0.5,
+              "description": "CPU cores for the container. Values that are not a positive number fall back to 0.5 instead of being rejected."
+            },
+            "mem_limit": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Memory in gigabytes. Values that are not a positive number fall back to 1.0 instead of being rejected."
+            },
+            "pids_limit": {
+              "type": "integer",
+              "default": 500,
+              "description": "Maximum number of processes. Values that are not a positive integer fall back to 500 instead of being rejected."
+            }
+          },
+          "required": [
+            "domain_id",
+            "service_name"
+          ]
+        }
       },
       {
         "method": "POST",
         "path": "/api/python/install",
-        "description": "Install a new Python app (form-encoded body; response streams newline-delimited JSON progress events)."
+        "description": "Install a new Python app (form-encoded body; response streams newline-delimited JSON progress events).",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "application/x-www-form-urlencoded",
+          "description": "Read with r.FormValue, so urlencoded, multipart and query-string keys all work; JSON is not read. Validation errors come back as an {\"error\": ...} line in the application/x-ndjson stream, not as an HTTP error status.",
+          "properties": {
+            "domain_id": {
+              "type": "integer",
+              "description": "ID of one of the account's domains (domains.domain_id) to install the app on."
+            },
+            "service_name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "description": "Compose service name for the app; lowercased before use. Must not already exist."
+            },
+            "subdirectory": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$",
+              "description": "Optional path under the domain to serve the app from (lowercased, no \"..\" or \".\" segments). Omit for the domain root. A root install is refused if the domain already has subdirectory sites, and a subdirectory install is refused if a root app exists."
+            },
+            "version": {
+              "type": "string",
+              "default": "latest",
+              "description": "Runtime image tag: \"latest\" or a tag matching ^[0-9]+(\\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$."
+            },
+            "startup_file": {
+              "type": "string",
+              "description": "Optional absolute path under /var/www/html/ ending in .py, .js, .rb or .java (no \"..\" segments or newlines). Defaults to app.py."
+            },
+            "custom_cmd": {
+              "type": "string",
+              "description": "Optional command that replaces the default run command; must not contain \"..\" or newlines."
+            },
+            "requirements": {
+              "type": "string",
+              "description": "\"1\", \"on\", \"true\" or \"yes\" (case-insensitive) runs pip install -r requirements.txt before starting the app; anything else skips it."
+            },
+            "git_repo_url": {
+              "type": "string",
+              "maxLength": 500,
+              "pattern": "^https://[^'\\n\\r \\t]*$",
+              "description": "Optional https:// repository to fetch into the app folder on every container start. Silently ignored when the git module is not enabled for the user."
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Port the app listens on inside the container, used for the reverse proxy. If omitted, the proxy targets the service without an explicit port."
+            },
+            "cpu_limit": {
+              "type": "number",
+              "default": 0.5,
+              "description": "CPU cores for the container. Values that are not a positive number fall back to 0.5 instead of being rejected."
+            },
+            "mem_limit": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Memory in gigabytes. Values that are not a positive number fall back to 1.0 instead of being rejected."
+            },
+            "pids_limit": {
+              "type": "integer",
+              "default": 500,
+              "description": "Maximum number of processes. Values that are not a positive integer fall back to 500 instead of being rejected."
+            }
+          },
+          "required": [
+            "domain_id",
+            "service_name"
+          ]
+        }
       },
       {
         "method": "POST",
         "path": "/api/java/install",
-        "description": "Install a new Java app (form-encoded body; response streams newline-delimited JSON progress events)."
+        "description": "Install a new Java app (form-encoded body; response streams newline-delimited JSON progress events).",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "application/x-www-form-urlencoded",
+          "description": "Read with r.FormValue, so urlencoded, multipart and query-string keys all work; JSON is not read. Validation errors come back as an {\"error\": ...} line in the application/x-ndjson stream, not as an HTTP error status.",
+          "properties": {
+            "domain_id": {
+              "type": "integer",
+              "description": "ID of one of the account's domains (domains.domain_id) to install the app on."
+            },
+            "service_name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "description": "Compose service name for the app; lowercased before use. Must not already exist."
+            },
+            "subdirectory": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$",
+              "description": "Optional path under the domain to serve the app from (lowercased, no \"..\" or \".\" segments). Omit for the domain root. A root install is refused if the domain already has subdirectory sites, and a subdirectory install is refused if a root app exists."
+            },
+            "version": {
+              "type": "string",
+              "default": "latest",
+              "description": "Runtime image tag: \"latest\" or a tag matching ^[0-9]+(\\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$, e.g. 21-jdk-jammy."
+            },
+            "startup_file": {
+              "type": "string",
+              "description": "Optional absolute path under /var/www/html/ ending in .py, .js, .rb or .java (no \"..\" segments or newlines). Defaults to Main.java."
+            },
+            "custom_cmd": {
+              "type": "string",
+              "description": "Optional command that replaces the default run command; must not contain \"..\" or newlines."
+            },
+            "requirements": {
+              "type": "string",
+              "description": "\"1\", \"on\", \"true\" or \"yes\" (case-insensitive) runs a Maven install using pom.xml before starting the app; anything else skips it."
+            },
+            "git_repo_url": {
+              "type": "string",
+              "maxLength": 500,
+              "pattern": "^https://[^'\\n\\r \\t]*$",
+              "description": "Optional https:// repository to fetch into the app folder on every container start. Silently ignored when the git module is not enabled for the user."
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Port the app listens on inside the container, used for the reverse proxy. If omitted, the proxy targets the service without an explicit port."
+            },
+            "cpu_limit": {
+              "type": "number",
+              "default": 0.5,
+              "description": "CPU cores for the container. Values that are not a positive number fall back to 0.5 instead of being rejected."
+            },
+            "mem_limit": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Memory in gigabytes. Values that are not a positive number fall back to 1.0 instead of being rejected."
+            },
+            "pids_limit": {
+              "type": "integer",
+              "default": 500,
+              "description": "Maximum number of processes. Values that are not a positive integer fall back to 500 instead of being rejected."
+            }
+          },
+          "required": [
+            "domain_id",
+            "service_name"
+          ]
+        }
       },
       {
         "method": "POST",
         "path": "/api/ruby/install",
-        "description": "Install a new Ruby app (form-encoded body; response streams newline-delimited JSON progress events)."
+        "description": "Install a new Ruby app (form-encoded body; response streams newline-delimited JSON progress events).",
+        "body_schema": {
+          "type": "object",
+          "x-content-type": "application/x-www-form-urlencoded",
+          "description": "Read with r.FormValue, so urlencoded, multipart and query-string keys all work; JSON is not read. Validation errors come back as an {\"error\": ...} line in the application/x-ndjson stream, not as an HTTP error status.",
+          "properties": {
+            "domain_id": {
+              "type": "integer",
+              "description": "ID of one of the account's domains (domains.domain_id) to install the app on."
+            },
+            "service_name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_-]+$",
+              "description": "Compose service name for the app; lowercased before use. Must not already exist."
+            },
+            "subdirectory": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$",
+              "description": "Optional path under the domain to serve the app from (lowercased, no \"..\" or \".\" segments). Omit for the domain root. A root install is refused if the domain already has subdirectory sites, and a subdirectory install is refused if a root app exists."
+            },
+            "version": {
+              "type": "string",
+              "default": "latest",
+              "description": "Runtime image tag: \"latest\" or a tag matching ^[0-9]+(\\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$."
+            },
+            "startup_file": {
+              "type": "string",
+              "description": "Optional absolute path under /var/www/html/ ending in .py, .js, .rb or .java (no \"..\" segments or newlines). Defaults to app.rb."
+            },
+            "custom_cmd": {
+              "type": "string",
+              "description": "Optional command that replaces the default run command; must not contain \"..\" or newlines."
+            },
+            "requirements": {
+              "type": "string",
+              "description": "\"1\", \"on\", \"true\" or \"yes\" (case-insensitive) runs bundle install before starting the app; anything else skips it."
+            },
+            "git_repo_url": {
+              "type": "string",
+              "maxLength": 500,
+              "pattern": "^https://[^'\\n\\r \\t]*$",
+              "description": "Optional https:// repository to fetch into the app folder on every container start. Silently ignored when the git module is not enabled for the user."
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Port the app listens on inside the container, used for the reverse proxy. If omitted, the proxy targets the service without an explicit port."
+            },
+            "cpu_limit": {
+              "type": "number",
+              "default": 0.5,
+              "description": "CPU cores for the container. Values that are not a positive number fall back to 0.5 instead of being rejected."
+            },
+            "mem_limit": {
+              "type": "number",
+              "default": 1.0,
+              "description": "Memory in gigabytes. Values that are not a positive number fall back to 1.0 instead of being rejected."
+            },
+            "pids_limit": {
+              "type": "integer",
+              "default": 500,
+              "description": "Maximum number of processes. Values that are not a positive integer fall back to 500 instead of being rejected."
+            }
+          },
+          "required": [
+            "domain_id",
+            "service_name"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "group": "App Deploy",
+    "feature": "pm2",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/deploy/detect",
+        "description": "Look at a git repository and return how deploy would run it: runtime, framework, start command, port and image version. Changes nothing.",
+        "body": {
+          "repo_url": "https://github.com/vercel/next-learn"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "repo_url": {
+              "type": "string",
+              "pattern": "^https://",
+              "maxLength": 500,
+              "description": "Public https:// git repository URL. Private repos and ssh URLs aren't supported."
+            }
+          },
+          "required": [
+            "repo_url"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/deploy",
+        "description": "Deploy a git repository to a domain in one call: detect the stack, install it as a Node.js, Python, Ruby or Java app with a reverse proxy, then wait until it answers HTTP. Returns 200 when the app answers, 202 when it is installed but not answering yet (poll /api/deploy/status), 422 when the install failed.",
+        "body": {
+          "repo_url": "https://github.com/user/app",
+          "domain": "example.com"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "repo_url": {
+              "type": "string",
+              "pattern": "^https://",
+              "maxLength": 500,
+              "description": "Public https:// git repository URL. Private repos and ssh URLs aren't supported."
+            },
+            "domain": {
+              "type": "string",
+              "description": "Domain on this account to serve the app on, like example.com."
+            },
+            "subdirectory": {
+              "type": "string",
+              "description": "Serve the app under example.com/<subdirectory> instead of the domain root."
+            },
+            "service_name": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]{1,30}$",
+              "description": "Container name, defaults to one made from the domain. Must not exist yet."
+            },
+            "app_type": {
+              "type": "string",
+              "enum": [
+                "nodejs",
+                "python",
+                "ruby",
+                "java"
+              ],
+              "description": "Runtime, overrides detection."
+            },
+            "start_cmd": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Shell command that starts the app after dependencies are installed, overrides detection. No quotes, backslashes, backticks, .. or new lines. It must listen on 0.0.0.0 and port."
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535,
+              "description": "Port the app listens on inside its container, overrides detection (3000 for Node and Ruby, 8000 for Python, 8080 for Java). Required when app_type and start_cmd are both given."
+            },
+            "version": {
+              "type": "string",
+              "description": "Runtime image tag: latest or a number like 20 (Node) or 3.12 (Python)."
+            },
+            "install_dependencies": {
+              "type": "boolean",
+              "description": "Run npm install, pip install -r requirements.txt, bundle install or mvn install before starting."
+            },
+            "cpu_limit": {
+              "type": "string",
+              "description": "CPU cores for the container, default 0.5."
+            },
+            "mem_limit": {
+              "type": "string",
+              "description": "Memory in GB for the container, default 1.0. Framework builds often need 2."
+            },
+            "wait_seconds": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 600,
+              "default": 180,
+              "description": "How long to wait for the app to answer HTTP before returning 202."
+            }
+          },
+          "required": [
+            "repo_url",
+            "domain"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/deploy/status",
+        "description": "Health of a deployed app: container state, whether it answers HTTP on its port, the status code, and the newest log lines.",
+        "params": "?site=example.com",
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "site": {
+              "type": "string",
+              "description": "Site the app was deployed to, like example.com or example.com/blog."
+            },
+            "lines": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 30,
+              "description": "How many log lines to return."
+            }
+          },
+          "required": [
+            "site"
+          ]
+        }
       }
     ]
   },
@@ -2956,6 +5297,19 @@
         "description": "Save raw zone file.",
         "body": {
           "content": "$ORIGIN example.com.\n..."
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Full BIND zone file content; no carriage returns, only $TTL and $ORIGIN directives allowed, and it must pass named-checkzone."
+            }
+          },
+          "required": [
+            "content"
+          ]
         }
       },
       {
@@ -2967,6 +5321,56 @@
           "ttl": "3600",
           "type": "A",
           "record": "1.2.3.4"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Record owner name, e.g. www or @; a name ending in the domain gets a trailing dot added."
+            },
+            "ttl": {
+              "type": [
+                "integer",
+                "string"
+              ],
+              "default": "3600",
+              "description": "Time to live in seconds, as a number or string; defaults to 3600 when empty."
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "A",
+                "AAAA",
+                "CAA",
+                "CNAME",
+                "MX",
+                "SRV",
+                "TLSA",
+                "TXT",
+                "HTTPS",
+                "SVCB",
+                "NS",
+                "SSHFP",
+                "URI",
+                "DMARC"
+              ],
+              "description": "Record type, case-insensitive; the server's dns_record_types setting limits which are allowed (default A AAAA CAA CNAME MX SRV TLSA TXT). DMARC is saved as a TXT record named _dmarc."
+            },
+            "record": {
+              "type": "string",
+              "description": "Record data. Format checks: NS needs a hostname and a subdomain name, HTTPS/SVCB need priority target [params], SSHFP needs algorithm type fingerprint, URI needs priority weight target, DMARC must start with v=DMARC1 and have no quotes."
+            },
+            "priority": {
+              "type": "string",
+              "description": "Priority written between the type and the record data, for MX and SRV records."
+            }
+          },
+          "required": [
+            "name",
+            "type",
+            "record"
+          ]
         }
       },
       {
@@ -2976,17 +5380,50 @@
         "body": {
           "content": "www 3600 IN A 5.6.7.8",
           "serial": "2025010101"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "description": "Replacement zone line(s) written in place of rows row_id through end_row_id; record types must be allowed on the server."
+            },
+            "end_row_id": {
+              "type": "integer",
+              "description": "Last line number (1-based, inclusive) of the record being replaced, for multi-line records; defaults to row_id and must be a JSON number."
+            },
+            "serial": {
+              "type": "string",
+              "description": "Zone serial you last read; if given and it differs from the current serial the update is refused with 409."
+            }
+          },
+          "required": [
+            "content"
+          ]
         }
       },
       {
         "method": "DELETE",
         "path": "/api/dns/<domain>/records/<row_id>",
-        "description": "Delete a DNS record by line number."
+        "description": "Delete a DNS record by line number.",
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "end_row_id": {
+              "type": "integer",
+              "description": "Last line number (1-based, inclusive) to delete for a multi-line record; when omitted or not greater than row_id only that one line is removed."
+            }
+          }
+        }
       },
       {
         "method": "POST",
         "path": "/api/dns/<domain>/reset",
-        "description": "Reset zone to default template."
+        "description": "Reset zone to default template.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
