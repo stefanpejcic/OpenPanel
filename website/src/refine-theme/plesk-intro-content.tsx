@@ -18,8 +18,7 @@ export const PleskIntroContent = ({ className }: { className?: string }) => {
                     "dark:text-gray-0 text-gray-900",
                 )}
             >
-                Why hosting providers choose OpenPanel as their Plesk
-                alternative
+                How OpenPanel compares to Plesk
             </h2>
             <div
                 className={clsx(

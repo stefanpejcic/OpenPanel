@@ -71,7 +71,7 @@ export const integrations: IntegrationsType = {
             name: "Nginx",
             icon: Nginx,
             description:
-                "Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
+                "Nginx per user, with FastCGI cache, cache purging, cache exclusions and rewrite rules set per domain.",
             url: "/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#nginx",
             status: "stable",
         },
@@ -95,7 +95,7 @@ export const integrations: IntegrationsType = {
             name: "OpenLiteSpeed",
             icon: Apache,
             description:
-                "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.",
+                "OpenLiteSpeed reads .htaccess and has its own page cache. Each user sets their own security, cache and rewrite rules.",
             url: "/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openlitespeed",
             status: "enterprise",
         },
@@ -103,7 +103,7 @@ export const integrations: IntegrationsType = {
             name: "Varnish",
             icon: Nginx,
             description:
-                "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
+                "Varnish in front of the user's web server, with WordPress cache rules and purging already set up.",
             url: "/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "enterprise",
          },
@@ -121,7 +121,7 @@ export const integrations: IntegrationsType = {
             name: "File Manager",
             icon: Folder,
             description:
-                "Effortlessly upload multiple files simultaneously without any upload limits. Edit files, adjust permissions, copy or move files, add new files, and perform various file management tasks.",
+                "Upload many files at once with no size limit, edit files in the browser and change permissions, copy or move files.",
             url: "/docs/panel/files/",
             status: "stable",
         },
@@ -161,14 +161,14 @@ export const integrations: IntegrationsType = {
             name: "NodeJS, Python, Ruby & Java",
             icon: Python,
             description:
-                "Effortlessly create and manage containerized NodeJS, Python, Ruby and Java applications. Proxy websites to display content from these applications seamlessly.",
+                "Run Node.js, Python, Ruby and Java apps in their own containers and point a domain at them.",
             url: "/docs/panel/applications/",
             status: "enterprise",
         },
         {
             name: "WP Manager",
             icon: WP,
-            description: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.",
+            description: "Install WordPress, log in to wp-admin without a password, edit options, turn on debug mode and make a backup when needed.",
             url: "/docs/panel/applications/wordpress/",
             status: "stable",
         },
@@ -192,7 +192,7 @@ export const integrations: IntegrationsType = {
             name: "MySQL and phpMyAdmin",
             icon: MySQL,
             description:
-                "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
+                "Create MySQL databases and users, open phpMyAdmin without logging in, allow remote access and edit the server's limits.",
             url: "/docs/panel/mysql/databases/",
             status: "stable",
         },
@@ -200,7 +200,7 @@ export const integrations: IntegrationsType = {
             name: "PostgreSQL",
             icon: PostgreSql,
             description:
-                "Create and manage PostgreSQL databases and users easily. Enable remote access, and adjust configuration settings with desired limits.",
+                "Create PostgreSQL databases and users, allow remote access and edit the server's limits.",
             url: "",
             status: "enterprise",
         },
@@ -208,7 +208,7 @@ export const integrations: IntegrationsType = {
             name: "MongoDB",
             icon: MongoDB,
             description:
-                "Create and manage MongoDB databases and users easily. Assign roles per database and import mongodump archives.",
+                "Create MongoDB databases and users, assign roles per database and import mongodump archives.",
             url: "/docs/panel/mongodb/databases/",
             status: "enterprise",
         },
@@ -216,7 +216,7 @@ export const integrations: IntegrationsType = {
             name: "SSL certificates",
             icon: SSL,
             description:
-                "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates. Custom certificates can also be uploaded and installed for users who need them.",
+                "Let's Encrypt certificates are issued and renewed automatically. Users can also upload their own certificate.",
             url: "/docs/panel/domains/SSL/",
             status: "stable",
         },
@@ -224,7 +224,7 @@ export const integrations: IntegrationsType = {
             name: "Object Caching",
             icon: Cache,
             description:
-                "Implement object caching using dedicated REDIS, Valkey and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
+                "Each user can run their own Redis, Valkey or Memcached, set its memory limit, restart it and read its logs.",
             url: "/docs/panel/caching/",
             status: "stable",
         },
@@ -232,7 +232,7 @@ export const integrations: IntegrationsType = {
             name: "Web Terminal",
             icon: Terminal,
             description:
-                "Run commands inside Docker containers easily with WebTerminal — a simple interface to access and manage containers directly from your browser.",
+                "A terminal in the browser for running commands inside the user's containers.",
             url: "/docs/panel/containers/terminal/",
             status: "enterprise",
         },
@@ -240,7 +240,7 @@ export const integrations: IntegrationsType = {
             name: "Server settings",
             icon: Configuration,
             description:
-                "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
+                "Users can start, stop and restart their own services and edit their configuration files.",
             url: "/docs/panel/webserver/webserver_settings/",
             status: "stable",
         },
@@ -248,7 +248,7 @@ export const integrations: IntegrationsType = {
             name: "Cron Jobs",
             icon: CronJobs,
             description:
-                "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.",
+                "Add and edit cron jobs from the panel.",
             url: "/docs/panel/cronjobs/",
             status: "stable",
         },
@@ -256,7 +256,7 @@ export const integrations: IntegrationsType = {
             name: "DNS Zone Editor",
             icon: DNS,
             description:
-                "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.",
+                "Edit DNS zones and add A, AAAA, CNAME, MX, TXT and other records.",
             url: "/docs/panel/domains/dns/",
             status: "stable",
         },
@@ -272,7 +272,7 @@ export const integrations: IntegrationsType = {
             name: "Resource usage",
             icon: Usage,
             description:
-                "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
+                "Current CPU and memory usage per account, plus history, so users can see what slowed their site down.",
             url: "/docs/panel/statistics/resource_usage/",
             status: "stable",
         },
@@ -280,7 +280,7 @@ export const integrations: IntegrationsType = {
             name: "Visitor reports",
             icon: Visitors,
             description:
-                "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
+                "GoAccess reports built from the access logs: visitors by country, top pages, IPs and error pages.",
             url: "/docs/panel/statistics/goaccess/",
             status: "stable",
         },
@@ -288,7 +288,7 @@ export const integrations: IntegrationsType = {
             name: "Activity logs",
             icon: Activity,
             description:
-                "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
+                "Every action in the panel is logged, so users can see who changed what.",
             url: "/docs/panel/security/account_activity/",
             status: "stable",
         },
@@ -296,7 +296,7 @@ export const integrations: IntegrationsType = {
             name: "Account settings",
             icon: AccountCog,
             description:
-                "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.",
+                "Users can change their email and password, turn on 2FA, pick a language and switch to dark mode.",
             url: "/docs/panel/account/",
             status: "stable",
         },
@@ -377,7 +377,7 @@ export const integrations: IntegrationsType = {
             name: "Edit configuration",
             icon: Configuration,
             description:
-                "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.",
+                "Set the domain and port for OpenPanel and OpenAdmin and change other panel settings.",
             url: "/docs/category/settings/",
             status: "enterprise",
         },
@@ -393,7 +393,7 @@ export const integrations: IntegrationsType = {
             name: "Service management",
             icon: Services,
             description:
-                "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
+                "See which services are running, restart them and read their logs from OpenAdmin.",
             url: "/docs/admin/services/status/",
             status: "stable",
         },
@@ -401,7 +401,7 @@ export const integrations: IntegrationsType = {
             name: "Smart Notifications",
             icon: Notifications,
             description:
-                "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
+                "Get notified about reboots, high load, attacks on websites, failed services and similar events.",
             url: "/docs/admin/notifications/",
             status: "enterprise",
         },
@@ -417,7 +417,7 @@ export const integrations: IntegrationsType = {
             name: "Terminal Commands",
             icon: Terminal,
             description:
-                "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
+                "More than 100 opencli commands for administrators, useful for scripts and automation.",
             url: "https://dev.openpanel.com/cli/commands.html",
             status: "stable",
         },
@@ -442,7 +442,7 @@ export const integrations: IntegrationsType = {
             name: "Dark Mode",
             icon: Dark,
             description:
-                "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
+                "Users can switch the panel to dark mode with one click.",
             url: "/docs/panel/dashboard/dark-mode/",
             status: "stable",
         },
@@ -458,7 +458,7 @@ export const integrations: IntegrationsType = {
             name: "Advanced Search",
             icon: Search,
             description:
-                "Quickly and easily find what you are looking for with a powerful search functionality.",
+                "Search across pages and settings in the panel.",
             url: "/docs/panel/dashboard",
             status: "enterprise",
         },
@@ -474,7 +474,7 @@ export const integrations: IntegrationsType = {
             name: "Keyboard Shortcuts",
             icon: Keyboard,
             description:
-                "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.",
+                "More than 20 keyboard shortcuts for moving around the panel without a mouse.",
             url: "/docs/articles/dev-experience/openadmin-keyboard-shortcuts/",
             status: "stable",
         },
@@ -492,7 +492,7 @@ export const integrations: IntegrationsType = {
             name: "Upgrade / Downgrade package",
             icon: Upgrade,
             description:
-                "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
+                "Move a customer to a bigger or smaller hosting plan.",
             url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
@@ -523,7 +523,7 @@ export const integrations: IntegrationsType = {
             name: "Webserver per user",
             icon: UserServer,
             description:
-                "Administrators can select Apache, Nginx, OpenResty, LiteSpeed or OpenLiteSpeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+                "Pick Apache, Nginx, OpenResty, LiteSpeed or OpenLiteSpeed as the default for new users. Users on the same server can run different web servers.",
             url: "/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
@@ -531,7 +531,7 @@ export const integrations: IntegrationsType = {
             name: "Database server per user",
             icon: UserServer,
             description:
-                "Administrators can select either MySQL, Percona or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
+                "Pick MySQL, Percona or MariaDB for each user. Some users can run MySQL and others MariaDB on the same server.",
             url: "/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/",
             status: "stable",
         },
@@ -565,7 +565,7 @@ export const integrations: IntegrationsType = {
             name: "CorazaWAF",
             icon: ModSec,
             description:
-                "Administrators can activate CorazaWAF with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable WAF per domain or disable certain rules.",
+                "Turn on CorazaWAF with the OWASP rules from OpenAdmin. Users can switch it off per domain or disable single rules.",
             url: "/docs/admin/security/waf/",
             status: "enterprise",
         },
@@ -573,7 +573,7 @@ export const integrations: IntegrationsType = {
             name: "Firewall",
             icon: Firewall,
             description:
-                "Administrators can manage Sentinel - a fork of the ConfigServer Security & Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
+                "Manage Sentinel, a fork of ConfigServer Security & Firewall (CSF), from OpenAdmin. Only the ports users need are open.",
             url: "/docs/admin/security/firewall/",
             status: "stable",
         },
@@ -589,7 +589,7 @@ export const integrations: IntegrationsType = {
             name: "Two-Factor Authentication",
             icon: Factor,
             description:
-                "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.",
+                "Users can turn on two-factor login. Admins can require it or turn it off for any user.",
             url: "/docs/panel/security/2fa/",
             status: "stable",
         },
@@ -605,7 +605,7 @@ export const integrations: IntegrationsType = {
             name: "IP Blocker",
             icon: IPblock,
             description:
-                "Each user has the capability to block IP addresses from accessing their websites directly from the panel.",
+                "Users can block IP addresses from reaching their websites.",
             url: "/docs/panel/security/ip-blocker/",
             status: "enterprise",
         },
@@ -613,7 +613,7 @@ export const integrations: IntegrationsType = {
             name: "Disable admin panel",
             icon: AdminOff,
             description:
-                "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
+                "Turn off OpenAdmin with one click. OpenPanel and the websites keep running.",
             url: "/docs/admin/security/disable-admin/",
             status: "stable",
         },
@@ -621,7 +621,7 @@ export const integrations: IntegrationsType = {
             name: "Separate services",
             icon: Separate,
             description:
-                "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.",
+                "OpenAdmin and OpenPanel use their own database and web server, separate from the user websites.",
             url: "",
             status: "stable",
         },
@@ -629,7 +629,7 @@ export const integrations: IntegrationsType = {
             name: "Custom ports",
             icon: Ports,
             description:
-                "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
+                "Change the default port (2083) and the /openpanel path.",
             url: "/docs/admin/settings/general/#ports",
             status: "enterprise",
         },

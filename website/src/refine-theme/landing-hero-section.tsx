@@ -19,15 +19,15 @@ import { LandingHeroShowcaseSection } from "./landing-hero-showcase-section";
 const HERO_VARIANTS = [
     // technical / containers — default, rendered on the server
     {
-        heading: "Next Generation",
+        heading: "Container-based",
         tagline:
-            "OpenPanel is a multi-user web hosting panel designed around lightweight containers. Each user gets their own fully isolated environment, complete with a separate MySQL server, PHP version, Redis instance, and full root access.",
+            "OpenPanel is a multi-user hosting panel where every account runs in its own containers. Each user has a separate MySQL server, their own PHP versions, Redis if they want it, and limits you set on CPU, memory and disk.",
     },
     // enterprise upsell — targets hosting businesses outgrowing Community's 3-user cap
     {
         heading: "Built to Scale",
         tagline:
-            "Growing past a handful of hosting accounts? Enterprise unlocks unlimited users, mailboxes, and FTP accounts, plus centralized container management across your whole fleet — everything a real hosting business needs.",
+            "Growing past a handful of hosting accounts? Enterprise unlocks unlimited users, mailboxes, and FTP accounts, plus container management for every account on the server.",
     },
     // competitive vs cPanel/Plesk
     {

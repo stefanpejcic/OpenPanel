@@ -324,8 +324,8 @@ const Features: React.FC = () => {
                             A hosting panel where every account gets its own server stack
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 m-0 max-w-[720px]">
-                            Web server, database, PHP and limits per account, isolated in containers. Everything your
-                            customers expect from a control panel, without them stepping on each other.
+                            Each account has its own web server, database, PHP and resource limits, in separate containers.
+                            Below is the full list, grouped by area.
                         </p>
                         <div className="flex flex-wrap gap-3">
                             <a href="/install/" className="rounded-full px-5 py-2.5 text-sm font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110 no-underline">

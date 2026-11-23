@@ -16,7 +16,7 @@ import { LandingTryItSection } from "../refine-theme/landing-try-it-section";
 import { CommonHeader } from "../refine-theme/common-header";
 
 function Home() {
-    const title = "OpenPanel | Next Generation Web Hosting Panel";
+    const title = "OpenPanel | Web Hosting Control Panel Built on Containers";
     return (
         <>
             <Head>

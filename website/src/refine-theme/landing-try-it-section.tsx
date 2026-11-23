@@ -67,7 +67,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-900 dark:text-gray-0",
                     )}
                 >
-                    Ready to get started?
+                    Try it on your own server
                 </h2>
                 <p
                     className={clsx(
@@ -76,7 +76,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-600 dark:text-gray-400",
                     )}
                 >
-                    Download the (free) Community Edition that is intended for self-hosting, offers basic features and supports up to 3 user accounts and 50 websites.
+                    Community Edition is free. It's meant for your own VPS and handles up to 3 users and 50 websites.
                 </p>
                 <p
                     className={clsx(
@@ -85,7 +85,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-600 dark:text-gray-400",
                     )}
                 >
-                    Upgrade to Enterprise Edition anytime to increase limits and access advanced features like email, FTP, and Container management.
+                    When you need more, switch to Enterprise on the same server. That adds email, FTP, container management and removes the limits.
                 </p>
             </div>
             <div
@@ -146,7 +146,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    Get the Enterprise Edition for a fixed lifetime price of €14.95/month.
+                    Enterprise is €14.95 per server per month, no matter how many accounts you host.
                 </p>
                         <Link
                             to="enterprise"
@@ -251,7 +251,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-						Download and use the FOREVER FREE Community Edition with limited features.
+						Free forever, with fewer features and a 3 user limit.
                     </p>
                     <LandingCopyCommandButton />
                 </div>

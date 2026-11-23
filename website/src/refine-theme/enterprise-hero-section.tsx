@@ -51,8 +51,8 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Robust user isolation and management for web hosting
-                    providers, at a fixed{" "}
+                    Everything in Community, plus email, FTP, resellers and
+                    no account limit. One price per server:{" "}
                     <span
                         className={clsx(
                             "font-semibold",
@@ -60,8 +60,8 @@ export const EnterpriseHeroSection = ({
                         )}
                     >
                         €14.95/server/month
-                    </span>{" "}
-                    — unlimited accounts, no per-user fees.
+                    </span>
+                    , however many accounts you host.
                 </p>
                 <div
                     className={clsx(

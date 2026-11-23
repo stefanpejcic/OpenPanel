@@ -18,8 +18,7 @@ export const CpanelIntroContent = ({ className }: { className?: string }) => {
                     "dark:text-gray-0 text-gray-900",
                 )}
             >
-                Why hosting providers choose OpenPanel as their cPanel
-                alternative
+                How OpenPanel compares to cPanel
             </h2>
             <div
                 className={clsx(

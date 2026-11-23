@@ -14,39 +14,39 @@ import { LandingSectionCtaButtonAlt } from "./landing-section-cta-button";
 const list = [
     {
         icon: <SelfHostedIcon />,
-        title: "True isolation with containers",
+        title: "Containers per service",
         description:
-            "Complete isolation per user with rootless Podman: every service is a separate container, limited in CPU, memory, and port speed.",
+            "Rootless Podman. Every service of every user is its own container, with its own CPU, memory and port speed limits.",
     },
     {
         icon: <IdentityIcon />,
-        title: "Granular roles and permissions",
+        title: "Admins, resellers and plans",
         description:
             "Create Admins and resellers, set limits on websites, domains and databases, and control exactly which features each user or plan can access.",
     },
     {
         icon: <AccessControlIcon />,
-        title: "Secure by default",
+        title: "Login security",
         description:
-            "Passkeys, enforced two-factor authentication, per-user IP blocking, and full control over remote MySQL access - out of the box.",
+            "Passkeys, enforced two-factor login, IP blocking per user, and control over who can reach MySQL remotely.",
     },
     {
         icon: <BlackBoxIcon />,
-        title: "White-label everything",
+        title: "Your brand, not ours",
         description:
             "Apply your brand colors and logo, rename the panel, set custom nameservers, and hide any feature you don't want users to see.",
     },
     {
         icon: <MonitorIcon />,
-        title: "Full visibility, built in",
+        title: "Logs and alerts",
         description:
-            "Track user activity, view historical resource usage, receive server alerts to email or webhooks - no third-party monitoring tools required.",
+            "User activity log, resource usage history, and server alerts by email or webhook. No extra monitoring tool to install.",
     },
     {
         icon: <SupportIcon />,
-        title: "Built for automation",
+        title: "API and scripting",
         description:
-            "Full REST API, MCP server for AI assistants, FOSSBilling/WHMCS integrations and terminal commands for scripting.",
+            "REST API, an MCP server for AI assistants, WHMCS and FOSSBilling modules, and opencli for shell scripts.",
     },
 ];
 
@@ -69,18 +69,15 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
                         "dark:text-gray-0 text-gray-900",
                     )}
                 >
-                    Hosting providers{" "}
-                    <span className="font-sans text-[#FE251B] drop-shadow-[0_0_30px_rgba(254,37,27,0.3)]">
-                        ❤️
-                    </span>{" "}
+                    Built for{" "}
                     <span
                         className={clsx(
                             "font-semibold",
-                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                            "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
+                            "dark:text-refine-cyan-alt",
+                            "text-refine-blue",
                         )}
                     >
-                        OpenPanel
+                        hosting companies
                     </span>
                     .
                 </h2>
@@ -91,8 +88,7 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    OpenPanel is designed to target the specific pain points of
-                    larger hosting providers by giving top priority to{" "}
+                    What we added after years of running shared hosting ourselves, starting with{" "}
                     <span className="font-semibold text-gray-900 dark:text-gray-0">
                         security
                     </span>

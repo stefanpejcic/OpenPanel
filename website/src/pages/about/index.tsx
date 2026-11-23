@@ -77,7 +77,7 @@ const timeline = [
             {
                 title: "Beta edition",
                 description:
-                    "Started as a bootstrapped side project to fix the hosting panels we were stuck using ourselves.",
+                    "Started as a side project, paid for out of our own pocket, because we were unhappy with the panels we used.",
             },
         ],
     },
@@ -88,12 +88,12 @@ const timeline = [
                 title: "OpenPanel 0.3",
                 link: "/blog/openpanel-public-beta-released",
                 description:
-                    "First public beta release: Docker-native from day one, not bolted on later.",
+                    "First public beta. It already ran every user in Docker.",
             },
             {
                 title: "openpanel.com",
                 description:
-                    "Acquired openpanel.com and moved over from openpanel.co, giving the project a proper permanent home.",
+                    "Bought openpanel.com and moved the project over from openpanel.co.",
             },
         ],
     },
@@ -123,7 +123,7 @@ const timeline = [
                 title: "OpenPanel 2.0",
                 link: "/blog/podman-switch-openpanel-2",
                 description:
-                    "Rewrote the core in Go to run on Podman, replacing Docker as the container engine, for rootless isolation by default.",
+                    "Core rewritten in Go. Podman replaced Docker, so user containers run rootless.",
             },
             {
                 title: "Multi-Server Clustering",
@@ -140,46 +140,46 @@ const story = [
         icon: <WizardsIcon />,
         title: "The idea",
         description:
-            'OpenPanel was born out of frustration with the premium hosting panels we relied on at UNLIMITED.RS to run shared hosting and managed VPS for our own clients. Prices kept climbing every year, but the flexibility never did. During one particularly rough migration, a colleague joked, "Even we could build something better." The comment stuck - and sent our co-founder and CEO, Stefan Pejčić, down the path of actually doing it.',
+            'At UNLIMITED.RS we ran shared hosting and managed VPS on commercial panels. The license price went up every year and the panels did not get any more flexible. During one bad migration a colleague said "we could build something better ourselves". Our co-founder and CEO, Stefan Pejčić, took that seriously.',
     },
     {
         icon: <FlagIcon />,
         title: "Early days",
         description:
-            "Work started in 2023 on a basic LAMP-stack panel, built to comfortably run 10 to 500 users on a single server. The first instinct was to isolate every website in its own Docker container - until a single WordPress install alone needed three containers, one per service, and the overhead stopped making sense. We pivoted to one container per user instead, trading a bit of flexibility for a far more stable, predictable environment. Later, we pivoted again - to one container per user service - giving every user real isolation between their web, database, and mail without repeating the overhead that sank the per-website approach.",
+            "Work started in 2023 on a simple LAMP panel for 10 to 500 users per server. First we tried a Docker container per website. One WordPress site needed three containers (web, PHP, database), and that was too much overhead. So we moved to one container per user. It was less flexible but much more stable. Later we split that again into one container per service of each user, so a user's web server, database and mail are separated without the cost we had with the per-website setup.",
     },
     {
         icon: <ContainerIcon />,
         title: "The 2.0 rewrite",
         description:
-            "OpenPanel ran on Docker from that first pivot all the way through 1.x. For 2.0, we rewrote the container layer on Podman - dropping the Docker daemon in favor of rootless, daemonless containers, with no functionality lost along the way.",
+            "All 1.x versions ran on Docker. For 2.0 we rewrote the container layer for Podman. There is no Docker daemon anymore, containers run rootless, and every feature from 1.x still works.",
     },
 ];
 
 const beliefs = [
     {
         icon: <ContainerIcon />,
-        title: "Isolation is a right, not a premium feature",
+        title: "Isolation is in every edition",
         description:
-            "Every user on your server deserves their own environment - their own MySQL, their own PHP version, their own resources - without interference from anyone else. That's not enterprise-tier, that's just how hosting should work.",
+            "Each user gets their own MySQL, their own PHP version and their own resource limits, also in the free Community Edition. One busy site shouldn't slow down everyone else on the server.",
     },
     {
         icon: <ShieldIcon />,
-        title: "Security should be built in, not bolted on",
+        title: "Security is on after install",
         description:
-            "WAF protection, malware scanning, two-factor authentication, IP controls - these shouldn't be things you configure after the fact. They're there from the moment you install.",
+            "The WAF, malware scanner, two-factor login and IP blocking are part of the panel. You don't have to install them separately after setup.",
     },
     {
         icon: <ControlIcon />,
-        title: "Control panels should give you control",
+        title: "You decide what users see",
         description:
-            "Over your stack, your branding, your pricing, your data. You're running the server - the panel should work for you, not the other way around.",
+            "Pick the web server, set the branding, hide features you don't sell, and set your own prices. We don't take a cut per account.",
     },
     {
         icon: <ServerIcon />,
-        title: "Self-hosted, not SaaS",
+        title: "It runs on your server",
         description:
-            "OpenPanel runs entirely on your own server. Your data, your infrastructure, your rules - nothing routed through us, nothing held hostage if we disappear tomorrow.",
+            "OpenPanel is installed on your server and your data stays there. Nothing goes through our servers, and the panel doesn't depend on us being online.",
     },
 ];
 
@@ -207,7 +207,7 @@ const DISCORD = "https://discord.com/invite/7bNY8fANqF";
 const About: React.FC = () => {
     return (
         <CommonLayout
-            description="OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing."
+            description="OpenPanel is made by a small team that also runs a hosting company. Who we are, how the project started and what we're working on."
             image="/img/og/about.png"
         >
             <Head>
@@ -224,11 +224,11 @@ const About: React.FC = () => {
                 <div className="not-prose flex flex-col gap-16 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
                     <section className="flex flex-col gap-5">
                         <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-gray-0 m-0 max-w-[860px]">
-                            Built by hosting operators who got tired of paying more for less
+                            We run a hosting company, and we built the panel we wanted to use
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 m-0 max-w-[720px]">
-                            OpenPanel is a Podman-native control panel built by hosting operators, for hosting operators: real user
-                            isolation, security built in, and pricing that doesn&apos;t punish you for growing.
+                            OpenPanel started inside UNLIMITED.RS, a hosting company in Serbia. The price per server stays the same whether
+                            you host 10 accounts or 1,000.
                         </p>
                         <div className="flex flex-wrap gap-3">
                             <Link to={GITHUB} className={primaryBtn}>
@@ -251,7 +251,7 @@ const About: React.FC = () => {
                     <section className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                             <h2 className={h2}>Where we&apos;ve been</h2>
-                            <p className={lead}>From a bootstrapped side project to 100,000+ active installations, the short version.</p>
+                            <p className={lead}>The main dates, from the first beta to today.</p>
                         </div>
                         <ol className="m-0 p-0 list-none flex flex-col">
                             {timeline.map((t, i) => (
@@ -288,7 +288,7 @@ const About: React.FC = () => {
                         <section className="flex flex-col gap-6">
                             <div className="flex flex-col gap-2">
                                 <h2 className={h2}>Where we&apos;re heading</h2>
-                                <p className={lead}>What we&apos;re building right now, and what&apos;s up next.</p>
+                                <p className={lead}>What we&apos;re working on now and what comes after.</p>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {inProgress.map((f) => (
@@ -314,7 +314,7 @@ const About: React.FC = () => {
                     <section className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                             <h2 className={h2}>Our story</h2>
-                            <p className={lead}>Containers had changed everything about infrastructure, but hosting control panels were still stuck in the past.</p>
+                            <p className={lead}>How the project started and why it runs on containers.</p>
                         </div>
                         <div className="grid gap-4 lg:grid-cols-3">
                             {story.map((s) => (
@@ -330,7 +330,7 @@ const About: React.FC = () => {
                     <section className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                             <h2 className={h2}>What we believe</h2>
-                            <p className={lead}>The principles that shape every decision we make about OpenPanel.</p>
+                            <p className={lead}>A few rules we try to follow.</p>
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2">
                             {beliefs.map((b) => (
@@ -348,9 +348,9 @@ const About: React.FC = () => {
                     <section className={clsx(card, "flex flex-col gap-4 sm:!p-8")}>
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-0 m-0">Independent by choice</h2>
                         <p className="text-base text-gray-600 dark:text-gray-400 m-0 max-w-[760px]">
-                            Over the years we turned down offers from competitors and venture capitalists. Every one came with
-                            conditions that would&apos;ve compromised the product, so we stayed self-funded instead. One promise we
-                            stand by: <b className="text-gray-900 dark:text-gray-0">we will never charge per user or per website</b>.
+                            We&apos;ve had offers from competitors and from investors. We said no, because every offer came with
+                            conditions we didn&apos;t want for the product. We&apos;re still self-funded, and
+                            the promise stays: <b className="text-gray-900 dark:text-gray-0">we will never charge per user or per website</b>.
                         </p>
                         <div className="flex flex-wrap gap-3">
                             <Link to="/community/" className={primaryBtn}>
@@ -365,7 +365,7 @@ const About: React.FC = () => {
                     <section className="flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                             <h2 className={h2}>Who&apos;s behind it</h2>
-                            <p className={lead}>A small, independent team building OpenPanel full-time.</p>
+                            <p className={lead}>OpenPanel is our full-time job.</p>
                         </div>
                         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
                             {team.map(({ name, avatar, role1, role2, linkedin }) => (
@@ -393,7 +393,7 @@ const About: React.FC = () => {
 
                     <section className={clsx(card, "flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between sm:!p-8")}>
                         <div className="flex flex-col gap-1">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-0 m-0">Come build the future of hosting with us</h2>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-0 m-0">Want to help?</h2>
                             <p className="text-sm text-gray-600 dark:text-gray-400 m-0">
                                 Join our community, contribute on GitHub, or just say hello at{" "}
                                 <Link to="mailto:info@openpanel.com" className={link}>

@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Built around containers for true per-user isolation, with a fixed{" "}
+                Every user runs in their own containers, for a fixed{" "}
                 <span
                     className={clsx(
                         "font-semibold",
@@ -60,7 +60,7 @@ export const EnterpriseHeroSection = ({
                 >
                     €14.95/server/month
                 </span>{" "}
-                that never changes: no surprises, no per-account billing.
+                per server. No per-account billing.
             </p>
             <div
                 className={clsx(

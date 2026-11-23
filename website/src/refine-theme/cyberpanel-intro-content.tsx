@@ -22,8 +22,7 @@ export const CyberpanelIntroContent = ({
                     "dark:text-gray-0 text-gray-900",
                 )}
             >
-                Why hosting providers choose OpenPanel as their CyberPanel
-                alternative
+                How OpenPanel compares to CyberPanel
             </h2>
             <div
                 className={clsx(
@@ -55,7 +54,7 @@ export const CyberpanelIntroContent = ({
                     shares PHP and MySQL across accounts unless you add
                     CloudLinux, and it doesn't support ARM (AArch64) servers
                     at all. OpenPanel isolates every user and every service
-                    in its own Podman container out of the box, on x86_64 or
+                    in its own Podman container by default, on x86_64 or
                     ARM.
                 </p>
                 <p>

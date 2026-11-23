@@ -24,8 +24,7 @@ const PrivacyPolicy: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Support</h1>
-                    <p><strong>Don't worry - we're here to help</strong></p>
-                    <p>Make the most of your OpenPanel deployments, find quick solutions to common problems, and get direct assistance from the developers of OpenPanel and OpenAdmin. Usually, the quickest way to get answers is as follows:</p>
+                    <p>Support is answered by the people who write OpenPanel and OpenAdmin. This is usually the fastest way to get an answer:</p>
 
                     <h3>Step 1: Search for similar questions</h3>
                     <p>If your question has been asked before, you might be able to find an answer in minutes and get your problem knocked out before we even know it exists.</p>

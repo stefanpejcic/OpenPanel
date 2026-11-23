@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Built around containers for true per-user isolation, with no account limits tied to a license tier and a fixed price that never changes.{" "}
+                Every user runs in their own containers. No account limit per license tier, one fixed price per server.{" "}
             </p>
             <div
                 className={clsx(

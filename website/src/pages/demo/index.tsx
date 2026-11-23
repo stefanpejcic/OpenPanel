@@ -1,5 +1,4 @@
 import React from "react";
-import clsx from "clsx";
 import Head from "@docusaurus/Head";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
@@ -9,34 +8,20 @@ import { DemoInstallCta } from "@site/src/refine-theme/demo-install-cta";
 const DEMOS = [
     {
         name: "OpenPanel",
-        who: "For website owners",
-        lead: "The panel your customers use to run their websites.",
+        lead: "The panel your customers log in to. Try adding a domain, installing WordPress or creating an email account and a database.",
         url: "https://demo.openpanel.com:2083/login",
         port: "2083",
         screenshot: "/img/openpanel-screenshots/dashboard/dashboard-window.png",
         alt: "OpenPanel dashboard",
-        tryThis: [
-            "Add a domain and open the DNS zone editor",
-            "Install WordPress or another app in one click",
-            "Create email accounts and databases",
-            "Browse files, backups and resource usage",
-        ],
         docs: "/docs/panel/intro/",
     },
     {
         name: "OpenAdmin",
-        who: "For web hosts",
-        lead: "The admin panel you use to run the server and your customers.",
+        lead: "The admin side, for you as the host. Try creating a user and logging in as them, setting up a hosting plan, or changing the branding.",
         url: "https://demo.openpanel.com:2087/login",
         port: "2087",
         screenshot: "/img/openadmin-screenshots/001_dashboard-window.png",
         alt: "OpenAdmin dashboard",
-        tryThis: [
-            "Create a user and log in as them",
-            "Set up hosting plans with limits",
-            "Check services, firewall and security settings",
-            "Change branding and OpenPanel settings",
-        ],
         docs: "/docs/admin/intro/",
     },
 ];
@@ -64,73 +49,43 @@ const Demo: React.FC = () => {
                             Try OpenPanel live
                         </h1>
                         <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 m-0">
-                            Both panels run on a real server. The login details are already filled in, just click Log in and
-                            look around, nothing to install or sign up for.
+                            Both panels run on a real server with test data. The login is already filled in, so just click Log in.
+                            Nothing to install or sign up for.
                         </p>
                     </section>
 
-                    <section className="grid gap-6 lg:grid-cols-2">
+                    <section className="grid gap-12 lg:gap-10 lg:grid-cols-2">
                         {DEMOS.map((d) => (
-                            <div
-                                key={d.name}
-                                className="rounded-2xl border border-gray-300 dark:border-gray-700 overflow-hidden flex flex-col"
-                            >
+                            <div key={d.name} className="flex flex-col gap-4">
                                 <a
                                     href={d.url}
-                                    className="block bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 aspect-[16/10] overflow-hidden"
+                                    className="block rounded-lg border border-gray-300 dark:border-gray-700 overflow-hidden no-underline"
                                 >
-                                    <img
-                                        src={d.screenshot}
-                                        alt={d.alt}
-                                        className="w-full h-full object-cover object-left-top dark:hidden"
-                                    />
+                                    <img src={d.screenshot} alt={d.alt} className="block w-full aspect-[16/9] object-cover object-left-top dark:hidden" />
                                     <img
                                         src={d.screenshot.replace(/\.png$/, "_dark.png")}
                                         alt={d.alt}
-                                        className="w-full h-full object-cover object-left-top hidden dark:block"
+                                        className="w-full aspect-[16/9] object-cover object-left-top hidden dark:block"
                                     />
                                 </a>
-                                <div className="p-5 sm:p-6 flex flex-col gap-4 flex-1">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                                            {d.who}
-                                        </span>
-                                        <h2 className="text-2xl font-bold m-0">
-                                            <span className="text-gray-900 dark:text-gray-0">
-                                                {d.name}
-                                            </span>
-                                        </h2>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 m-0">{d.lead}</p>
-                                    </div>
-                                    <div className="flex flex-col gap-2">
-                                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">Things to try</span>
-                                        <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
-                                            {d.tryThis.map((t) => (
-                                                <li key={t} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
-                                                    <span className="text-refine-blue dark:text-refine-cyan-alt font-bold">✓</span>
-                                                    {t}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div className="mt-auto flex flex-wrap items-center gap-3 pt-2">
-                                        <a
-                                            href={d.url}
-                                            className="rounded-full px-5 py-2.5 text-sm font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110 no-underline"
-                                        >
-                                            Open {d.name} demo
-                                        </a>
-                                        <a
-                                            href={d.docs}
-                                            className="text-sm text-refine-react-light-link dark:text-refine-react-dark-link hover:underline"
-                                        >
-                                            {d.name} docs
-                                        </a>
-                                        <code className="ml-auto text-xs text-gray-500 dark:text-gray-400">
-                                            demo.openpanel.com:{d.port}
-                                        </code>
-                                    </div>
-                                </div>
+                                <h2 className="text-2xl font-bold m-0 text-gray-900 dark:text-gray-0">
+                                    {d.name}{" "}
+                                    <span className="text-sm font-normal font-jetBrains-mono text-gray-500 dark:text-gray-400">
+                                        demo.openpanel.com:{d.port}
+                                    </span>
+                                </h2>
+                                <p className="text-base text-gray-600 dark:text-gray-400 m-0">{d.lead}</p>
+                                <p className="text-sm m-0 flex flex-wrap gap-x-5 gap-y-1">
+                                    <a
+                                        href={d.url}
+                                        className="font-semibold text-refine-react-light-link dark:text-refine-react-dark-link hover:underline"
+                                    >
+                                        Open the {d.name} demo
+                                    </a>
+                                    <a href={d.docs} className={"text-gray-600 dark:text-gray-400 hover:underline"}>
+                                        Read the {d.name} docs
+                                    </a>
+                                </p>
                             </div>
                         ))}
                     </section>
