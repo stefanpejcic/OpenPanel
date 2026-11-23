@@ -564,7 +564,14 @@ https://srv.example.com:2083/login_autologin?admin_token=b7f3c9e2a1d84f06&userna
 
 Command: `opencli user-mcp` creates an [AI Assistant (MCP)](/docs/panel/account/mcp/) token for a user and prints how to connect Claude Code, Claude Desktop, Codex, Cursor, VS Code or Gemini CLI with it. It can also list and revoke the user's tokens.
 
-The server needs the Enterprise edition, and the user needs the `api` and `mcp` features. The command still creates the token when a feature or module is off, and prints a warning saying what to enable.
+The server needs the Enterprise edition, and the user needs the `api` and `mcp` features plus every feature passed in `--features`. When one is missing the command refuses and makes no token:
+
+```bash
+# opencli user-mcp stefan --features=dns,mysql
+Error: stefan doesn't have the 'mysql' feature, add it to their plan or feature set first
+```
+
+If the `api` or `mcp` module is turned off server-wide, the token is still created and the command prints a warning saying where to enable it.
 
 ```bash
 opencli user-mcp <USERNAME> [--name=NAME] [--readonly|--no-deletes] [--features=a,b] [--expires=DAYS] [--client=NAME] [--json]
@@ -594,7 +601,7 @@ Claude Code (run in a terminal):
 | `--name=NAME` | Token name, shown on the user's token page. Default `opencli YYYY-MM-DD`. |
 | `--readonly` | The token can only look things up. |
 | `--no-deletes` | The token can create and change things, but not delete, restore, change passwords or overwrite config. |
-| `--features=a,b` | Limit the token to these features, for example `dns,domains`. |
+| `--features=a,b` | Limit the token to these features, for example `dns,domains`. The user must have each of them. |
 | `--expires=DAYS` | The token stops working after this many days. Default: never. |
 | `--client=NAME` | Print setup for one client only: `claude-code`, `claude-desktop`, `codex`, `cursor`, `vscode` or `gemini`. Without it, all six are printed. |
 | `--json` | Print the token and MCP URL as JSON instead of setup instructions. |
