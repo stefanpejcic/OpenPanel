@@ -575,28 +575,29 @@ function initActionButtons() {
         `, (input, editor) => {
             const permanent = !FM.canTrash || editor.querySelector('.fm-inline-skip-trash').checked;
             const total = items.length;
-            let failed = 0, done = 0;
-            const saveBtn = editor.querySelector('[data-act="save"]');
             editor.querySelectorAll('button, input').forEach(b => b.disabled = true);
 
-            items.forEach(({ fileName, itemType }) => {
-                fetch(`/file-manager/delete?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(FM.pathParam)}&item_type=${encodeURIComponent(itemType)}&mode=${permanent ? 'permanent' : 'trash'}`, {
-                    method: 'DELETE', headers: { 'X-CSRF-Token': csrf_token }
-                })
-                .then(r => r.json())
-                .then(data => { if (!data.success) throw new Error(data.error); })
-                .catch(e => { failed++; showToast(`${FM.i18n.deleteError} "${fileName}": ${e.message}`, 'error'); })
-                .finally(() => {
-                    done++;
-                    if (total > 1) saveBtn.innerHTML = `<i class="ri-delete-bin-line"></i> ${done}/${total}`;
-                    if (done < total) return;
-                    if (failed) {
-                        showToast(failed === total ? FM.i18n.deleteFailed : FM.i18n.deletePartial, 'warning');
-                    } else {
-                        showToast(permanent ? FM.i18n.deleted : FM.i18n.movedToTrash, 'success');
-                    }
-                    setTimeout(() => location.reload(), failed ? 1500 : 500);
-                });
+            // one request for the whole selection so the activity log gets a single combined entry
+            const params = new URLSearchParams({ path_param: FM.pathParam, mode: permanent ? 'permanent' : 'trash' });
+            items.forEach(({ fileName, itemType }) => { params.append('filename', fileName); params.append('item_type', itemType); });
+            fetch(`/file-manager/delete?${params}`, {
+                method: 'DELETE', headers: { 'X-CSRF-Token': csrf_token }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) return 0;
+                const failed = data.failed || [{ name: items[0].fileName, error: data.error }];
+                failed.forEach(f => showToast(`${FM.i18n.deleteError} "${f.name}": ${f.error}`, 'error'));
+                return failed.length;
+            })
+            .catch(e => { showToast(`${FM.i18n.deleteError}: ${e.message}`, 'error'); return total; })
+            .then(failed => {
+                if (failed) {
+                    showToast(failed >= total ? FM.i18n.deleteFailed : FM.i18n.deletePartial, 'warning');
+                } else {
+                    showToast(permanent ? FM.i18n.deleted : FM.i18n.movedToTrash, 'success');
+                }
+                setTimeout(() => location.reload(), failed ? 1500 : 500);
             });
         }, {
             saveLabel: items.length > 1 ? `${FM.i18n.delete} (${items.length})` : FM.i18n.delete,
@@ -1040,17 +1041,20 @@ function openPicker(action, items) {
         const errors = [];
 
         if (action === 'copy' || action === 'move') {
-            let done = 0;
-            showStatus('info', `${FM.i18n.working} 0/${items.length}`);
-            await Promise.all(items.map(({ fileName, itemType }) =>
-                fetch(`/file-manager/${action}?item_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(FM.pathParam)}&item_type=${encodeURIComponent(itemType)}&destination_path=${encodeURIComponent(dest)}`, {
-                    method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
-                })
-                .then(r => r.json())
-                .then(data => { if (!data.success) throw new Error(data.error || FM.i18n.unknownError); })
-                .catch(e => errors.push(`${fileName}: ${e.message}`))
-                .finally(() => { done++; showStatus('info', `${FM.i18n.working} ${done}/${items.length}`); })
-            ));
+            // one request for the whole selection so the activity log gets a single combined entry
+            const params = new URLSearchParams({ path_param: FM.pathParam, destination_path: dest });
+            items.forEach(({ fileName, itemType }) => { params.append('item_name', fileName); params.append('item_type', itemType); });
+            showStatus('info', FM.i18n.working);
+            await fetch(`/file-manager/${action}?${params}`, {
+                method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) return;
+                (data.failed || [{ name: items[0].fileName, error: data.error || FM.i18n.unknownError }])
+                    .forEach(f => errors.push(`${f.name}: ${f.error}`));
+            })
+            .catch(e => errors.push(e.message));
         } else {
             // compress and extract answer with a redirect + flash, so just wait and reload to show it
             const body = new URLSearchParams({ csrf_token });

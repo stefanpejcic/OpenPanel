@@ -47,3 +47,16 @@ func TestRecordUserActionStripsSuspendedPrefix(t *testing.T) {
 		t.Errorf("expected log file for stripped username %q: %v", testUser, err)
 	}
 }
+
+func TestJoinNames(t *testing.T) {
+	if got := JoinNames([]string{"a", "b"}); got != "a, b" {
+		t.Errorf("JoinNames = %q", got)
+	}
+	names := make([]string, 12)
+	for i := range names {
+		names[i] = "x"
+	}
+	if got := JoinNames(names); !strings.HasSuffix(got, "x and 2 more") {
+		t.Errorf("JoinNames = %q", got)
+	}
+}
