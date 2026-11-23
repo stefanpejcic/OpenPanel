@@ -51,7 +51,8 @@ func validateBulkLimit(action, value string, totalCPU, totalRAM int) (string, []
 	switch action {
 	case "cpu", "ram":
 		val, err := strconv.ParseFloat(value, 64)
-		if err != nil || val < 0 {
+		// ParseFloat also takes NaN, Inf and 1e3, none of which belong in .env
+		if err != nil || val < 0 || (action == "cpu" && !cpuLimitRE.MatchString(value)) || (action == "ram" && !ramLimitRE.MatchString(value)) {
 			return "Limit must be 0 or a positive number.", nil
 		}
 		if action == "cpu" && totalCPU > 0 && val > float64(totalCPU) {
@@ -62,7 +63,7 @@ func validateBulkLimit(action, value string, totalCPU, totalRAM int) (string, []
 		}
 	case "pids":
 		val, err := strconv.Atoi(value)
-		if err != nil || val < 0 {
+		if err != nil || val < 0 || !pidsLimitRE.MatchString(value) {
 			return "PIDs limit must be 0 or a positive whole number.", nil
 		}
 	}

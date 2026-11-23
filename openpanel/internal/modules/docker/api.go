@@ -237,6 +237,18 @@ func apiContainerResources(a *appctx.App, w http.ResponseWriter, r *http.Request
 		body.PIDs = r.Form.Get("pids")
 	}
 
+	// check everything before changing anything, a bad ram value shouldn't leave the new cpu value half applied
+	totalCPU, totalRAM := getCPUAndRAMForPlanID(a, ctx, planID)
+	for _, resource := range []struct{ name, value string }{{"cpu", strings.TrimSpace(body.CPU)}, {"ram", strings.TrimSpace(body.RAM)}, {"pids", strings.TrimSpace(body.PIDs)}} {
+		if resource.value == "" {
+			continue
+		}
+		if msg := limitValueError(resource.name, resource.value, totalCPU, totalRAM); msg != "" {
+			writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
+			return
+		}
+	}
+
 	results := map[string]any{}
 	for _, resource := range []struct{ name, value string }{{"cpu", strings.TrimSpace(body.CPU)}, {"ram", strings.TrimSpace(body.RAM)}} {
 		if resource.value == "" {

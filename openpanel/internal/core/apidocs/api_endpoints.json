@@ -1005,7 +1005,7 @@
         "description": "Update CPU/RAM/PIDs limits.",
         "body": {
           "cpu": "1",
-          "ram": "512m",
+          "ram": "1.5",
           "pids": "512"
         }
       },
