@@ -502,7 +502,7 @@ Completed
 
 ### Rate-limiting (postfwd)
 
-Show whether outgoing email rate-limiting (postfwd) is enabled:
+Show whether outgoing email rate-limiting (postfwd) is enabled, it is when Postfix sends its recipient checks to postfwd (`check_policy_service inet:postfwd:10040` in `docker-data/dms/config/postfix-main.cf`):
 ```bash
 opencli email-server postfwd
 ```
@@ -516,7 +516,7 @@ Rate-limiting is currently ENABLED.
 ```
 </details>
 
-Enable or disable rate-limiting:
+Enable or disable rate-limiting. `enable` adds the postfwd check in front of the mailserver's current `smtpd_recipient_restrictions` and sets `smtpd_policy_service_default_action = DUNNO`, so emails are still sent (without limits) if postfwd is down. Both are written to `postfix-main.cf` next to any other overrides and applied with `postconf` and `postfix reload`, without restarting the mailserver. `disable` removes them again and stops postfwd.
 ```bash
 opencli email-server postfwd enable
 opencli email-server postfwd disable
@@ -534,7 +534,7 @@ Rate-limiting has been DISABLED.
 ```
 </details>
 
-View or edit the rate-limiting rules (the mailserver is reloaded after editing):
+View or edit the rate-limiting rules (postfwd is reloaded after editing, the hourly counters are kept):
 ```bash
 opencli email-server postfwd view
 opencli email-server postfwd edit
@@ -545,13 +545,17 @@ opencli email-server postfwd edit
 
 ```bash
 # opencli email-server postfwd view
-id=limit_stefan_example_com ; sender=~.+@example.com ; protocol_state==RCPT
-                action=rate(stefan_ratelimit/100/3600/450 4.7.1 sorry, OpenPanel account reached limit of 100 emails per hour)
+id=limit_stefan_example_com ; sender=~.+@example.com$ ; protocol_state==RCPT
+                action=set(op_account=stefan)
+id=limit_stefan_rate ; sender=~.+@example.com$ ; protocol_state==RCPT
+                action=rate(op_account/100/3600/450 4.7.1 sorry, OpenPanel account reached limit of 100 emails per hour)
 ...
 ```
 </details>
 
 Rules for users and domains are generated with [`opencli email-ratelimit`](#rate-limits).
+
+Any `opencli email-server postfwd` command also updates the postfwd service in `compose.yml` to start with `CACHE=0` and `EXTRA=--summary=600 --noidlestats --keep_rates` and recreates the container if that changed, cached answers aren't counted and a reload would otherwise reset the hourly counters.
 
 ### Supervisor
 
@@ -799,7 +803,7 @@ Add `--debug` to display verbose information.
 
 ## Rate limits
 
-`opencli email-ratelimit` generates postfwd rate-limiting rules for users and domains, based on the `max_hourly_email` limit of their plan.
+`opencli email-ratelimit` generates postfwd rate-limiting rules for users and domains, based on the `max_hourly_email` limit of their plan. The limit is per account: each domain gets a rule that tags its emails with the account (`set(op_account=<USERNAME>)`) and a counting rule with the shared id `limit_<USERNAME>_rate`, so emails from all domains of the account add up to one hourly limit.
 
 Show current rules:
 ```bash
@@ -812,11 +816,13 @@ opencli email-ratelimit
 ```bash
 # opencli email-ratelimit
 === /usr/local/mail/openmail/postfwd/postfwd.cf ===
-id=limit_stefan_example_com ; sender=~.+@example.com ; protocol_state==RCPT
-                action=rate(stefan_ratelimit/100/3600/450 4.7.1 sorry, OpenPanel account reached limit of 100 emails per hour)
+id=limit_stefan_example_com ; sender=~.+@example.com$ ; protocol_state==RCPT
+                action=set(op_account=stefan)
+id=limit_stefan_rate ; sender=~.+@example.com$ ; protocol_state==RCPT
+                action=rate(op_account/100/3600/450 4.7.1 sorry, OpenPanel account reached limit of 100 emails per hour)
 
 ---
-3 lines total
+5 lines total
 ```
 </details>
 
@@ -834,7 +840,7 @@ OK: stefan limit=100/hr domain=example.com
 OK: stefan limit=100/hr domain=example.net
 OK: demo limit=50/hr domain=demo.net
 ---
-Generated 9 lines written to /usr/local/mail/openmail/postfwd/postfwd.cf
+Generated 15 lines written to /usr/local/mail/openmail/postfwd/postfwd.cf
 ```
 </details>
 
@@ -852,7 +858,7 @@ Updating rules for user: stefan
 OK: stefan limit=100/hr domain=example.com
 OK: stefan limit=100/hr domain=example.net
 ---
-Done. 9 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
+Done. 15 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
 ```
 </details>
 
@@ -887,13 +893,13 @@ opencli email-ratelimit --delete-domain=<DOMAIN>
 Deleting all rules for user: demo
 Removed all rules for user 'demo'.
 ---
-Done. 6 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
+Done. 10 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
 
 # opencli email-ratelimit --delete-domain=example.net
 Deleting rule for domain: example.net
 Removed rule: limit_stefan_example_net
 ---
-Done. 3 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
+Done. 5 lines in /usr/local/mail/openmail/postfwd/postfwd.cf
 ```
 </details>
 
