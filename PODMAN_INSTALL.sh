@@ -536,9 +536,9 @@ setup_opencli() {
     chmod 755 /usr/local/opencli/opencli
     ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
     export PATH="/usr/bin:$PATH"
-    /usr/local/bin/opencli version >/dev/null 2>&1 || die 1 "opencli setup failed."
-    # --help writes aliases.txt that tab-completion reads
-    /usr/local/bin/opencli --help >/dev/null 2>&1 || true
+    # not 'opencli version': it reads /root/.env or the openpanel image, neither exists yet on a fresh install
+    # --help needs no state and writes aliases.txt that tab-completion reads
+    /usr/local/bin/opencli --help >/dev/null 2>&1 || die 1 "opencli setup failed."
     ok "opencli commands are executable."
 }
 
