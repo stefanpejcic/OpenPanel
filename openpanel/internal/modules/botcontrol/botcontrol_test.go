@@ -195,3 +195,29 @@ func TestRewritePolicyDropsTopLevelLines(t *testing.T) {
 		t.Fatalf("waf + stray: %q, %v", out, err)
 	}
 }
+
+// a 429 for a normal browser comes from the site's per-IP limit, not bot control, so it isn't counted as blocked (#1366)
+func TestBrowserDenialsNotCountedAsBotBlocks(t *testing.T) {
+	logs := strings.Join([]string{
+		`{"ts":1000,"status":429,"request":{"client_ip":"198.51.100.5","uri":"/wp-admin/","headers":{"User-Agent":["Mozilla/5.0 Chrome/131"]}}}`,
+		`{"ts":1001,"status":403,"request":{"client_ip":"198.51.100.5","uri":"/wp-admin/x","headers":{"User-Agent":["Mozilla/5.0 Chrome/131"]}}}`,
+		`{"ts":1002,"status":429,"request":{"client_ip":"203.0.113.10","uri":"/","headers":{"User-Agent":["GPTBot/1.2"]}}}`,
+	}, "\n")
+	report, err := aggregateLogReader(strings.NewReader(logs), "example.com", "24h", 900, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.BlockedCount != 1 || report.OtherBlocked != 2 {
+		t.Fatalf("blocked=%d other=%d, want 1 and 2", report.BlockedCount, report.OtherBlocked)
+	}
+	for _, b := range report.TopBots {
+		if b.Name == "Browser / Other" && b.Blocked != 0 {
+			t.Fatalf("browser row shows %d blocked", b.Blocked)
+		}
+	}
+	for _, n := range report.TopNetworks {
+		if strings.HasPrefix(n.Network, "198.51.100") && n.Blocked != 0 {
+			t.Fatalf("browser network shows %d blocked", n.Blocked)
+		}
+	}
+}

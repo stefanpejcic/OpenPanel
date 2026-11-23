@@ -132,7 +132,7 @@ Usage: opencli domains-hsts <domain> [enable|disable]
 ------------------------
 opencli domains-ratelimit
 Description: Set the per-ip and per-domain request rate limits in Caddy, server default or per domain.
-Usage: opencli domains-ratelimit [status] [--json]
+Usage: opencli domains-ratelimit [status|stats|default|trusted|<targets>] [--json]
 ------------------------
 opencli domains-ssl
 Description: Check SSL for domain, add custom certificate, view files.

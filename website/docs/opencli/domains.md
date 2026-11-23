@@ -1455,9 +1455,10 @@ opencli domains-ratelimit [status] [--json]
 opencli domains-ratelimit default <per_ip> <per_site>
 opencli domains-ratelimit <TARGETS> <per_ip> <per_site>|default|off
 opencli domains-ratelimit stats [TARGETS] [--hours 24] [--json]
+opencli domains-ratelimit trusted [add|remove <IP|CIDR>...|sync] [--json] [--quiet]
 ```
 
-Limits are requests per minute, per visitor IP and per domain, `0` turns that limit off. `<TARGETS>` is one or more domain names, `--all` or `--user <USERNAME>`, mixed freely.
+Limits are requests per minute, per visitor IP and per domain, `0` turns that limit off. `<TARGETS>` is one or more domain names, `--all` or `--user <USERNAME>`, mixed freely. Visitor IPs in `csf.allow` and `csf.ignore`, loopback and the manual trusted list skip both limits, see [Trusted IPs](#trusted-ips).
 
 Before the first change the command adds the rate limit snippets (`/etc/openpanel/caddy/ratelimit.conf`) and their import to the Caddyfile, adds Cloudflare ranges as trusted proxies so limits apply to the real visitor IP, and pulls a Caddy image with the rate limit module if the running one doesn't have it. If Caddy rejects the new config, all files are restored and nothing is changed.
 
@@ -1579,3 +1580,62 @@ With `--json` it also lists the 5 IPs that got the most 429 responses:
 [{"domain":"example.com","hours":24,"requests":18342,"blocked":57,"peak_minute":412,"peak_ip_minute":135,"top_blocked":[{"ip":"203.0.113.7","count":49},{"ip":"198.51.100.23","count":8}]}]
 ```
 </details>
+
+### Trusted IPs
+
+Visitor IPs that skip the per-IP and per-domain limits, kept in `/etc/openpanel/caddy/ratelimit_trusted.conf`. The list is loopback, the manual entries and every plain IP or CIDR in `/etc/csf/csf.allow` and `/etc/csf/csf.ignore` (advanced filters like `tcp|in|d=22|s=1.2.3.4` only allow some ports, so they're left out). A cron job runs `trusted sync` every 5 minutes, so changes to the firewall lists reach Caddy on their own.
+
+Show the list:
+```bash
+opencli domains-ratelimit trusted [--json]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit trusted
+Visitor IPs that skip the rate limits:
+  manual:           198.51.100.7
+  csf.allow/ignore: 203.0.113.10 203.0.113.0/24
+  always:           127.0.0.1/32 ::1/128
+
+# opencli domains-ratelimit trusted --json
+{"always":["127.0.0.1/32","::1/128"],"csf":["203.0.113.10","203.0.113.0/24"],"manual":["198.51.100.7"]}
+```
+</details>
+
+Add or remove manual entries, IPs or CIDR ranges:
+```bash
+opencli domains-ratelimit trusted add <IP|CIDR>...
+opencli domains-ratelimit trusted remove <IP|CIDR>...
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit trusted add 198.51.100.7
+Trusted IPs: 1 manual, 2 from csf.allow and csf.ignore.
+SUCCESS: Caddy reloaded.
+
+# opencli domains-ratelimit trusted add example.com
+ERROR: 'example.com' is not an IP address or CIDR range.
+```
+</details>
+
+Re-read `csf.allow` and `csf.ignore`, Caddy is only reloaded when the list changed. `--quiet` prints nothing unless it changes something:
+```bash
+opencli domains-ratelimit trusted sync [--quiet]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit trusted sync
+Nothing changed.
+```
+</details>
+
+On a server where rate limiting was never set up the list is only saved, and applies once it is: `Saved. Rate limiting isn't set up on this server yet, the list applies once it is.`
