@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -24,41 +25,48 @@ type jsonResult struct {
 	Error   string `json:"error,omitempty"`
 }
 
-// handleRestoreFile moves one trashed item back to its original path, recorded in .trash_restore
-func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	itemName := r.URL.Query().Get("filename")
-	if itemName == "" {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Missing filename."})
-		return
-	}
+// itemFailure is one item a batch request couldn't handle
+type itemFailure struct {
+	Name  string `json:"name"`
+	Error string `json:"error"`
+}
 
-	_, username, userContext, err := auth.Injected(a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
+type batchResult struct {
+	Success bool          `json:"success"`
+	Message string        `json:"message,omitempty"`
+	Error   string        `json:"error,omitempty"`
+	Failed  []itemFailure `json:"failed,omitempty"`
+}
 
+// cleanTrashName keeps only the base name so a request can't reach outside the Trash folder
+func cleanTrashName(itemName string) (string, error) {
+	itemName = filepath.Base(itemName)
+	if itemName == "" || itemName == "." || itemName == "/" {
+		return "", errors.New("Invalid filename.")
+	}
+	return itemName, nil
+}
+
+// restoreOne moves one trashed item back to its original path from .trash_restore and returns that path
+func restoreOne(userContext, itemName string) (string, error) {
 	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 
-	itemName = filepath.Base(itemName)
-	if itemName == "" || itemName == "." || itemName == "/" {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Invalid filename."})
-		return
+	itemName, err := cleanTrashName(itemName)
+	if err != nil {
+		return "", err
 	}
 
 	trashedPath := filepath.Join(trashDir, itemName)
 	trashRestoreFile := filepath.Join(trashDir, ".trash_restore")
 
 	if _, err := tenantfs.Stat(trashedPath); err != nil {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
-		return
+		return "", errors.New("File or directory does not exist in Trash.")
 	}
 
 	restoreInfo, err := tenantfs.ReadFile(trashRestoreFile)
 	if err != nil {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: ".trash_restore file is missing."})
-		return
+		return "", errors.New(".trash_restore file is missing.")
 	}
 
 	var restoreDestination string
@@ -77,43 +85,125 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if restoreDestination == "" {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Original path not found in .trash_restore."})
-		return
+		return "", errors.New("Original path not found in .trash_restore.")
 	}
 
 	restoreDestination = absPath(restoreDestination)
-	volumeAbs := absPath(volume)
-
-	if !isWithin(resolveOrSelf(restoreDestination), resolveOrSelf(volumeAbs)) {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Restore path is outside your permitted data directory."})
-		return
+	if !isWithin(resolveOrSelf(restoreDestination), resolveOrSelf(absPath(volume))) {
+		return "", errors.New("Restore path is outside your permitted data directory.")
 	}
 
 	if err := restoreItem(trashedPath, restoreDestination); err != nil {
 		if errors.Is(err, errRestoreExists) {
-			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Can't restore: an item with the same name is already in the original folder."})
-			return
+			return "", errors.New("Can't restore: an item with the same name is already in the original folder.")
 		}
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
-		return
+		return "", err
 	}
 
 	_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(linesToKeep)), 0o644)
-
-	_ = logger.RecordUserAction(a.Config, username, "restored "+restoreDestination+" from Trash using File Manager", reqip.ClientIP(r))
-	web.WriteJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Restored from Trash"})
+	return restoreDestination, nil
 }
 
-// handleDeleteTrash permanently deletes one item from the trash.
-func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	itemName := r.URL.Query().Get("filename")
+// deleteTrashOne permanently removes one item from the trash and returns its type and path
+func deleteTrashOne(userContext, itemName string) (string, string, error) {
 	if itemName == ".trash_restore" {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Deletion of system file .trash_restore is not allowed."})
+		return "", "", errors.New("Deletion of system file .trash_restore is not allowed.")
+	}
+	itemName, err := cleanTrashName(itemName)
+	if err != nil {
+		return "", "", err
+	}
+
+	trashDir := "/home/" + userContext + "/.local/share/Trash"
+	trashedPath := filepath.Join(trashDir, itemName)
+	trashRestoreFile := filepath.Join(trashDir, ".trash_restore")
+
+	info, err := tenantfs.Lstat(trashedPath)
+	if err != nil {
+		return "", "", errors.New("File or directory does not exist in Trash.")
+	}
+
+	var detectedType string
+	switch {
+	case info.IsDir():
+		if err := tenantfs.RemoveAll(trashedPath); err != nil {
+			return "", "", err
+		}
+		detectedType = "directory"
+	case info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0:
+		if err := tenantfs.Remove(trashedPath); err != nil {
+			return "", "", err
+		}
+		detectedType = "file"
+	default:
+		return "", "", errors.New("Unsupported item type.")
+	}
+
+	if content, err := tenantfs.ReadFile(trashRestoreFile); err == nil {
+		_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(dropRestoreLine(string(content), itemName))), 0o644)
+	}
+	return detectedType, trashedPath, nil
+}
+
+// restoreLogLine is the activity line for restored items, a single item keeps the old wording
+func restoreLogLine(paths []string, via string) string {
+	if len(paths) == 1 {
+		return "restored " + paths[0] + " from Trash using " + via
+	}
+	return "restored " + strconv.Itoa(len(paths)) + " items from Trash using " + via + ": " + logger.JoinNames(paths)
+}
+
+// trashDeleteLogLine is the activity line for items deleted from the trash, a single item keeps the old wording
+func trashDeleteLogLine(itemType string, paths []string) string {
+	if len(paths) == 1 {
+		return "permanently deleted " + itemType + " " + paths[0] + " using File Manager"
+	}
+	return "permanently deleted " + strconv.Itoa(len(paths)) + " items from Trash using File Manager: " + logger.JoinNames(paths)
+}
+
+func writeBatch(w http.ResponseWriter, failed []itemFailure, okMsg string) {
+	if len(failed) > 0 {
+		web.WriteJSON(w, http.StatusOK, batchResult{Success: false, Error: failed[0].Error, Failed: failed})
+		return
+	}
+	web.WriteJSON(w, http.StatusOK, batchResult{Success: true, Message: okMsg})
+}
+
+// handleRestoreFile moves one or more trashed items (repeated filename params) back to their original paths and logs one line for the batch
+func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	names := r.URL.Query()["filename"]
+	if len(names) == 0 || names[0] == "" {
+		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Missing filename."})
 		return
 	}
 
-	itemName = filepath.Base(itemName)
-	if itemName == "" || itemName == "." || itemName == "/" {
+	_, username, userContext, err := auth.Injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	var restored []string
+	var failed []itemFailure
+	for _, name := range names {
+		dest, rerr := restoreOne(userContext, name)
+		if rerr != nil {
+			failed = append(failed, itemFailure{Name: name, Error: rerr.Error()})
+			continue
+		}
+		restored = append(restored, dest)
+	}
+
+	if len(restored) > 0 {
+		_ = logger.RecordUserAction(a.Config, username, restoreLogLine(restored, "File Manager"), reqip.ClientIP(r))
+	}
+	writeBatch(w, failed, "Restored from Trash")
+}
+
+// handleDeleteTrash permanently deletes one or more items (repeated filename params) from the trash and logs one line for the batch
+func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	names := r.URL.Query()["filename"]
+	if len(names) == 0 {
 		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Invalid filename."})
 		return
 	}
@@ -124,41 +214,23 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trashDir := "/home/" + userContext + "/.local/share/Trash"
-	trashedPath := filepath.Join(trashDir, itemName)
-	trashRestoreFile := filepath.Join(trashDir, ".trash_restore")
-
-	info, err := tenantfs.Lstat(trashedPath)
-	if err != nil {
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
-		return
-	}
-
-	var detectedType string
-	switch {
-	case info.IsDir():
-		if err := tenantfs.RemoveAll(trashedPath); err != nil {
-			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
-			return
+	var deleted []string
+	var failed []itemFailure
+	itemType := "file"
+	for _, name := range names {
+		t, p, derr := deleteTrashOne(userContext, name)
+		if derr != nil {
+			failed = append(failed, itemFailure{Name: name, Error: derr.Error()})
+			continue
 		}
-		detectedType = "directory"
-	case info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0:
-		if err := tenantfs.Remove(trashedPath); err != nil {
-			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
-			return
-		}
-		detectedType = "file"
-	default:
-		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Unsupported item type."})
-		return
+		deleted = append(deleted, p)
+		itemType = t
 	}
 
-	if content, err := tenantfs.ReadFile(trashRestoreFile); err == nil {
-		_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(dropRestoreLine(string(content), itemName))), 0o644)
+	if len(deleted) > 0 {
+		_ = logger.RecordUserAction(a.Config, username, trashDeleteLogLine(itemType, deleted), reqip.ClientIP(r))
 	}
-
-	_ = logger.RecordUserAction(a.Config, username, "permanently deleted "+detectedType+" "+trashedPath+" using File Manager", reqip.ClientIP(r))
-	web.WriteJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Deleted permanently"})
+	writeBatch(w, failed, "Deleted permanently")
 }
 
 // handleDeleteAll empties the whole Trash, keeping .trash_restore itself (truncated) rather than removing it outright
@@ -207,6 +279,7 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	var restoreErrors []string
 	var linesToKeep []string
+	var restored []string
 
 	for _, line := range strings.Split(string(content), "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -235,7 +308,10 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
 		}
-		_ = logger.RecordUserAction(a.Config, username, "restored "+restorePath+" from Trash using Restore All", reqip.ClientIP(r))
+		restored = append(restored, restorePath)
+	}
+	if len(restored) > 0 {
+		_ = logger.RecordUserAction(a.Config, username, restoreLogLine(restored, "Restore All"), reqip.ClientIP(r))
 	}
 
 	if len(restoreErrors) > 0 {

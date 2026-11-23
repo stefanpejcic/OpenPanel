@@ -84,6 +84,7 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var restored []string
 	var restoreErrors []string
 	var linesToKeep []string
+	var restoredPaths []string
 
 	for _, line := range strings.Split(string(content), "\n") {
 		trimmed := strings.TrimSpace(line)
@@ -112,8 +113,11 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
 		}
-		_ = logger.RecordUserAction(a.Config, username, "restored "+restorePath+" from Trash using Restore All (API)", reqip.ClientIP(r))
 		restored = append(restored, key)
+		restoredPaths = append(restoredPaths, restorePath)
+	}
+	if len(restoredPaths) > 0 {
+		_ = logger.RecordUserAction(a.Config, username, restoreLogLine(restoredPaths, "Restore All (API)"), reqip.ClientIP(r))
 	}
 
 	if restored == nil {
