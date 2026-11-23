@@ -19,7 +19,7 @@ const (
 // scopedMux is a panel with a few fake routes behind the real RequireAPI
 func scopedMux(t *testing.T) (http.Handler, *fakeStore) {
 	t.Helper()
-	ctxDir := featureContext(t, "mcp", "api", "favorites", "dns")
+	ctxDir := featureContext(t, "mcp", "api", "favorites", "dns", "websites")
 	a, store := newFakeApp(t, nil, map[int]*fakeUser{7: {username: "alice", email: "alice@example.test", context: ctxDir}})
 	store.scoped = true
 	mux := http.NewServeMux()
@@ -30,6 +30,8 @@ func scopedMux(t *testing.T) (http.Handler, *fakeStore) {
 	apiregistry.Handle(mux, a, "favorites", "DELETE /api/testwrite/{id}", ok)
 	apiregistry.Handle(mux, a, "favorites", "POST /api/testwrite/{id}/restore", ok)
 	apiregistry.Handle(mux, a, "dns", "POST /api/testdns", ok)
+	apiregistry.Handle(mux, a, "websites", "GET /api/sites/wp-cli/{action}", ok)
+	apiregistry.Handle(mux, a, "websites", "GET /api/sites/{rest...}", ok)
 	return auth.LoadUser(a)(mux), store
 }
 
@@ -117,5 +119,36 @@ func TestScopedTokenNeedsColumns(t *testing.T) {
 	}
 	if rec := bearer(h, "POST", "/api/account/mcp", rwToken, `{"name":"plain"}`); rec.Code != http.StatusCreated {
 		t.Fatalf("plain token without columns: got %d %s", rec.Code, rec.Body)
+	}
+}
+
+func TestReadOnlyTokenCantRunWPCLIWritesOverGET(t *testing.T) {
+	h, store := scopedMux(t)
+	store.addScopedToken(7, roToken, "viewer", "readonly", "")
+	store.addScopedToken(7, fullToken, "owner", "full", "")
+	q := "?website=example.com&docroot=/var/www/html/example.com"
+	if rec := bearer(h, "GET", "/api/sites/wp-cli/update_now"+q, roToken, ""); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "read-only") {
+		t.Fatalf("read-only token running update_now over GET: got %d %s, want 403", rec.Code, rec.Body)
+	}
+	if rec := bearer(h, "GET", "/api/sites/wp-cli/site_info"+q, roToken, ""); rec.Code != http.StatusNoContent {
+		t.Fatalf("read-only token reading site_info: got %d %s", rec.Code, rec.Body)
+	}
+	if rec := bearer(h, "GET", "/api/sites/wp-cli/update_now"+q, fullToken, ""); rec.Code != http.StatusNoContent {
+		t.Fatalf("full token running update_now: got %d %s", rec.Code, rec.Body)
+	}
+}
+
+func TestLimitedTokensCantReadCredentials(t *testing.T) {
+	h, store := scopedMux(t)
+	store.addScopedToken(7, roToken, "viewer", "readonly", "")
+	store.addScopedToken(7, modifyToken, "agent", "modify", "")
+	store.addScopedToken(7, fullToken, "owner", "full", "")
+	for _, tok := range []string{roToken, modifyToken} {
+		if rec := bearer(h, "GET", "/api/sites/example.com/wp-info", tok, ""); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "credentials") {
+			t.Errorf("limited token reading wp-info: got %d %s, want 403", rec.Code, rec.Body)
+		}
+	}
+	if rec := bearer(h, "GET", "/api/sites/example.com/wp-info", fullToken, ""); rec.Code != http.StatusNoContent {
+		t.Errorf("full token reading wp-info: got %d %s", rec.Code, rec.Body)
 	}
 }

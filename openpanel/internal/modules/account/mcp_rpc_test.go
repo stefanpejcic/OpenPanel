@@ -337,3 +337,25 @@ func TestMCPRealTypedTools(t *testing.T) {
 		}
 	}
 }
+
+func TestMCPHidesCredentialRoutes(t *testing.T) {
+	for _, tool := range getMCPToolRegistry() {
+		if strings.HasSuffix(tool.Path, "/wp-info") || tool.Path == "/api/phpmyadmin" {
+			t.Errorf("%s hands back credentials and should not be a tool", tool.Name)
+		}
+	}
+}
+
+func TestMCPSearchPrefersTheNamedGroup(t *testing.T) {
+	found := mcpSearchTools("wordpress plugins update", 5, mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeFull}})
+	tools, _ := found["tools"].([]any)
+	for _, raw := range tools {
+		name := fmt.Sprint(raw.(map[string]any)["name"])
+		if tool := getMCPToolRegistry()[name]; tool != nil && tool.Group != "WordPress" && !strings.Contains(tool.Path, "wp") {
+			t.Errorf("%s (%s) ranked in the top 5 for a WordPress search", name, tool.Group)
+		}
+	}
+	if names := listedNames(found); !names["wp_cli_action"] {
+		t.Errorf("wp_cli_action not found: %v", names)
+	}
+}

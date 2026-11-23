@@ -8215,8 +8215,8 @@ paths:
       - bearerAuth: []
   /api/sites/wp-cli/{action}:
     get:
-      summary: Site-manager scoped WP-CLI passthrough (site info, debug flags, update preferences) - distinct
-        action set from POST /api/wp-cli/<action>.
+      summary: 'Site-manager WP-CLI actions for a WordPress site. Reads: site_info, debug_info, update_info.
+        Changes: update_debug, update_site_information, update_now, update_update_preferences.'
       operationId: sites_wp_cli_action
       tags:
       - Sites & Websites
@@ -8226,6 +8226,143 @@ paths:
         required: true
         schema:
           type: string
+      - name: website
+        in: query
+        required: false
+        description: Site name (domain or domain/subfolder) the action runs for; checked for ownership.
+        schema:
+          type: string
+      - name: domain
+        in: query
+        required: false
+        description: Fallback for website, used only when website is empty.
+        schema:
+          type: string
+      - name: docroot
+        in: query
+        required: true
+        description: WordPress install path inside the container, such as /var/www/html/example.com; must
+          not contain '..'.
+        schema:
+          type: string
+          pattern: ^[a-zA-Z0-9_/.-]+$
+      - name: WP_DEBUG
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets WP_DEBUG to true, any other value or absence sets it to
+          false.'
+        schema:
+          type: string
+      - name: WP_DEBUG_LOG
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets WP_DEBUG_LOG to true, any other value or absence sets
+          it to false.'
+        schema:
+          type: string
+      - name: WP_DEBUG_DISPLAY
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets WP_DEBUG_DISPLAY to true, any other value or absence sets
+          it to false.'
+        schema:
+          type: string
+      - name: SCRIPT_DEBUG
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets SCRIPT_DEBUG to true, any other value or absence sets
+          it to false.'
+        schema:
+          type: string
+      - name: SAVEQUERIES
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets SAVEQUERIES to true, any other value or absence sets it
+          to false.'
+        schema:
+          type: string
+      - name: siteurl
+        in: query
+        required: false
+        description: 'update_site_information: new siteurl option, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: home
+        in: query
+        required: false
+        description: 'update_site_information: new home option, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: blogname
+        in: query
+        required: false
+        description: 'update_site_information: new site title, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: blogdescription
+        in: query
+        required: false
+        description: 'update_site_information: new tagline, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: admin_email
+        in: query
+        required: false
+        description: 'update_site_information: new admin_email option, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: users_can_register
+        in: query
+        required: false
+        description: 'update_site_information: users_can_register option value (''1'' enables registration),
+          updated only when the key is sent.'
+        schema:
+          type: string
+      - name: default_ping_status
+        in: query
+        required: false
+        description: 'update_site_information: default_ping_status option value (''open'' enables pingbacks),
+          updated only when the key is sent.'
+        schema:
+          type: string
+      - name: blog_public
+        in: query
+        required: false
+        description: 'update_site_information: blog_public option value (''1'' allows search engine indexing),
+          updated only when the key is sent.'
+        schema:
+          type: string
+      - name: WP_AUTO_UPDATE_PLUGINS
+        in: query
+        required: false
+        description: 'update_update_preferences: whether plugins auto-update.'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          default: 'false'
+      - name: WP_AUTO_UPDATE_THEMES
+        in: query
+        required: false
+        description: 'update_update_preferences: whether themes auto-update.'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          default: 'false'
+      - name: WP_AUTO_UPDATE_CORE
+        in: query
+        required: false
+        description: 'update_update_preferences: core auto-update mode.'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          - minor
+          default: 'false'
       responses:
         '200':
           description: Success.
@@ -8449,7 +8586,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8468,7 +8605,7 @@ paths:
                 site_name: My Drupal Site
                 drupal_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8659,7 +8796,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8679,7 +8816,7 @@ paths:
                 joomla_version: ''
                 admin_name: Administrator
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8833,7 +8970,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8851,7 +8988,7 @@ paths:
                 subdirectory: ''
                 opencart_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9008,7 +9145,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9026,7 +9163,7 @@ paths:
                 subdirectory: ''
                 nextcloud_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9216,7 +9353,7 @@ paths:
                   example: User
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9235,7 +9372,7 @@ paths:
                 prestashop_version: ''
                 admin_firstname: Admin
                 admin_lastname: User
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9394,7 +9531,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9413,7 +9550,7 @@ paths:
                 site_name: My Flarum Forum
                 flarum_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9598,7 +9735,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9616,7 +9753,7 @@ paths:
                 subdirectory: ''
                 matomo_version: ''
                 admin_login: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9807,7 +9944,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9827,7 +9964,7 @@ paths:
                 site_name: My Moodle Site
                 site_shortname: moodle
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -10015,7 +10152,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -10034,7 +10171,7 @@ paths:
                 mediawiki_version: ''
                 site_name: My Wiki
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -10192,7 +10329,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_full_name:
                   type: string
                   example: Admin User
@@ -10204,7 +10341,7 @@ paths:
                 subdirectory: ''
                 admin_email: admin@example.com
                 admin_user: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_full_name: Admin User
                 site_title: My DokuWiki
       responses:
@@ -10453,7 +10590,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -10463,7 +10600,7 @@ paths:
                 board_name: My Board
                 board_description: A phpBB forum
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
       responses:
         '200':
@@ -10650,12 +10787,12 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
               example:
                 domain_id: '42'
                 subdirectory: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
       responses:
         '200':
           description: Success.
@@ -10723,7 +10860,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -10741,7 +10878,7 @@ paths:
                 subdirectory: ''
                 ojs_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -10932,47 +11069,79 @@ paths:
               properties:
                 domain_id:
                   type: string
-                  example: '42'
+                  description: ID of the user's domain to install on, sent as a JSON string.
                 admin_email:
                   type: string
-                  example: admin@example.com
+                  pattern: ^([^\s@]+@[^\s@]+\.[^\s@]+)?$
+                  description: WordPress admin email; empty means admin@<domain>.
                 website_name:
                   type: string
-                  example: My Blog
+                  default: My Blog
+                  description: Site title.
                 site_description:
                   type: string
-                  example: My WordPress Blog
+                  default: My WordPress Blog
+                  description: Site tagline.
                 admin_username:
                   type: string
-                  example: admin
+                  pattern: ^[A-Za-z0-9._@][A-Za-z0-9._@-]{0,59}$
+                  description: 'WordPress admin login: letters, numbers and . _ @ -, not starting with
+                    -.'
                 admin_password:
                   type: string
-                  example: changeme
+                  minLength: 1
+                  maxLength: 128
+                  pattern: ^[^\s-]\S*$
+                  description: 'WordPress admin password: no whitespace, not starting with -, and it must
+                    meet the panel''s password_strength setting (default 50).'
                 wordpress_version:
                   type: string
-                  example: latest
+                  pattern: ^(latest|[0-9]+(\.[0-9]+)*(-[A-Za-z0-9]+)?)?$
+                  default: latest
+                  description: WordPress release to install, 'latest' or a version like 6.5.2.
                 subdirectory:
                   type: string
-                  example: ''
+                  description: Optional subfolder under the domain's docroot; lowercased, spaces removed,
+                    parts may only use letters, numbers, dots, dashes and underscores, up to 200 characters.
                 db_name:
                   type: string
-                  example: ''
+                  maxLength: 32
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: Database name before the account prefix is added; empty generates a random
+                    one.
                 db_user:
                   type: string
-                  example: ''
+                  maxLength: 32
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: Database user before the account prefix is added; empty generates a random
+                    one.
                 db_password:
                   type: string
-                  example: ''
+                  maxLength: 64
+                  pattern: ^[!#-&(-\[\]-_a-~]*$
+                  description: 'Database password: printable ASCII without spaces, quotes, backslashes
+                    or backticks; empty generates a random one.'
                 db_prefix:
                   type: string
-                  example: wp_
+                  pattern: ^[A-Za-z0-9_]*$
+                  default: wp_
+                  description: Table prefix; a trailing underscore is added when missing.
+                wp_set:
+                  type: string
+                  pattern: ^([a-z0-9_-]{1,64})?$
+                  description: Plugins/themes set slug to install; empty uses the global or user set,
+                    'none' skips sets.
+              required:
+              - domain_id
+              - admin_username
+              - admin_password
               example:
                 domain_id: '42'
                 admin_email: admin@example.com
                 website_name: My Blog
                 site_description: My WordPress Blog
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 wordpress_version: latest
                 subdirectory: ''
                 db_name: ''
@@ -11006,33 +11175,55 @@ paths:
               properties:
                 source_domain:
                   type: string
-                  example: example.com
+                  pattern: ^[a-zA-Z0-9.-]+(/.*)?$
+                  description: Source site as domain or domain/subfolder; used as the old URL for search-replace.
                 target_domain:
                   type: string
-                  example: clone.example.com
+                  pattern: ^[a-zA-Z0-9.-]+$
+                  description: Destination domain, which must belong to the user.
                 source_db:
                   type: string
-                  example: wp_source
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database name of the source site.
                 source_folder:
                   type: string
-                  example: ''
+                  pattern: ^/var/www/html/
+                  description: Source site's install path inside the container, such as /var/www/html/example.com;
+                    must not contain '..'.
                 subdirectory:
                   type: string
-                  example: ''
+                  description: Optional subfolder under the target domain's docroot to clone into; the
+                    resulting path must not contain '..'.
                 target_db:
                   type: string
-                  example: ''
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: New database name before the account prefix is added; empty generates wp_clone_<random>.
                 target_db_user:
                   type: string
-                  example: ''
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: New database user before the account prefix is added; empty reuses the
+                    target database name.
                 target_db_user_password:
                   type: string
-                  example: ''
+                  description: Password for the new database user; empty generates a random one.
+                include_uploads:
+                  type: boolean
+                  default: true
+                  description: Copy wp-content/uploads; false clones without it.
+                rewrite_urls:
+                  type: boolean
+                  default: true
+                  description: Run wp search-replace from the source URL to the target URL.
+              required:
+              - source_domain
+              - target_domain
+              - source_db
+              - source_folder
               example:
                 source_domain: example.com
                 target_domain: clone.example.com
                 source_db: wp_source
-                source_folder: ''
+                source_folder: /var/www/html/example.com
                 subdirectory: ''
                 target_db: ''
                 target_db_user: ''
@@ -11105,7 +11296,7 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -11113,10 +11304,17 @@ paths:
               properties:
                 backup_database:
                   type: boolean
-                  example: true
+                  default: true
+                  description: Include the database in the backup.
                 backup_files:
                   type: boolean
-                  example: true
+                  default: true
+                  description: Include the site files in the backup.
+                docroot:
+                  type: string
+                  pattern: ^/var/www/html/[A-Za-z0-9._/-]+$
+                  description: Install path inside the container; empty uses the domain's docroot. Must
+                    not contain '..'.
               example:
                 backup_database: true
                 backup_files: true
@@ -11153,7 +11351,18 @@ paths:
               properties:
                 backup_date:
                   type: string
-                  example: 2025-01-15_12-00-00
+                  pattern: ^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$
+                  description: Backup folder name to restore, as listed by GET /api/wordpress/<domain>/backups.
+                docroot:
+                  type: string
+                  pattern: ^[A-Za-z0-9._/-]+$
+                  description: Domain docroot, absolute (/var/www/html/...) or relative to /var/www/html;
+                    empty uses the domain's docroot. Must not contain '..'.
+                php_version:
+                  type: string
+                  description: PHP version of the domain; empty is looked up from the domain.
+              required:
+              - backup_date
               example:
                 backup_date: 2025-01-15_12-00-00
       responses:
@@ -11222,7 +11431,7 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -11232,12 +11441,13 @@ paths:
                   type: array
                   items:
                     type: string
-                    example: wp_manager_xmlrpc
-                  example:
-                  - wp_manager_xmlrpc
+                    pattern: ^wp_manager_\w+$
+                  description: Hardening rules to enable (from GET /api/wordpress/secure); names not matching
+                    wp_manager_* are dropped, an empty list disables all rules.
                 disable_all:
                   type: boolean
-                  example: false
+                  default: false
+                  description: Disable every hardening rule for the domain, ignoring rules.
               example:
                 rules:
                 - wp_manager_xmlrpc
@@ -11322,7 +11532,8 @@ paths:
       - bearerAuth: []
   /api/wp-cli/{action}:
     post:
-      summary: Run a WP-CLI action.
+      summary: 'Run a WP-CLI action on a WordPress site: core_update, core_update_check, plugin_update_all,
+        theme_update_all, list_plugins, list_themes, cache_flush, cron_run.'
       operationId: wp_cli_action
       tags:
       - WordPress
@@ -11332,16 +11543,44 @@ paths:
         required: true
         schema:
           type: string
+      - name: backup
+        in: query
+        required: false
+        description: Same as the body's backup flag; only the value '1' turns it on.
+        schema:
+          type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              description: 'Accepted actions: cache_flush, core_update, core_update_check, cron_run, list_plugins,
+                list_themes, plugin_update_all, theme_update_all (case-insensitive). backup applies only
+                to core_update, plugin_update_all and theme_update_all.'
               properties:
                 domain:
                   type: string
-                  example: example.com
+                  pattern: ^[A-Za-z0-9_\-./]+$
+                  description: Site as domain or domain/subfolder; the domain must belong to the user.
+                php_version:
+                  type: string
+                  pattern: ^[A-Za-z0-9_\-.]+$
+                  description: PHP version picking the php-fpm container; empty uses the domain's version.
+                docroot:
+                  type: string
+                  pattern: ^[A-Za-z0-9_\-./]+$
+                  description: WordPress path inside the container; empty uses the domain's docroot (plus
+                    the subfolder from domain). Must not contain '..'.
+                backup:
+                  oneOf:
+                  - type: boolean
+                  - type: integer
+                  - type: string
+                  description: Take a full backup before an update action and skip the update if it fails;
+                    true, 1, "1" or "true" turn it on.
+              required:
+              - domain
               example:
                 domain: example.com
       responses:

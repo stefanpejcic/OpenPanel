@@ -48,6 +48,9 @@ const mcpInstructions = "This server manages one OpenPanel hosting account: webs
 var mcpExcludedToolPaths = map[string]bool{
 	"/api/login":     true,
 	"/api/endpoints": true,
+	// these hand back database passwords or a login link, which an agent never needs and shouldn't end up in a chat log
+	"/api/sites/<domain>/wp-info": true,
+	"/api/phpmyadmin":             true,
 }
 
 // mcpDirectTools stay listed in search mode so an agent can look around without searching first
@@ -67,6 +70,7 @@ type docEndpoint struct {
 	Path        string          `json:"path"`
 	Description string          `json:"description"`
 	Body        json.RawMessage `json:"body,omitempty"`
+	Params      string          `json:"params,omitempty"`
 	BodySchema  json.RawMessage `json:"body_schema,omitempty"`
 	QuerySchema json.RawMessage `json:"query_schema,omitempty"`
 }
@@ -147,6 +151,7 @@ type mcpTool struct {
 	PathParams []mcpPathParam
 	Schema     map[string]any
 	terms      map[string]int
+	groupTerms map[string]bool
 }
 
 var (
@@ -347,8 +352,13 @@ func getMCPToolRegistry() map[string]*mcpTool {
 			tool.Group = e.group
 			tool.Features = e.features
 			tool.terms = map[string]int{}
-			for _, t := range mcpTokenize(e.group + " " + e.ep.Description + " " + strings.ReplaceAll(name, "_", " ")) {
+			// params often lists the accepted actions (list_plugins, cache_flush...), which is what people search for
+			for _, t := range mcpTokenize(e.group + " " + e.ep.Description + " " + e.ep.Params + " " + strings.ReplaceAll(name, "_", " ")) {
 				tool.terms[t]++
+			}
+			tool.groupTerms = map[string]bool{}
+			for _, t := range mcpTokenize(e.group) {
+				tool.groupTerms[t] = true
 			}
 			mcpRegistry[name] = tool
 			mcpToolOrder = append(mcpToolOrder, name)
@@ -531,6 +541,10 @@ func mcpSearchTools(query string, limit int, acc mcpAccess) map[string]any {
 		score := 0
 		for _, term := range q {
 			score += t.terms[term]
+			// naming the area ("wordpress ...") should beat a word every app's tools share ("update")
+			if t.groupTerms[term] {
+				score += 3
+			}
 		}
 		if score > 0 {
 			matches = append(matches, scored{t, score})

@@ -6,12 +6,14 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
 // typedGroups must have a body_schema on every write route, new routes in them fail this test until they get one
 var typedGroups = map[string]bool{
 	"MySQL": true, "PostgreSQL": true, "Domains": true, "DNS Zone Editor": true, "Cron Jobs": true,
-	"Docker / Containers": true, "Git": true, "Node.js / Python Apps": true, "App Installer": true, "File Manager": true, "App Deploy": true,
+	"Docker / Containers": true, "Git": true, "Node.js / Python Apps": true, "App Installer": true, "File Manager": true, "App Deploy": true, "WordPress": true,
 }
 
 type endpoint struct {
@@ -305,5 +307,22 @@ func TestSchemasAreValid(t *testing.T) {
 	}
 	if typed == 0 {
 		t.Error("no endpoint has a body_schema")
+	}
+}
+
+func TestInstallExamplesUseStrongPasswords(t *testing.T) {
+	// installers reject weak admin passwords at the default password_strength, so the examples have to pass it
+	for _, g := range loadGroups(t) {
+		for _, ep := range g.Endpoints {
+			var body map[string]any
+			if !strings.HasSuffix(ep.Path, "/install") || json.Unmarshal(ep.Body, &body) != nil {
+				continue
+			}
+			for _, f := range []string{"admin_password", "owner_password"} {
+				if pw, ok := body[f].(string); ok && !validators.IsPasswordStrongEnough(pw, 50) {
+					t.Errorf("%s %s: example %s %q is too weak for the default strength", ep.Method, ep.Path, f, pw)
+				}
+			}
+		}
 	}
 }

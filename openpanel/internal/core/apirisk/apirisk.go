@@ -23,8 +23,20 @@ var destructivePathRE = regexp.MustCompile(`(?i)kill|stop|suspend|restore|reset|
 
 var destructiveDescRE = regexp.MustCompile(`(?i)\b(wipes?|uninstall|deletes?|removes?|drops? (database|user)|overwrites?|restarts?|recreates?|kills?|disable|password)\b`)
 
+// wpCLIWritePath is the one GET route that also changes things, depending on its action
+const wpCLIWritePath = "/api/sites/wp-cli/"
+
+// wpCLIWriteActions are the actions of GET /api/sites/wp-cli/<action> that change the site
+var wpCLIWriteActions = map[string]bool{
+	"update_debug": true, "update_site_information": true, "update_now": true, "update_update_preferences": true,
+}
+
 // Classify takes a documented route path (with <param> placeholders) and its description
 func Classify(method, path, desc string) Risk {
+	// without the action we can't tell, so the whole route counts as a change
+	if method == http.MethodGet && path == wpCLIWritePath+"<action>" {
+		return Change
+	}
 	switch method {
 	case http.MethodGet, http.MethodHead:
 		return Read
@@ -44,6 +56,15 @@ var (
 
 var docParamRE = regexp.MustCompile(`<[^<>]+>`)
 var muxParamRE = regexp.MustCompile(`\{[^{}]+\}`)
+
+// ExposesSecrets is true for reads that hand back credentials: a site's database password or a phpMyAdmin autologin link
+func ExposesSecrets(r *http.Request) bool {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		return false
+	}
+	p := r.URL.Path
+	return p == "/api/phpmyadmin" || (strings.HasPrefix(p, "/api/sites/") && strings.HasSuffix(p, "/wp-info"))
+}
 
 // docKey makes "GET /api/x/<int:id>" and the mux pattern "GET /api/x/{id}" compare equal
 func docKey(method, path string) string {
@@ -74,6 +95,12 @@ func loadDocRisks() map[string]Risk {
 
 // ForRequest classifies a live request by the mux pattern it matched, falling back to its URL path for undocumented routes
 func ForRequest(r *http.Request) Risk {
+	if r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, wpCLIWritePath) {
+		if wpCLIWriteActions[strings.TrimPrefix(r.URL.Path, wpCLIWritePath)] {
+			return Change
+		}
+		return Read
+	}
 	if pattern := r.Pattern; pattern != "" {
 		path := pattern
 		if i := strings.IndexByte(pattern, ' '); i != -1 {

@@ -3791,7 +3791,11 @@
       {
         "method": "POST",
         "path": "/api/sites/<domain>/wp-vulnerability",
-        "description": "Run vulnerability scan."
+        "description": "Run vulnerability scan.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "GET",
@@ -3811,8 +3815,122 @@
       {
         "method": "GET",
         "path": "/api/sites/wp-cli/<action>",
-        "description": "Site-manager scoped WP-CLI passthrough (site info, debug flags, update preferences) - distinct action set from POST /api/wp-cli/<action>.",
-        "params": "action: site_info, update_debug, update_site_information, update_now, update_update_preferences, debug_info, update_info; query: website (or domain), docroot"
+        "description": "Site-manager WP-CLI actions for a WordPress site. Reads: site_info, debug_info, update_info. Changes: update_debug, update_site_information, update_now, update_update_preferences.",
+        "params": "?website=example.com&docroot=/var/www/html/example.com",
+        "query_schema": {
+          "type": "object",
+          "description": "Accepted actions: site_info, update_debug, update_site_information, update_now, update_update_preferences, debug_info, update_info. The WP_DEBUG* flags apply to update_debug, the wp_options keys to update_site_information and the WP_AUTO_UPDATE_* keys to update_update_preferences. Read with r.FormValue, so the same keys also work as a form body.",
+          "properties": {
+            "website": {
+              "type": "string",
+              "description": "Site name (domain or domain/subfolder) the action runs for; checked for ownership."
+            },
+            "domain": {
+              "type": "string",
+              "description": "Fallback for website, used only when website is empty."
+            },
+            "docroot": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_/.-]+$",
+              "description": "WordPress install path inside the container, such as /var/www/html/example.com; must not contain '..'."
+            },
+            "WP_DEBUG": {
+              "type": "string",
+              "description": "update_debug: 'on' sets WP_DEBUG to true, any other value or absence sets it to false."
+            },
+            "WP_DEBUG_LOG": {
+              "type": "string",
+              "description": "update_debug: 'on' sets WP_DEBUG_LOG to true, any other value or absence sets it to false."
+            },
+            "WP_DEBUG_DISPLAY": {
+              "type": "string",
+              "description": "update_debug: 'on' sets WP_DEBUG_DISPLAY to true, any other value or absence sets it to false."
+            },
+            "SCRIPT_DEBUG": {
+              "type": "string",
+              "description": "update_debug: 'on' sets SCRIPT_DEBUG to true, any other value or absence sets it to false."
+            },
+            "SAVEQUERIES": {
+              "type": "string",
+              "description": "update_debug: 'on' sets SAVEQUERIES to true, any other value or absence sets it to false."
+            },
+            "siteurl": {
+              "type": "string",
+              "description": "update_site_information: new siteurl option, updated only when the key is sent."
+            },
+            "home": {
+              "type": "string",
+              "description": "update_site_information: new home option, updated only when the key is sent."
+            },
+            "blogname": {
+              "type": "string",
+              "description": "update_site_information: new site title, updated only when the key is sent."
+            },
+            "blogdescription": {
+              "type": "string",
+              "description": "update_site_information: new tagline, updated only when the key is sent."
+            },
+            "admin_email": {
+              "type": "string",
+              "description": "update_site_information: new admin_email option, updated only when the key is sent."
+            },
+            "users_can_register": {
+              "type": "string",
+              "description": "update_site_information: users_can_register option value ('1' enables registration), updated only when the key is sent."
+            },
+            "default_ping_status": {
+              "type": "string",
+              "description": "update_site_information: default_ping_status option value ('open' enables pingbacks), updated only when the key is sent."
+            },
+            "blog_public": {
+              "type": "string",
+              "description": "update_site_information: blog_public option value ('1' allows search engine indexing), updated only when the key is sent."
+            },
+            "WP_AUTO_UPDATE_PLUGINS": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false",
+              "description": "update_update_preferences: whether plugins auto-update."
+            },
+            "WP_AUTO_UPDATE_THEMES": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "default": "false",
+              "description": "update_update_preferences: whether themes auto-update."
+            },
+            "WP_AUTO_UPDATE_CORE": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false",
+                "minor"
+              ],
+              "default": "false",
+              "description": "update_update_preferences: core auto-update mode."
+            }
+          },
+          "required": [
+            "docroot"
+          ],
+          "anyOf": [
+            {
+              "required": [
+                "website"
+              ]
+            },
+            {
+              "required": [
+                "domain"
+              ]
+            }
+          ]
+        }
       },
       {
         "method": "GET",
@@ -3871,7 +3989,7 @@
           "site_name": "My Drupal Site",
           "drupal_version": "",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -3925,7 +4043,7 @@
           "joomla_version": "",
           "admin_name": "Administrator",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -3972,7 +4090,7 @@
           "subdirectory": "",
           "opencart_version": "",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4018,7 +4136,7 @@
           "subdirectory": "",
           "nextcloud_version": "",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4071,7 +4189,7 @@
           "prestashop_version": "",
           "admin_firstname": "Admin",
           "admin_lastname": "User",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4118,7 +4236,7 @@
           "site_name": "My Flarum Forum",
           "flarum_version": "",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4170,7 +4288,7 @@
           "subdirectory": "",
           "matomo_version": "",
           "admin_login": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4224,7 +4342,7 @@
           "site_name": "My Moodle Site",
           "site_shortname": "moodle",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4277,7 +4395,7 @@
           "mediawiki_version": "",
           "site_name": "My Wiki",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4323,7 +4441,7 @@
           "subdirectory": "",
           "admin_email": "admin@example.com",
           "admin_user": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_full_name": "Admin User",
           "site_title": "My DokuWiki"
         }
@@ -4395,7 +4513,7 @@
           "board_name": "My Board",
           "board_description": "A phpBB forum",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com"
         }
       },
@@ -4452,7 +4570,7 @@
           "domain_id": "42",
           "subdirectory": "",
           "admin_username": "admin",
-          "admin_password": "changeme"
+          "admin_password": "Str0ng!Passw0rd"
         }
       },
       {
@@ -4475,7 +4593,7 @@
           "subdirectory": "",
           "ojs_version": "",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "admin_email": "admin@example.com",
           "db_name": "",
           "db_user": "",
@@ -4533,13 +4651,93 @@
           "website_name": "My Blog",
           "site_description": "My WordPress Blog",
           "admin_username": "admin",
-          "admin_password": "changeme",
+          "admin_password": "Str0ng!Passw0rd",
           "wordpress_version": "latest",
           "subdirectory": "",
           "db_name": "",
           "db_user": "",
           "db_password": "",
           "db_prefix": "wp_"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "domain_id": {
+              "type": "string",
+              "description": "ID of the user's domain to install on, sent as a JSON string."
+            },
+            "admin_email": {
+              "type": "string",
+              "pattern": "^([^\\s@]+@[^\\s@]+\\.[^\\s@]+)?$",
+              "description": "WordPress admin email; empty means admin@<domain>."
+            },
+            "website_name": {
+              "type": "string",
+              "default": "My Blog",
+              "description": "Site title."
+            },
+            "site_description": {
+              "type": "string",
+              "default": "My WordPress Blog",
+              "description": "Site tagline."
+            },
+            "admin_username": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._@][A-Za-z0-9._@-]{0,59}$",
+              "description": "WordPress admin login: letters, numbers and . _ @ -, not starting with -."
+            },
+            "admin_password": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[^\\s-]\\S*$",
+              "description": "WordPress admin password: no whitespace, not starting with -, and it must meet the panel's password_strength setting (default 50)."
+            },
+            "wordpress_version": {
+              "type": "string",
+              "pattern": "^(latest|[0-9]+(\\.[0-9]+)*(-[A-Za-z0-9]+)?)?$",
+              "default": "latest",
+              "description": "WordPress release to install, 'latest' or a version like 6.5.2."
+            },
+            "subdirectory": {
+              "type": "string",
+              "description": "Optional subfolder under the domain's docroot; lowercased, spaces removed, parts may only use letters, numbers, dots, dashes and underscores, up to 200 characters."
+            },
+            "db_name": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^[A-Za-z0-9_]*$",
+              "description": "Database name before the account prefix is added; empty generates a random one."
+            },
+            "db_user": {
+              "type": "string",
+              "maxLength": 32,
+              "pattern": "^[A-Za-z0-9_]*$",
+              "description": "Database user before the account prefix is added; empty generates a random one."
+            },
+            "db_password": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[!#-&(-\\[\\]-_a-~]*$",
+              "description": "Database password: printable ASCII without spaces, quotes, backslashes or backticks; empty generates a random one."
+            },
+            "db_prefix": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_]*$",
+              "default": "wp_",
+              "description": "Table prefix; a trailing underscore is added when missing."
+            },
+            "wp_set": {
+              "type": "string",
+              "pattern": "^([a-z0-9_-]{1,64})?$",
+              "description": "Plugins/themes set slug to install; empty uses the global or user set, 'none' skips sets."
+            }
+          },
+          "required": [
+            "domain_id",
+            "admin_username",
+            "admin_password"
+          ]
         }
       },
       {
@@ -4550,11 +4748,70 @@
           "source_domain": "example.com",
           "target_domain": "clone.example.com",
           "source_db": "wp_source",
-          "source_folder": "",
+          "source_folder": "/var/www/html/example.com",
           "subdirectory": "",
           "target_db": "",
           "target_db_user": "",
           "target_db_user_password": ""
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "source_domain": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9.-]+(/.*)?$",
+              "description": "Source site as domain or domain/subfolder; used as the old URL for search-replace."
+            },
+            "target_domain": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9.-]+$",
+              "description": "Destination domain, which must belong to the user."
+            },
+            "source_db": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "description": "Database name of the source site."
+            },
+            "source_folder": {
+              "type": "string",
+              "pattern": "^/var/www/html/",
+              "description": "Source site's install path inside the container, such as /var/www/html/example.com; must not contain '..'."
+            },
+            "subdirectory": {
+              "type": "string",
+              "description": "Optional subfolder under the target domain's docroot to clone into; the resulting path must not contain '..'."
+            },
+            "target_db": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_]*$",
+              "description": "New database name before the account prefix is added; empty generates wp_clone_<random>."
+            },
+            "target_db_user": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_]*$",
+              "description": "New database user before the account prefix is added; empty reuses the target database name."
+            },
+            "target_db_user_password": {
+              "type": "string",
+              "description": "Password for the new database user; empty generates a random one."
+            },
+            "include_uploads": {
+              "type": "boolean",
+              "default": true,
+              "description": "Copy wp-content/uploads; false clones without it."
+            },
+            "rewrite_urls": {
+              "type": "boolean",
+              "default": true,
+              "description": "Run wp search-replace from the source URL to the target URL."
+            }
+          },
+          "required": [
+            "source_domain",
+            "target_domain",
+            "source_db",
+            "source_folder"
+          ]
         }
       },
       {
@@ -4574,6 +4831,26 @@
         "body": {
           "backup_database": true,
           "backup_files": true
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "backup_database": {
+              "type": "boolean",
+              "default": true,
+              "description": "Include the database in the backup."
+            },
+            "backup_files": {
+              "type": "boolean",
+              "default": true,
+              "description": "Include the site files in the backup."
+            },
+            "docroot": {
+              "type": "string",
+              "pattern": "^/var/www/html/[A-Za-z0-9._/-]+$",
+              "description": "Install path inside the container; empty uses the domain's docroot. Must not contain '..'."
+            }
+          }
         }
       },
       {
@@ -4582,6 +4859,28 @@
         "description": "Restore a backup.",
         "body": {
           "backup_date": "2025-01-15_12-00-00"
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "backup_date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}$",
+              "description": "Backup folder name to restore, as listed by GET /api/wordpress/<domain>/backups."
+            },
+            "docroot": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._/-]+$",
+              "description": "Domain docroot, absolute (/var/www/html/...) or relative to /var/www/html; empty uses the domain's docroot. Must not contain '..'."
+            },
+            "php_version": {
+              "type": "string",
+              "description": "PHP version of the domain; empty is looked up from the domain."
+            }
+          },
+          "required": [
+            "backup_date"
+          ]
         }
       },
       {
@@ -4603,6 +4902,24 @@
             "wp_manager_xmlrpc"
           ],
           "disable_all": false
+        },
+        "body_schema": {
+          "type": "object",
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^wp_manager_\\w+$"
+              },
+              "description": "Hardening rules to enable (from GET /api/wordpress/secure); names not matching wp_manager_* are dropped, an empty list disables all rules."
+            },
+            "disable_all": {
+              "type": "boolean",
+              "default": false,
+              "description": "Disable every hardening rule for the domain, ignoring rules."
+            }
+          }
         }
       },
       {
@@ -4613,21 +4930,69 @@
       {
         "method": "POST",
         "path": "/api/wordpress/sites/<id>/detach",
-        "description": "Detach from WordPress Manager (keeps files)."
+        "description": "Detach from WordPress Manager (keeps files).",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/wordpress/reload",
-        "description": "Rescan filesystem to refresh WP data."
+        "description": "Rescan filesystem to refresh WP data.",
+        "body_schema": {
+          "type": "object",
+          "properties": {}
+        }
       },
       {
         "method": "POST",
         "path": "/api/wp-cli/<action>",
-        "description": "Run a WP-CLI action.",
+        "description": "Run a WP-CLI action on a WordPress site: core_update, core_update_check, plugin_update_all, theme_update_all, list_plugins, list_themes, cache_flush, cron_run.",
         "body": {
           "domain": "example.com"
         },
-        "params": "action: core_update, core_update_check, plugin_update_all, theme_update_all, list_plugins, list_themes, cache_flush, cron_run"
+        "body_schema": {
+          "type": "object",
+          "description": "Accepted actions: cache_flush, core_update, core_update_check, cron_run, list_plugins, list_themes, plugin_update_all, theme_update_all (case-insensitive). backup applies only to core_update, plugin_update_all and theme_update_all.",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-./]+$",
+              "description": "Site as domain or domain/subfolder; the domain must belong to the user."
+            },
+            "php_version": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-.]+$",
+              "description": "PHP version picking the php-fpm container; empty uses the domain's version."
+            },
+            "docroot": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_\\-./]+$",
+              "description": "WordPress path inside the container; empty uses the domain's docroot (plus the subfolder from domain). Must not contain '..'."
+            },
+            "backup": {
+              "type": [
+                "boolean",
+                "integer",
+                "string"
+              ],
+              "description": "Take a full backup before an update action and skip the update if it fails; true, 1, \"1\" or \"true\" turn it on."
+            }
+          },
+          "required": [
+            "domain"
+          ]
+        },
+        "query_schema": {
+          "type": "object",
+          "properties": {
+            "backup": {
+              "type": "string",
+              "description": "Same as the body's backup flag; only the value '1' turns it on."
+            }
+          }
+        }
       }
     ]
   },

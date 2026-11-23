@@ -257,7 +257,8 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 
 			// only the json-rpc transport itself is exempt, token create/revoke under /api/account/mcp is not
 			isMCPTransport := r.Method == http.MethodPost && r.URL.Path == "/mcp"
-			if via == ViaMCP && MCPReadOnly(r) && !isMCPTransport && r.Method != http.MethodGet && r.Method != http.MethodHead {
+			// a few GET routes change things too (wp-cli update_now), so it's the route's risk that counts, not just the method
+			if via == ViaMCP && MCPReadOnly(r) && !isMCPTransport && (r.Method != http.MethodGet && r.Method != http.MethodHead || apirisk.ForRequest(r) != apirisk.Read) {
 				log.Printf("APP - API user %d (%s): read-only MCP token blocked %s %s", userID, details.Username, r.Method, r.URL.Path)
 				writeJSONError(w, http.StatusForbidden, "This token is read-only", "Generate a token without the read-only option to make changes")
 				return
@@ -294,6 +295,9 @@ func MCPScopeBlock(scope mcptokens.Scope, featureName string, r *http.Request) (
 	// a narrower token minting a wider one would undo its own limits
 	if scope.Limited() && strings.HasPrefix(r.URL.Path, "/api/account/mcp") && r.Method != http.MethodGet && r.Method != http.MethodHead {
 		return "This token can't create or revoke tokens", "Only a full-access token without feature limits can manage tokens"
+	}
+	if scope.Limited() && apirisk.ExposesSecrets(r) {
+		return "This token can't read database credentials", "Use a full-access token without feature limits"
 	}
 	if len(scope.Features) > 0 && featureName != "api" && featureName != "mcp" && !contains(scope.Features, featureName) {
 		return "This token isn't allowed to use the '" + featureName + "' feature", "Generate a token that includes it"
