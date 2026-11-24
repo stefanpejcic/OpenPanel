@@ -458,7 +458,11 @@ check_kernel_modules_reboot() {
     warn "Running kernel ($running) is older than the newest installed kernel ($installed)."
     echo "Installing kernel-modules-extra for kernel $installed..."
     run "$PACKAGE_MANAGER" install -y "kernel-modules-extra"
-   
+
+    # the same reboot turns project quotas on, so the install doesn't need a second one for them
+    download_opencli
+    setup_project_quotas
+
     echo
     echo "After the reboot you can run the install command again."
 
@@ -512,7 +516,12 @@ download_files() {
     mv -f "/usr/local/admin/$admin_binary.new" "/usr/local/admin/$admin_binary"
     sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
 
-    # opencli is a single Go binary from the latest release, checked against the release's SHA256SUMS
+    download_opencli
+}
+
+# opencli is a single Go binary from the latest release, checked against the release's SHA256SUMS
+# its own step so the EL kernel reboot can set up project quotas with it before download_files runs
+download_opencli() {
     local cli_binary="opencli-amd64"
     [[ "$architecture" == "aarch64" ]] && cli_binary="opencli-arm64"
     local cli_url="https://github.com/stefanpejcic/opencli/releases/latest/download"
@@ -1071,6 +1080,27 @@ enable_disk_quotas() {
     run quotacheck -cum / -f
     run quotaon -a
     repquota -u / > "/tmp/repquota" 2>/dev/null && ok "Disk quotas enabled." || fail "Quota check failed."
+    setup_project_quotas
+}
+
+# a user quota only counts files owned by the account's own uid, its containers write as subuids (databases, files made by PHP),
+# project quotas count every file in its home: on ext4 the initramfs turns them on at the next boot, on xfs the kernel's rootflags do
+# (also user quotas, xfs ignores the usrquota,grpquota added to fstab above), nothing changes until then
+setup_project_quotas() {
+    if run /usr/local/opencli/opencli user-quota --enable-project; then
+        ok "Project quotas set up."
+    else
+        warn "Project quotas not set up, disk limits count only files owned by each account's own uid. Details: opencli user-quota --enable-project"
+    fi
+}
+
+# shown last, the limits only count files written by containers once the server has rebooted
+project_quota_notice() {
+    quotaon -pP / 2>/dev/null | grep -q "^project quota on / .* is on" && return 0
+    # ext4: the initramfs hook turns the features on, xfs: rootflags=...pquota mounts / with them
+    [[ -d /usr/lib/dracut/modules.d/99openpanel-quota || -f /etc/initramfs-tools/scripts/local-premount/openpanel-quota ]] \
+        || grep -qE '^GRUB_CMDLINE_LINUX=.*rootflags=[^" ]*pquota' /etc/default/grub 2>/dev/null || return 0
+    warn "Reboot the server to turn on project disk quotas. Until then disk and inode limits count only files owned by each account's own user, not databases or files its websites create."
 }
 
 set_container_cpu_limits() {
@@ -1415,6 +1445,7 @@ extra_step_for_podman
 clean_notifications
 join_cluster
 run_post_install
+project_quota_notice
 ) 200>/root/openpanel_install.lock
 
 rm -f /root/openpanel_install.lock
