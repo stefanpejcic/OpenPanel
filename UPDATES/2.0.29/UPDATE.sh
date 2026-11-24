@@ -147,3 +147,10 @@ fi
 if [ -x /usr/local/bin/opencli ]; then
     /usr/local/bin/opencli domains-ratelimit trusted sync || echo "Failed to apply the rate limit trusted IPs, run: opencli domains-ratelimit trusted sync"
 fi
+
+# dashboard Websites apps: the 2.0.13 default left out git, so the Git tile was gone from the dashboard, add it back where the default was never changed
+OPENPANEL_CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
+if [ -f "$OPENPANEL_CONFIG" ] && grep -qx "applications_dashboard_items=websites wordpress autoinstaller" "$OPENPANEL_CONFIG"; then
+    echo "Adding git to applications_dashboard_items in $OPENPANEL_CONFIG..."
+    sed -i 's/^applications_dashboard_items=websites wordpress autoinstaller$/applications_dashboard_items=websites wordpress autoinstaller git/' "$OPENPANEL_CONFIG"
+fi
