@@ -26,7 +26,7 @@ The change is applied right away. If the web server rejects it, nothing is chang
 
 Click a domain to open its report, for the last hour, 24 hours or 7 days. It's built from the domain's access log and shows:
 
-- **Total requests**, **AI crawler & scraper hits** and **Blocked / throttled (403 / 429)**.
+- **Total requests**, **AI crawler & scraper hits** and **AI crawlers blocked / throttled** (403 or 429 sent to an AI crawler). If other visitors also got 403 or 429, a note shows how many: those come from the site's per-IP rate limit or the WAF, not from bot control.
 - **Top bots & user-agents** with the operator, category, hits and blocked hits.
 - **Top networks & ASNs** with the number of IPs and hits from each network.
 - **Top hit URLs** with total, bot and blocked hits.
