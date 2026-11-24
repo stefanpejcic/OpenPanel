@@ -17,7 +17,7 @@ Requests above a limit get HTTP `429 Too Many Requests` until the minute passes.
 
 ## Server default
 
-Click **Server Default** to set the limits used by every domain set to **Default**. New installations start with 300 requests per minute per IP and 6000 per domain. On servers updated from an older version, rate limiting stays off until you set a default.
+Click **Server Default** to set the limits used by every domain set to **Default**. New installations start with 500 requests per minute per IP and 6000 per domain. On servers updated from an older version, rate limiting stays off until you set a default.
 
 ![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default.png#gh-light-mode-only)
 ![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default_dark.png#gh-dark-mode-only)
@@ -67,7 +67,7 @@ Tick the checkbox of one or more domains, or the one in the table header to sele
 
 ```bash
 opencli domains-ratelimit                                  # show the server default and every domain
-opencli domains-ratelimit default 300 6000                 # set the server default
+opencli domains-ratelimit default 500 6000                 # set the server default
 opencli domains-ratelimit example.com 600 20000            # custom limits for a domain
 opencli domains-ratelimit --user john default              # all of a user's domains back to the default
 opencli domains-ratelimit --all off                        # no limits on any domain
