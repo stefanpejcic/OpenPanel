@@ -82,3 +82,56 @@ echo "OpenLiteSpeed update finished."'
         echo "opencli docker-update is missing or too old, OpenLiteSpeed images not updated - run opencli update --cli first, then: for i in$ols_images; do opencli docker-update \$i -y; done"
     fi
 fi
+
+# PHP 8.1 and older get no security fixes, session upload progress is one of the paths of CVE-2026-109619 (and CVE-2026-115560) and
+# almost nothing uses it, so it's turned off in their php.ini: the template in /etc/openpanel/php/ini and every account's php.ini/<version>.ini
+# (mounted into php-fpm-<version> and into openlitespeed's lsphp). A file that already sets it, On or Off, is the admin's or user's choice and is left alone.
+# Running php-fpm containers of those versions are reloaded (USR2 to the php-fpm master, no downtime) so the change takes effect
+UP_VERSIONS="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1"
+UP_LINE="session.upload_progress.enabled = Off"
+UP_NOTE="; Off on PHP 8.1 and older: no security fixes for them, and upload progress is a path of CVE-2026-109619"
+# turns upload progress off in $1, exit 1 when there's nothing to do or the file has no place for it
+upload_progress_off() {
+    local f="$1" tmp
+    [ -f "$f" ] || return 1
+    grep -qE "^[[:space:]]*session\.upload_progress\.enabled[[:space:]]*=" "$f" && return 1
+    tmp=$(mktemp)
+    if grep -qE "^[[:space:]]*;[[:space:]]*session\.upload_progress\.enabled[[:space:]]*=" "$f"; then
+        awk -v note="$UP_NOTE" -v line="$UP_LINE" '!done && /^[[:space:]]*;[[:space:]]*session\.upload_progress\.enabled[[:space:]]*=/ { print note; print line; done=1; next } { print }' "$f" > "$tmp"
+    elif grep -qE "^[[:space:]]*\[Session\][[:space:]]*$" "$f"; then
+        awk -v note="$UP_NOTE" -v line="$UP_LINE" '{ print } !done && /^[[:space:]]*\[Session\][[:space:]]*$/ { print note; print line; done=1 }' "$f" > "$tmp"
+    else
+        rm -f "$tmp"
+        echo "$f has no [Session] section, session.upload_progress.enabled not added"
+        return 1
+    fi
+    # in place: the file is a single-file bind mount into the running containers
+    cat "$tmp" > "$f"
+    rm -f "$tmp"
+    echo "session.upload_progress.enabled = Off in $f"
+}
+for v in $UP_VERSIONS; do
+    upload_progress_off "/etc/openpanel/php/ini/$v.ini"
+done
+for dir in /home/*; do
+    [ -d "$dir/php.ini" ] || continue
+    user=$(basename "$dir")
+    changed=""
+    for v in $UP_VERSIONS; do
+        upload_progress_off "$dir/php.ini/$v.ini" && changed="$changed $v"
+    done
+    [ -n "$changed" ] || continue
+    sock="/run/user/$(id -u "$user" 2>/dev/null)/podman/podman.sock"
+    [ -S "$sock" ] || continue
+    for v in $changed; do
+        c="php-fpm-$v"
+        [ "$(CONTAINER_HOST="unix://$sock" timeout 30 podman --remote inspect -f '{{.State.Status}}' "$c" 2>/dev/null)" = "running" ] || continue
+        # only when pid 1 is the php-fpm master (openpanel/php-fpm), other images run a supervisor there
+        if [ "$(CONTAINER_HOST="unix://$sock" timeout 30 podman --remote exec "$c" cat /proc/1/comm 2>/dev/null)" = "php-fpm" ] \
+           && CONTAINER_HOST="unix://$sock" timeout 30 podman --remote kill --signal USR2 "$c" >/dev/null 2>&1; then
+            echo "Reloaded $c for $user"
+        else
+            echo "Could not reload $c for $user, restart it to apply: opencli podman $user restart $c"
+        fi
+    done
+done
