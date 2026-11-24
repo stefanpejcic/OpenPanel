@@ -391,6 +391,7 @@ document.addEventListener('submit', (e) => {
 
 
 <div class="flex min-h-svh w-full">
+    {{if .Bare}}<style>#no_margin_for_iframe{margin-left:0!important}</style>{{else}}
     <div x-show="sidebarOpen"
          :class="{'hidden': !sidebarOpen}"
          @click.away="isMobile && (sidebarOpen = false)"
@@ -603,9 +604,10 @@ document.addEventListener('submit', (e) => {
             </div>
         </div>
     </div>
+    {{end}}
     <div class="w-full">
 
-        {{template "header" .}}
+        {{if not .Bare}}{{template "header" .}}{{end}}
 
         <!-- Flowbite toasts 2 -->
         <div id="toast-container" class="fixed sm:bottom-10 sm:right-10 flex flex-col space-y-2 z-50 overflow-y-hidden"></div>
@@ -614,7 +616,7 @@ document.addEventListener('submit', (e) => {
     <main id="no_margin_for_iframe" class="x-cloak bg-white antialiased dark:bg-gray-950 text-gray-800 dark:text-white min-h-[90vh]">
 
 
-    {{template "impersonate" .}}
+    {{if not .Bare}}{{template "impersonate" .}}{{end}}
 
 
 <!-- flash messages -->
@@ -663,7 +665,7 @@ document.addEventListener('submit', (e) => {
 {{end}}
 <!-- END flash messages -->
 
-{{if or .PageTabs (eq .RequestPath "/dashboard")}}
+{{if and (not .Bare) (or .PageTabs (eq .RequestPath "/dashboard"))}}
 <nav id="page-tabs" aria-label="{{.T.Get "Page sections"}}" class="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950 sm:px-6 lg:px-8">
     <ul class="-mb-px flex min-h-11 gap-x-6 overflow-x-auto text-sm">
         {{range .PageTabs}}
@@ -778,7 +780,7 @@ document.addEventListener('submit', (e) => {
 
 
 
-{{if eq .FoundABugLink "yes"}}
+{{if and (eq .FoundABugLink "yes") (not .Bare)}}
 <!-- START report bug nag -->
 <div class="relative mb-2 hidden items-center justify-end sm:flex bottom-0 right-0 "><a class="group flex items-center space-x-0.5 text-xs text-gray-500 hover:text-gray-700" href="https://github.com/stefanpejcic/OpenPanel/issues/new?template=2_user_bug.yaml&affected-versions={{.PanelVersion}}&os=Ubuntu&title=Bug%20in%20OpenPanel%20UI%20on%20{{.RequestPath}}" target="_blank" rel="noopener noreferrer"><span class="text-inherit">{{.T.Get "Found a bug? Let us know"}}</span><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-inherit"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg></a></div>
 <!-- END report bug nag -->

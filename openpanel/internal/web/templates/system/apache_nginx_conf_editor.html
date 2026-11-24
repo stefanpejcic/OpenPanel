@@ -5,6 +5,7 @@
 
       <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
       <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
+      <script src="{{static "js/editor-draft.js"}}"></script>
       <style>
          .CodeMirror {min-height: 50vh;height: auto;}
          div.CodeMirror-sizer {min-height: 500px!important;}
@@ -131,6 +132,7 @@ function litespeedLicense() {
     </div>
     {{end}}
 
+    {{template "editor_draft" (dict "T" .T "Class" "mx-4 mb-4 sm:mx-6 lg:mx-8")}}
     <div id="editor-container" class="overflow-auto border-t border-gray-200 dark:border-gray-800">
         <textarea id="editor" name="editor_content" rows="40" cols="100">{{.FileContent}}</textarea>
     </div>
@@ -140,6 +142,14 @@ function litespeedLicense() {
 var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
     mode: "javascript",
     lineNumbers: true,
+});
+opEditorDraft({
+    key: 'webconf:' + {{toJSON .CurrentUsername}} + ':' + {{toJSON .Service}},
+    initial: editor.getTextArea().defaultValue,
+    get: () => editor.getValue(),
+    set: (v) => { editor.setValue(v); editor.focus(); },
+    onChange: (cb) => editor.on('change', cb),
+    form: editor.getTextArea().closest('form'),
 });
 {{with .TestFailure}}{{if .Line}}
 if ({{.Line}} <= editor.lineCount()) {

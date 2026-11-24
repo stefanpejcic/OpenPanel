@@ -133,11 +133,13 @@ Downloading multiple files at once is not supported. Instead, the 'Compress' opt
 
 ## View File
 
-To view the content of a file that can be edited in a text editor or opened as an image, click on the file, then on the **View** button.
+To view the content of a file that can be edited in a text editor or opened as an image, click on the file, then on the **View** button. The file opens in a new browser tab.
 
 ## Edit File
 
-To edit the content of a file that can be edited in a text editor, click on the file, then on the **Edit** button. A new page will open with a text editor where you can edit the file content.
+To edit the content of a file that can be edited in a text editor, click on the file, then on the **Edit** button. The file opens in a new browser tab with only the editor, no menus. Opening the same file again switches to its tab.
+
+Click **Save** or press `Ctrl+S` to save. The page doesn't reload, so undo and redo history and the cursor position are kept. After a save the File Manager tab refreshes its list.
 
 Using the button in top-right corner you can switch between one of the 4 available editors: Monaco (defualt), Ace, CodeMirror, Plain Text.
 

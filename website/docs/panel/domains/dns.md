@@ -85,3 +85,15 @@ The Advanced Editor allows direct editing of the DNS zone file, including adding
 
 ![Advanced Editor showing the DNS zone file of the domain for direct editing](/img/openpanel-screenshots/domains/dns_editor-editor.png#gh-light-mode-only)
 ![Advanced Editor showing the DNS zone file of the domain for direct editing](/img/openpanel-screenshots/domains/dns_editor-editor_dark.png#gh-dark-mode-only)
+
+Click **Save changes** to write the zone file and reload the zone.
+
+:::tip Unsaved changes
+Unsaved edits in this editor are kept as a copy in your browser. If you leave the page, close the tab or the save fails, the next time you open the Advanced Editor for that domain a notice shows when that copy was made, with three options:
+
+- **View changes** shows what's different from the saved file, line by line.
+- **Restore** puts the copy back in the editor, then you can save it.
+- **Discard** deletes the copy.
+
+The copy stays only in that browser and is removed once the file is saved. Leaving the page with unsaved edits also asks you to confirm first.
+:::

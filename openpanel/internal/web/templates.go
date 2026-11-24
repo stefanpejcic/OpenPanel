@@ -106,6 +106,8 @@ const dateRangePartial = "partials/_date_range.html"
 
 const aiPartial = "partials/_ai_assistant.html"
 
+const editorDraftPartial = "partials/_editor_draft.html"
+
 // Page is the template set for one route, parsed on first use since parsing all of them up front cost ~115MB
 type Page struct {
 	paths []string
@@ -128,7 +130,7 @@ var (
 // MustLoadPage registers files (relative to web/templates/) as one template set - by convention the layout file among them defines a top-level {{define "layout"}} that Render executes. Parsing waits for the first Render, ParseAllPages covers broken templates in tests.
 func MustLoadPage(files ...string) *Page {
 	paths := make([]string, 0, len(files)+1)
-	hasBase, hasBulk, hasDateRange, hasHeader, hasAI := false, false, false, false, false
+	hasBase, hasBulk, hasDateRange, hasHeader, hasAI, hasDraft := false, false, false, false, false, false
 	for _, f := range files {
 		paths = append(paths, "templates/"+f)
 		hasBase = hasBase || f == "base.html"
@@ -136,6 +138,7 @@ func MustLoadPage(files ...string) *Page {
 		hasDateRange = hasDateRange || f == dateRangePartial
 		hasHeader = hasHeader || f == "partials/_header.html"
 		hasAI = hasAI || f == aiPartial
+		hasDraft = hasDraft || f == editorDraftPartial
 	}
 	// every panel page can use the bulk selection partial without listing it
 	if hasBase && !hasBulk {
@@ -143,6 +146,10 @@ func MustLoadPage(files ...string) *Page {
 	}
 	if hasBase && !hasDateRange {
 		paths = append(paths, "templates/"+dateRangePartial)
+	}
+	// browser copy + restore/diff banner for the raw file editors
+	if hasBase && !hasDraft {
+		paths = append(paths, "templates/"+editorDraftPartial)
 	}
 	// the header calls the AI drawer, so it comes along with it
 	if hasHeader && !hasAI {

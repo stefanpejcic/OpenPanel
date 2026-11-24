@@ -37,6 +37,7 @@ func BuildFlashDisplay(messages []flash.Message) []FlashDisplay {
 // LayoutData is everything the shared page layout and its partials need - nav, branding, flashes, translator, and the rest of the per-request context common to every authenticated page.
 type LayoutData struct {
 	Title         string
+	Bare          bool // page only, no sidebar/header/footer, for the file editor window
 	BrandName     string
 	Favicon       string
 	Logo          string

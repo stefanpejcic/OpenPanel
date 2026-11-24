@@ -292,6 +292,8 @@ func renderEditFilePage(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 		return
 	}
 
+	layout.Bare = true
+
 	label := editorLabels[editor]
 	if label == "" {
 		label = editorLabels["monaco"]

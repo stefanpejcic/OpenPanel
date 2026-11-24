@@ -30,3 +30,12 @@ Depending on your web server -**Nginx**, **OpenResty**, **OpenLiteSpeed**, or **
 While OpenPanel performs basic validation on save (including syntax checks and automatic rollback on failure), you should not rely solely on this safeguard. Maintaining your own backups ensures you can manually restore the configuration if needed.
 :::
 
+:::tip Unsaved changes
+Unsaved edits in this editor are kept as a copy in your browser. If you leave the page, close the tab or the save fails, the next time you open the domain's VHosts file a notice shows when that copy was made, with three options:
+
+- **View changes** shows what's different from the saved file, line by line.
+- **Restore** puts the copy back in the editor, then you can save it.
+- **Discard** deletes the copy.
+
+The copy stays only in that browser and is removed once the file is saved. Leaving the page with unsaved edits also asks you to confirm first.
+:::
