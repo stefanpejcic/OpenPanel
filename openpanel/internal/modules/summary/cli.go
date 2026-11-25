@@ -3,6 +3,7 @@ package summary
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -43,13 +44,15 @@ func RunCLI(ctx context.Context, a *appctx.App, args []string, w io.Writer) int 
 		}
 	}
 
+	// allowed is whether the account may see it (Summary in its plan), it's built and saved for every account so OpenAdmin can add them up
 	s, allowed, err := Build(ctx, a, username, day)
-	if err != nil {
+	out := map[string]any{"username": username, "allowed": allowed, "generated": err == nil}
+	switch {
+	case errors.Is(err, ErrModuleOff):
+	case err != nil:
 		fmt.Fprintln(w, "error:", err)
 		return 1
-	}
-	out := map[string]any{"username": username, "allowed": allowed}
-	if allowed {
+	default:
 		saved := false
 		if save {
 			if err := Save(s); err != nil {
