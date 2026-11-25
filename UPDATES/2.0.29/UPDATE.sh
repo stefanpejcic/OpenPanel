@@ -154,3 +154,16 @@ if [ -f "$OPENPANEL_CONFIG" ] && grep -qx "applications_dashboard_items=websites
     echo "Adding git to applications_dashboard_items in $OPENPANEL_CONFIG..."
     sed -i 's/^applications_dashboard_items=websites wordpress autoinstaller$/applications_dashboard_items=websites wordpress autoinstaller git/' "$OPENPANEL_CONFIG"
 fi
+
+# fresh themes.yml for Available themes (Modern 1.1.0), OpenAdmin falls back to this copy when github can't be reached
+CONFIG_RAW="${CONFIG_RAW:-https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main}"
+mkdir -p /etc/openpanel/openpanel/templates
+tmp=$(mktemp)
+if wget --timeout=15 --tries=2 -q -O "$tmp" "$CONFIG_RAW/openpanel/templates/themes.yml" && grep -q "^themes:" "$tmp"; then
+    echo "Updating /etc/openpanel/openpanel/templates/themes.yml..."
+    cat "$tmp" > /etc/openpanel/openpanel/templates/themes.yml
+    chmod 644 /etc/openpanel/openpanel/templates/themes.yml
+else
+    echo "Failed to download $CONFIG_RAW/openpanel/templates/themes.yml"
+fi
+rm -f "$tmp"
