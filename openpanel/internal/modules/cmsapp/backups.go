@@ -92,6 +92,7 @@ func (app *App) HandleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *ht
 			return
 		}
 	}
+	appkit.OwnUnder(htmlVolume(userContext), backupsPath)
 
 	entries, readErr := tenantfs.ReadDir(backupsPath)
 	if readErr != nil {
@@ -320,6 +321,8 @@ func (app *App) HandleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Re
 	if uidErr == nil {
 		_ = tenantfs.Lchown(backupDirectory, uid, uid)
 	}
+	// backups/ and backups/<site>/ too, MkdirAll made them as root
+	appkit.OwnUnder(htmlVol, backupDirectory)
 
 	phpContainer := phpContainerFor(a, r, userContext, selectedDomain)
 

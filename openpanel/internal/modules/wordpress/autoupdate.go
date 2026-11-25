@@ -15,6 +15,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -83,7 +84,12 @@ func writeAutoUpdateState(backupsRoot string, st autoUpdateState) error {
 	if err := tenantfs.WriteFile(path+".tmp", append(b, '\n'), 0o644); err != nil {
 		return err
 	}
-	return tenantfs.Rename(path+".tmp", path)
+	if err := tenantfs.Rename(path+".tmp", path); err != nil {
+		return err
+	}
+	// backupsRoot is <html volume>/backups/<site>, the folders and the file were made as root
+	appkit.OwnUnder(filepath.Dir(filepath.Dir(backupsRoot)), path)
+	return nil
 }
 
 // autoUpdateStateMu keeps the switch and a running update from overwriting each other's changes to the file
