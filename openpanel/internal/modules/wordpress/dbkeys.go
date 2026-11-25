@@ -21,6 +21,11 @@ var highPerformanceKeys = []struct{ table, alter string }{
 	{"users", "ADD KEY display_name (display_name)"},
 }
 
+// allowZeroDates drops NO_ZERO_DATE and NO_ZERO_IN_DATE for this connection only: WordPress declares its datetime
+// columns DEFAULT '0000-00-00 00:00:00', and MySQL's default sql_mode rejects every ALTER on those tables with
+// "Invalid default value" (the Index WP MySQL For Speed plugin does the same before its ALTERs)
+const allowZeroDates = "SET SESSION sql_mode = TRIM(BOTH ',' FROM REPLACE(REPLACE(CONCAT(',', @@SESSION.sql_mode, ','), ',NO_ZERO_DATE,', ','), ',NO_ZERO_IN_DATE,', ','))"
+
 var tablePrefixSafeRE = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
 
 // highPerformanceKeySQL returns the ALTER statement per table for prefix, or nil when the prefix isn't safe to put in SQL
@@ -45,7 +50,7 @@ func addHighPerformanceKeys(a *appctx.App, r *http.Request, userContext, dbName,
 	emit(map[string]any{"status": web.Tr(a, r, "Adding high-performance database keys")})
 	for i, stmt := range stmts {
 		table := prefix + highPerformanceKeys[i].table
-		if _, err := mysqlmanager.Exec(r.Context(), userContext, stmt, dbName); err != nil {
+		if err := mysqlmanager.ExecSeq(r.Context(), userContext, dbName, allowZeroDates, stmt); err != nil {
 			emit(map[string]any{"status": web.Tr(a, r, "Could not add high-performance keys to %(table)s: %(error)s", "table", table, "error", err.Error())})
 			continue
 		}
