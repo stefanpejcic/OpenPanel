@@ -67,7 +67,7 @@ blog.example.com	/var/www/html/blog.example.com
 Add a domain name for a user. Add `--debug` to see every step (checks, DNS zone, vhost, Caddy):
 
 ```bash
-opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY] [--debug]
+opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--keep-permissions] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY] [--debug]
 ```
 
 <details>
@@ -162,6 +162,12 @@ Domain example.com added successfully
 
   ```bash
   opencli domains-add <DOMAIN_NAME> <USERNAME> --skip-sentinel
+  ```
+
+* **Keep permissions** – Leave the owner and modes of a docroot that already exists as they are. Without it, the user gets ownership of everything in the docroot and group write is added to it (`chmod -R g+w`). Folders the command creates itself are still set up as usual. `opencli user-restore` and `opencli user-transfer` use it, so files keep the permissions they had in the backup:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --keep-permissions
   ```
 
 The output is the same with any of the skip flags:
