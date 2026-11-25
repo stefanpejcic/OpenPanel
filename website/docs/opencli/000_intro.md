@@ -96,7 +96,7 @@ Usage: opencli domain [set <domain_name> | ip] [--debug] [--no-restart]
 ------------------------
 opencli domains-add
 Description: Add a domain name for user.
-Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--debug] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY]
+Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--keep-permissions] [--debug] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY]
 ------------------------
 opencli domains-all
 Description: Lists all domain names currently hosted on the server.
