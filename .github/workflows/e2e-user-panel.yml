@@ -60,17 +60,18 @@ jobs:
       - name: Acquire exclusive box lock
         # user-panel (this repo) and the admin suite (openadmin repo) share one
         # box; GitHub concurrency can't span repos, so serialize via a lock on it
+        # kept in /root since /tmp and /var/lock are wiped by the reboot spec
         run: |
           ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" '
             for i in $(seq 1 300); do
-              if mkdir /tmp/e2e-box.lock 2>/dev/null; then
-                echo "${{ github.repository }}#${{ github.run_id }}" > /tmp/e2e-box.lock/owner
+              if mkdir /root/.e2e-box.lock 2>/dev/null; then
+                echo "${{ github.repository }}#${{ github.run_id }}" > /root/.e2e-box.lock/owner
                 echo "lock acquired"; exit 0
               fi
-              if [ -d /tmp/e2e-box.lock ] && [ $(( $(date +%s) - $(stat -c %Y /tmp/e2e-box.lock) )) -gt 9600 ]; then
-                echo "breaking stale lock held by $(cat /tmp/e2e-box.lock/owner 2>/dev/null)"; rm -rf /tmp/e2e-box.lock
+              if [ -d /root/.e2e-box.lock ] && [ $(( $(date +%s) - $(stat -c %Y /root/.e2e-box.lock) )) -gt 9600 ]; then
+                echo "breaking stale lock held by $(cat /root/.e2e-box.lock/owner 2>/dev/null)"; rm -rf /root/.e2e-box.lock
               fi
-              echo "box busy (held by $(cat /tmp/e2e-box.lock/owner 2>/dev/null)), waiting..."; sleep 15
+              echo "box busy (held by $(cat /root/.e2e-box.lock/owner 2>/dev/null)), waiting..."; sleep 15
             done
             echo "could not acquire box lock in time"; exit 1
           '
@@ -143,7 +144,7 @@ jobs:
       - name: Release box lock
         if: always()
         run: |
-          ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" 'rm -rf /tmp/e2e-box.lock; echo "lock released"' || true
+          ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" 'rm -rf /root/.e2e-box.lock; echo "lock released"' || true
 
       # pass/fail counts and every failed test with its first error line, for the Job Summary and the issue
       - name: Test report
