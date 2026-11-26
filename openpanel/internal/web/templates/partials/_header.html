@@ -10,7 +10,7 @@
                     </button>
                     <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
                     {{if eq .MenuStyle "modern"}}
-                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
+                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2" id="headerTrail">
                         {{if .NavTrail}}
                         <ol role="list" class="flex items-center gap-3 text-sm">
                             {{$last := sub (len .NavTrail) 1}}
@@ -29,7 +29,7 @@
                         {{end}}
                     </nav>
                     {{else}}
-                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
+                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2" id="headerTrail">
                         <ol role="list" class="flex items-center space-x-3 text-sm" data-nav-path="{{.RequestPath}}" x-data="navMenu()">
 
                         <ul>
@@ -203,20 +203,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const favoriteButton = document.getElementById('addFavoriteBtn');
     if (!favoriteButton) return;
 
-    const currentPath = window.location.pathname + window.location.search + window.location.hash;
+    // read when used, the file manager changes the address without loading a new page
+    const currentPath = () => window.location.pathname + window.location.search + window.location.hash;
+    const starOn = `<svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><path fill="orange" class="fill-yellow-500" d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path></svg>`;
+    const starOff = `<i class="ri-star-line text-lg leading-none" aria-hidden="true"></i>`;
 
-    // Initialize favorite button state
-    if (window.userFavorites) {
-        const isFavorite = window.userFavorites.some(fav => '/' + fav.link === currentPath);
-        favoriteButton.dataset.isFavorite = isFavorite ? 'true' : 'false';
-
-        if (isFavorite) {
-            favoriteButton.innerHTML = `
-                <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><path fill="orange" class="fill-yellow-500" d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path></svg>
-            `;
-            favoriteButton.title = "{{.T.Get "Right-click to remove from favorites"}}";
-        }
+    function setFavorite(on) {
+        favoriteButton.dataset.isFavorite = on ? 'true' : 'false';
+        favoriteButton.innerHTML = on ? starOn : starOff;
+        favoriteButton.title = on ? "{{.T.Get "Right-click to remove from favorites"}}" : "{{.T.Get "Left-click to add to favorites"}}";
     }
+
+    // Initialize favorite button state, pages that swap their content call this again
+    window.opSyncFavorite = function () {
+        if (window.userFavorites) setFavorite(window.userFavorites.some(fav => '/' + fav.link === currentPath()));
+    };
+    window.opSyncFavorite();
 
     // Right-click (remove favorite)
     favoriteButton.addEventListener("contextmenu", function(event) {
@@ -227,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const data = { link: currentPath };
+        const data = { link: currentPath() };
 
         fetch('/json/favorites', {
             method: 'DELETE',
@@ -263,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentPageTitle = document.title.split(" - ")[0];
 
         const data = {
-            link: currentPath,
+            link: currentPath(),
             title: currentPageTitle
         };
 

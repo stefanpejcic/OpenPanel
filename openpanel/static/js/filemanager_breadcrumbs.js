@@ -1,9 +1,10 @@
 // Load Clipboard.js from CDN
 var script = document.createElement("script");
 script.src = "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js";
-script.onload = function () {
+// adds the copy button and folds a long trail, filemanager.js runs it again after swapping the breadcrumbs
+function fmInitCrumbs() {
     var breadcrumbContainer = document.querySelector("nav[aria-label='FileManager Breadcrumbs'] ol");
-    if (!breadcrumbContainer) return;
+    if (!breadcrumbContainer || breadcrumbContainer.querySelector("#copy-button")) return;
 
     var breadcrumbItems = breadcrumbContainer.querySelectorAll("li");
     var maxVisibleItems = 5;
@@ -11,7 +12,7 @@ script.onload = function () {
 
     // Create "Copy Path to Clipboard" button
     var copyButton = document.createElement("li");
-    copyButton.className = "flex";
+    copyButton.className = "flex fm-crumb-extra";
     copyButton.innerHTML = '<a href="#" class="inline-flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" id="copy-button" title="Copy path to clipboard" aria-label="Copy path to clipboard" data-clipboard-text=""><i class="ri-file-copy-line"></i></a>';
     breadcrumbContainer.appendChild(copyButton);
 
@@ -30,7 +31,7 @@ script.onload = function () {
 
         // Create ellipsis link
         var ellipsis = document.createElement("li");
-        ellipsis.className = "flex";
+        ellipsis.className = "flex fm-crumb-extra";
         ellipsis.innerHTML = '<a href="#" class="inline-flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" id="breadcrumb-ellipsis" title="Click to display the full path" aria-label="Click to display the full path"><i class="ri-more-line"></i></a>';
         breadcrumbContainer.insertBefore(ellipsis, breadcrumbItems[1]);
 
@@ -41,11 +42,16 @@ script.onload = function () {
             ellipsis.style.display = "none";
         });
     }
+}
+
+script.onload = function () {
+    fmInitCrumbs();
 
     var clipboard = new ClipboardJS("#copy-button", {
         text: function () {
             var fullPath = "";
-            breadcrumbItems.forEach((item, index) => {
+            // read the trail when clicked, it changes as folders open
+            document.querySelectorAll("nav[aria-label='FileManager Breadcrumbs'] ol li:not(.fm-crumb-extra)").forEach((item, index) => {
                 var trimmedText = item.textContent.trim();
                 if (index > 1) {
                     fullPath += '/';
