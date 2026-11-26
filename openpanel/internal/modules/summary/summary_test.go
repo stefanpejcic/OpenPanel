@@ -159,11 +159,28 @@ func TestCollectActivity(t *testing.T) {
 	}
 }
 
+func TestVulnDetail(t *testing.T) {
+	cases := []struct {
+		core, plugins, themes, unfixed []string
+		detail, action                 string
+	}{
+		{[]string{"WordPress 7.0.7"}, nil, nil, nil, "They're in WordPress 7.0.7. Updating WordPress core to the latest version fixes them.", "Update WordPress core"},
+		{nil, []string{"Helpful", "GeneratePress Premium", "WP_DEBUG Toggle"}, nil, []string{"WP_DEBUG Toggle"}, "They're in the plugins GeneratePress Premium, Helpful and WP_DEBUG Toggle. Updating those plugins usually fixes them. WP_DEBUG Toggle has no fix yet, remove it or replace it.", "Update the plugins"},
+		{[]string{"WordPress 6.1"}, []string{"CF7"}, []string{"Astra"}, nil, "They're in WordPress 6.1, the plugin CF7 and the theme Astra. Updating WordPress core, that plugin and that theme usually fixes them.", "Update WordPress and its plugins"},
+	}
+	for _, c := range cases {
+		d, a := vulnDetail(c.core, c.plugins, c.themes, c.unfixed)
+		if d != c.detail || a != c.action {
+			t.Errorf("got %q / %q\nwant %q / %q", d, a, c.detail, c.action)
+		}
+	}
+}
+
 func TestCheckVulnerabilities(t *testing.T) {
 	b := testBuilder(t, "wordpress")
 	write(t, vulnDir+"a.com_blog.json", `{"timestamp":"x","plugin_cf7":{"data":{"vulnerability":[{"name":"CF7 < 5.3"},{"name":"CF7 < 5.9"},{"name":"CF7 < 6.0"}]}}}`)
 	b.checkVulnerabilities()
-	if len(b.s.Attention) != 1 || b.s.Attention[0].Link != "/website?domain=a.com/blog" || b.s.Attention[0].Detail != "They're in CF7. An update usually fixes them." {
+	if len(b.s.Attention) != 1 || b.s.Attention[0].Link != "/website?domain=a.com/blog" || b.s.Attention[0].Detail != "They're in the plugin CF7. Updating that plugin usually fixes them." || b.s.Attention[0].Action != "Update the plugins" {
 		t.Fatalf("vulnerable site = %+v", b.s.Attention)
 	}
 	if len(b.s.Good) != 0 {
@@ -335,6 +352,25 @@ func TestHeadlineAndBusiestPage(t *testing.T) {
 	b.s.Attention, b.s.Look, b.s.Websites = nil, []Item{{}, {}}, nil
 	if got := b.headline(); got != "Your websites had no visitors. Nothing urgent, but 2 things are worth a look." {
 		t.Errorf("quiet headline = %q", got)
+	}
+}
+
+func TestErrorPagesDetail(t *testing.T) {
+	b := testBuilder(t)
+	w := b.website("a.com")
+	w.errStatus = map[int]int{502: 9}
+	w.errPages = map[string]int{"/wp-admin/admin-ajax.php": 9}
+	if got := w.errorPagesDetail(); got != "The server returned 502 Bad Gateway instead of the page. Every time on /wp-admin/admin-ajax.php." {
+		t.Errorf("one page = %q", got)
+	}
+	w.errStatus = map[int]int{500: 30, 503: 2}
+	w.errPages = map[string]int{"/a": 20, "/b": 6, "/c": 3, "/d": 3}
+	if got := w.errorPagesDetail(); got != "The server returned 500 Internal Server Error (30) and 503 Service Unavailable (2) instead of the page. On 4 different pages, most on /a (20 times)." {
+		t.Errorf("many pages = %q", got)
+	}
+	w.errPages = map[string]int{"/a": 30, "/b": 2}
+	if got := w.errorPagesDetail(); !strings.HasSuffix(got, " Nearly all on /a.") {
+		t.Errorf("mostly one page = %q", got)
 	}
 }
 

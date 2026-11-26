@@ -18,7 +18,8 @@ func SizeBytes(ctx context.Context, userContext string) (size int64, ok bool) {
 	}
 	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
-	out, err := tenantfs.OutputIn(cctx, "/home/"+userContext, dir, "du", "-sk", ".")
+	name, args := tenantfs.LowPrio(false, "du", "-sk", ".")
+	out, err := tenantfs.OutputIn(cctx, "/home/"+userContext, dir, name, args...)
 	if err != nil {
 		return 0, false
 	}

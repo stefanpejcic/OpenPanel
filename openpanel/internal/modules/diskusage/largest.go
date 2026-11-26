@@ -119,7 +119,8 @@ func largestFiles(ctx context.Context, a *appctx.App, userContext, actualFolder,
 
 		cctx, cancel := context.WithTimeout(ctx, largestFilesTimeout)
 		defer cancel()
-		out, err := tenantfs.OutputIn(cctx, home, actualFolder, "find", args...)
+		name, lowArgs := tenantfs.LowPrio(true, "find", args...)
+		out, err := tenantfs.OutputIn(cctx, home, actualFolder, name, lowArgs...)
 		// permission errors still leave the rest of the output, a timeout leaves what was found so far
 		partial := errors.Is(cctx.Err(), context.DeadlineExceeded)
 		if err != nil && len(out) == 0 && !partial {

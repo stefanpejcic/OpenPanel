@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -115,6 +116,11 @@ func (b *builder) collectTraffic() {
 					w.limitedIPs[l.Request.ClientIP]++
 				case l.Status >= 500:
 					w.ServerErrors++
+					w.errStatus[l.Status]++
+					page, _, _ := strings.Cut(l.Request.URI, "?")
+					if len(w.errPages) < 2000 || w.errPages[page] > 0 {
+						w.errPages[page]++
+					}
 				case l.Status < 400:
 					page, _, _ := strings.Cut(l.Request.URI, "?")
 					if len(w.pages) < 5000 || w.pages[page] > 0 {
@@ -266,7 +272,7 @@ func (b *builder) checkErrors(ctx context.Context) {
 		it := Item{}
 		if w.ServerErrors > 0 {
 			it.Title = fmt.Sprintf("Visitors saw an error page on %s (%s)", name, plural(w.ServerErrors, "time", "times"))
-			it.Detail = "The server returned an error instead of the page."
+			it.Detail = w.errorPagesDetail()
 		} else {
 			it.Title = fmt.Sprintf("%s showed up in the logs of %s", plural(w.errorCount, "error", "errors"), name)
 		}
@@ -318,7 +324,7 @@ func (b *builder) errorPageItems(sites []*Website) []Item {
 		var items []Item
 		for _, w := range sites {
 			it := Item{Title: fmt.Sprintf("Visitors saw an error page on %s (%s)", w.Name, plural(w.ServerErrors, "time", "times")),
-				Detail: "The server returned an error instead of the page."}
+				Detail: w.errorPagesDetail()}
 			it.Action, it.Link = link(w.Name)
 			items = append(items, it)
 		}
@@ -333,8 +339,83 @@ func (b *builder) errorPageItems(sites []*Website) []Item {
 			parts = append(parts, fmt.Sprintf("%s (%s)", w.Name, num(w.ServerErrors)))
 		}
 	}
+	all := &Website{errStatus: map[int]int{}}
+	for _, w := range sites {
+		for code, n := range w.errStatus {
+			all.errStatus[code] += n
+		}
+	}
 	it := Item{Title: fmt.Sprintf("Visitors saw error pages on %d websites", len(sites)),
-		Detail: "On " + joinAnd(parts) + ". The server returned an error instead of the page."}
+		Detail: "On " + joinAnd(parts) + ". " + all.errorCodesSentence("the pages")}
 	it.Action, it.Link = link("")
 	return []Item{it}
+}
+
+// errorPagesDetail says which 5xx the server returned and on which pages
+func (w *Website) errorPagesDetail() string {
+	d := w.errorCodesSentence("the page")
+	if len(w.errPages) == 0 {
+		return d
+	}
+	type pc struct {
+		page string
+		n    int
+	}
+	var list []pc
+	total := 0
+	for p, n := range w.errPages {
+		list = append(list, pc{p, n})
+		total += n
+	}
+	sort.Slice(list, func(i, j int) bool {
+		if list[i].n != list[j].n {
+			return list[i].n > list[j].n
+		}
+		return list[i].page < list[j].page
+	})
+	top := list[0]
+	switch {
+	case len(list) == 1:
+		return d + " Every time on " + top.page + "."
+	case top.n*100 >= total*80:
+		return d + " Nearly all on " + top.page + "."
+	case len(list) <= 3:
+		var parts []string
+		for _, p := range list {
+			parts = append(parts, fmt.Sprintf("%s (%s)", p.page, num(p.n)))
+		}
+		return d + " On " + joinAnd(parts) + "."
+	}
+	return d + fmt.Sprintf(" On %d different pages, most on %s (%s).", len(list), top.page, plural(top.n, "time", "times"))
+}
+
+// errorCodesSentence is "The server returned 502 Bad Gateway instead of the page.", with a count per code when there are several
+func (w *Website) errorCodesSentence(what string) string {
+	if len(w.errStatus) == 0 {
+		return "The server returned an error instead of " + what + "."
+	}
+	codes := make([]int, 0, len(w.errStatus))
+	for c := range w.errStatus {
+		codes = append(codes, c)
+	}
+	sort.Slice(codes, func(i, j int) bool {
+		if w.errStatus[codes[i]] != w.errStatus[codes[j]] {
+			return w.errStatus[codes[i]] > w.errStatus[codes[j]]
+		}
+		return codes[i] < codes[j]
+	})
+	name := func(c int) string {
+		if t := http.StatusText(c); t != "" {
+			return fmt.Sprintf("%d %s", c, t)
+		}
+		return fmt.Sprint(c)
+	}
+	if len(codes) == 1 {
+		return "The server returned " + name(codes[0]) + " instead of " + what + "."
+	}
+	var parts []string
+	for _, c := range codes {
+		parts = append(parts, fmt.Sprintf("%s (%s)", name(c), num(w.errStatus[c])))
+	}
+	return "The server returned " + joinAnd(parts) + " instead of " + what + "."
 }
