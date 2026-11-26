@@ -21,3 +21,11 @@ if command -v csf >/dev/null 2>&1 && ! systemctl is-active --quiet rsyslog; then
         echo "Could not install or start rsyslog, lfd has no log files to read. Install it by hand: apt-get install -y rsyslog && systemctl enable --now rsyslog && systemctl restart lfd"
     fi
 fi
+
+# the Modern theme moved to caesarmind, installed copies still link the old stefanpejcic repo in their readme.txt
+modern_readme=/etc/openpanel/openpanel/templates/modern/readme.txt
+if [ -f "$modern_readme" ] && grep -q 'github.com/stefanpejcic/modern-openpanel-theme' "$modern_readme"; then
+    sed -i -e 's#^Theme URI:.*#Theme URI: https://github.com/caesarmind/modern-openpanel-theme#' \
+           -e 's#^Author URI:.*#Author URI: https://github.com/caesarmind#' "$modern_readme"
+    echo "Modern theme readme now points at github.com/caesarmind"
+fi
