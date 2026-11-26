@@ -207,8 +207,8 @@ Hover CPU, Memory or Processes and click the pencil to change that limit for thi
 
 Domains, Websites, Databases, Emails and FTP limits come only from the plan, change them by [editing the plan](/docs/admin/plans/hosting_plans) or moving the user to another one.
 
-![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link](/img/openadmin-screenshots/accounts/users-stats.png#gh-light-mode-only)
-![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link](/img/openadmin-screenshots/accounts/users-stats_dark.png#gh-dark-mode-only)
+![Overview tab of a user with cards for disk, inodes, CPU, memory, processes, domains, websites, databases, emails and FTP accounts](/img/openadmin-screenshots/accounts/users-stats.png#gh-light-mode-only)
+![Overview tab of a user with cards for disk, inodes, CPU, memory, processes, domains, websites, databases, emails and FTP accounts](/img/openadmin-screenshots/accounts/users-stats_dark.png#gh-dark-mode-only)
 
 Click **View history** or the **Resource usage** tab to see the user's past resource usage: Date, CPU %, CPU usage, Memory %, Memory usage, Tasks and Warning. Use the search box to filter the rows. **View raw** opens the raw usage log in a new tab, and **Download** saves it as a `.jsonl` file.
 
@@ -237,8 +237,8 @@ Click a service name to see its details: status (green running, orange starting 
 
 An 'Edit Services' button also lets Administrators edit the raw service configuration of the whole account.
 
-![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services.png#gh-light-mode-only)
-![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services_dark.png#gh-dark-mode-only)
+![Services tab listing the user containers with their status, CPU, memory and process limits and actions](/img/openadmin-screenshots/accounts/users-services.png#gh-light-mode-only)
+![Services tab listing the user containers with their status, CPU, memory and process limits and actions](/img/openadmin-screenshots/accounts/users-services_dark.png#gh-dark-mode-only)
 
 #### Bulk actions
 
@@ -285,8 +285,8 @@ Click a volume to see its mountpoint on the server, driver and scope, compose pr
 
 Below the usage statistics, the Overview tab displays the account's details. Hover a field to see what it is from its info icon, and click the pencil to change it in place, **Cancel** closes it without saving.
 
-![User details on the Overview tab: username, email, plan, locale, 2FA status, IP address, location, server, docker context and setup time](/img/openadmin-screenshots/accounts/users-info.png#gh-light-mode-only)
-![User details on the Overview tab: username, email, plan, locale, 2FA status, IP address, location, server, docker context and setup time](/img/openadmin-screenshots/accounts/users-info_dark.png#gh-dark-mode-only)
+![Account details on the Overview tab with a pencil on each field that can be changed in place](/img/openadmin-screenshots/accounts/users-info.png#gh-light-mode-only)
+![Account details on the Overview tab with a pencil on each field that can be changed in place](/img/openadmin-screenshots/accounts/users-info_dark.png#gh-dark-mode-only)
 
 | Field | What you can do |
 |---|---|
