@@ -97,7 +97,12 @@ func StaticURL(rel string) string { return themeStaticURL(defaultTheme, rel) }
 func themeStaticURL(d *themeDef, rel string) string {
 	u := "/static/" + rel
 	sep := "?"
-	if h := themeAssetHash(d, rel); h != "" {
+	h := themeAssetHash(d, rel)
+	// loaders add file names to a folder URL (Monaco's vs), so no query here, the page's theme cookie picks the theme
+	if h == "" && isStaticDir(d, rel) {
+		return u
+	}
+	if h != "" {
 		u += sep + "v=" + h
 		sep = "&"
 	}
@@ -105,6 +110,23 @@ func themeStaticURL(d *themeDef, rel string) string {
 		u += sep + "t=" + d.folder()
 	}
 	return u
+}
+
+// isStaticDir is true when rel is a folder in theme d's static files or the built-in ones
+func isStaticDir(d *themeDef, rel string) bool {
+	if !fs.ValidPath(rel) {
+		return false
+	}
+	if d != nil && d.dir != "" {
+		if info, err := os.Stat(filepath.Join(d.dir, "static", filepath.FromSlash(rel))); err == nil {
+			return info.IsDir()
+		}
+	}
+	if assetFS == nil {
+		return false
+	}
+	info, err := fs.Stat(assetFS, rel)
+	return err == nil && info.IsDir()
 }
 
 // assetHash is themeAssetHash for the default theme
