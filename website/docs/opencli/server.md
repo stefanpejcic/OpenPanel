@@ -97,13 +97,14 @@ FATAL ERROR: 198.51.100.10 is this server. Set the IP of the destination server.
 
 All available flags:
 ```bash
-opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--force] [--exclude-home] [--exclude-logs] [--exclude-csf] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users] [--exclude-contexts]
+opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--force] [--no-throttle] [--exclude-home] [--exclude-logs] [--exclude-csf] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users] [--exclude-contexts]
 ```
 
 - `-h`, `--host` - destination server IP.
 - `-u`, `--user` - SSH user on the destination server.
 - `--password` - SSH password for the destination server.
 - `--force` - skip checking if the destination server already has users. It doesn't skip the check that the destination isn't this same server.
+- `--no-throttle` - copy at normal priority. By default rsync runs at low CPU and IO priority (`nice -n19`, `ionice -c3`).
 - `--exclude-csf` - don't sync `/etc/csf/` firewall configuration.
 - `--exclude-contexts` - don't set up rootless Podman for users on the destination server.
 - `--exclude-*` - skip syncing that part of the data (home directories, logs, mail, DNS zones, OpenPanel configuration, MySQL, root docker stack, post-update scripts, users).
