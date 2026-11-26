@@ -407,3 +407,26 @@ func TestMCPSearchPrefersTheNamedGroup(t *testing.T) {
 		t.Errorf("wp_cli_action not found: %v", names)
 	}
 }
+
+// blockReason must tell the agent whether it's the token or the account that lacks the feature,
+// so it knows whether to make a wider token or ask for a plan upgrade.
+func TestBlockReasonTellsTokenFromAccount(t *testing.T) {
+	tool := &mcpTool{Name: "dns_add", Method: "POST", Path: "/api/dns", Features: []string{"dns"}}
+
+	// the account has dns, but the token's frozen list doesn't -> the token is the limit
+	tokenLimited := mcpAccess{features: map[string]bool{"dns": true}, scope: mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"favorites"}}}
+	if got := tool.blockReason(tokenLimited); !strings.Contains(got, "token isn't allowed to use") {
+		t.Errorf("token-limited reason = %q, want the token message", got)
+	}
+
+	// the token lists dns but the account lost it (a downgrade) -> the account is the limit
+	accountLost := mcpAccess{features: map[string]bool{"favorites": true}, scope: mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"dns"}}}
+	if got := tool.blockReason(accountLost); !strings.Contains(got, "not enabled on this account") {
+		t.Errorf("account-lost reason = %q, want the account message", got)
+	}
+
+	// both have it -> it runs
+	if got := (mcpAccess{features: map[string]bool{"dns": true}, scope: mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"dns"}}}); tool.blockReason(got) != "" {
+		t.Errorf("allowed reason = %q, want empty", tool.blockReason(got))
+	}
+}

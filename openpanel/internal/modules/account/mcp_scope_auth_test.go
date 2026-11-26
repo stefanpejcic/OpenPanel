@@ -11,6 +11,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 )
 
 const (
@@ -244,5 +245,32 @@ func TestOnlyFullTokensReadCredentials(t *testing.T) {
 	store.addScopedToken(7, dnsToken, "dns bot", "full", "dns")
 	if rec := bearer(h, "GET", "/api/sites/example.com/wp-info", dnsToken, ""); rec.Code != http.StatusForbidden || !strings.Contains(rec.Body.String(), "websites") {
 		t.Errorf("dns-only full token reading wp-info: got %d %s, want 403", rec.Code, rec.Body)
+	}
+}
+
+// Once an old token is frozen to the account's features, gaining a feature later must not be added to it:
+// that's the whole point of freezing, a token can't quietly grow with the plan.
+func TestFrozenTokenStopsGrowing(t *testing.T) {
+	h, store, a := scopedMuxApp(t)
+	store.addScopedToken(7, fullToken, "old", "full", "") // "" = NULL, an old no-list token
+
+	// first use pins it to the account's features as they are today
+	if rec := bearer(h, "POST", "/api/testdns", fullToken, `{}`); rec.Code != http.StatusNoContent {
+		t.Fatalf("first use: got %d %s", rec.Code, rec.Body)
+	}
+	tok, _ := store.tokenByName("old")
+	frozen := fmt.Sprint(tok.feats)
+	if strings.Contains(","+frozen+",", ",docker,") {
+		t.Fatalf("precondition: the frozen list already has docker: %s", frozen)
+	}
+
+	// later the user gets a new feature; freezing again must leave the already-frozen token alone
+	if n, err := mcptokens.FreezeLegacy(context.Background(), a.DB, 7, []string{"dns", "favorites", "websites", "docker"}); err != nil {
+		t.Fatalf("second freeze: %v", err)
+	} else if n != 0 {
+		t.Errorf("second freeze touched %d already-frozen tokens, want 0", n)
+	}
+	if tok, _ = store.tokenByName("old"); fmt.Sprint(tok.feats) != frozen {
+		t.Errorf("frozen token changed: %s -> %s", frozen, fmt.Sprint(tok.feats))
 	}
 }
