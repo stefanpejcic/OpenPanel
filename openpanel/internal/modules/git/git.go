@@ -89,14 +89,47 @@ func ensureAccountRoot(userContext string) error {
 	if err := os.MkdirAll(root, 0o700); err != nil {
 		return err
 	}
+	if err := checkAccountRoot(userContext); err != nil {
+		return err
+	}
 	// rootless containers map to the account's uid, so keep this out of their reach
 	return os.Chmod(root, 0o700)
+}
+
+// checkAccountRoot refuses a git dir the account could have planted, since the parent home is theirs and git runs as root in here
+func checkAccountRoot(userContext string) error {
+	root := accountRoot(userContext)
+	fi, err := os.Lstat(root)
+	if err != nil {
+		return err
+	}
+	if fi.Mode()&os.ModeSymlink != 0 || !fi.IsDir() {
+		return fmt.Errorf("%s is not a plain directory", root)
+	}
+	if st, ok := fi.Sys().(*syscall.Stat_t); ok && int(st.Uid) != os.Geteuid() {
+		return fmt.Errorf("%s is not owned by the panel", root)
+	}
+	return nil
+}
+
+// gitSafeEnv keeps root git from reading any global or XDG config, hooks path or attributes out of the account's home
+var gitSafeEnv = []string{
+	"GIT_CONFIG_NOSYSTEM=1",
+	"GIT_CONFIG_GLOBAL=/dev/null",
+	"HOME=/nonexistent",
+	"XDG_CONFIG_HOME=/nonexistent",
 }
 
 var storeMu sync.Mutex
 
 // loadRepos reads repos.json, a missing file is just an empty list
 func loadRepos(userContext string) ([]Repo, error) {
+	if err := checkAccountRoot(userContext); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []Repo{}, nil
+		}
+		return nil, err
+	}
 	data, err := os.ReadFile(storePath(userContext))
 	if errors.Is(err, os.ErrNotExist) {
 		return []Repo{}, nil
@@ -318,13 +351,15 @@ func isoTime(stored string) string {
 
 // runGit runs git against a bare repo with prompts and odd transports disabled
 func runGit(ctx context.Context, userContext string, env []string, args ...string) (string, error) {
+	if err := checkAccountRoot(userContext); err != nil {
+		return "", err
+	}
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Env = append(os.Environ(),
 		"GIT_TERMINAL_PROMPT=0",
 		"GIT_ALLOW_PROTOCOL=http:https:ssh",
-		"GIT_CONFIG_NOSYSTEM=1",
-		"HOME="+accountRoot(userContext),
 	)
+	cmd.Env = append(cmd.Env, gitSafeEnv...)
 	cmd.Env = append(cmd.Env, env...)
 	out, err := cmd.CombinedOutput()
 	text := strings.TrimSpace(string(out))

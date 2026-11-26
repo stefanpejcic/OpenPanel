@@ -1139,6 +1139,8 @@ Parse caddy access logs for users domains and generate static html. Requires the
 opencli domains-stats [USERNAME] [--debug]
 ```
 
+GoAccess runs at low CPU and IO priority (`nice -n19`, `ionice -c3`) so parsing big access logs doesn't slow down the sites.
+
 Generate stats for all domains:
 ```bash
 opencli domains-stats [--debug]

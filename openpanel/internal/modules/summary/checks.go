@@ -51,37 +51,115 @@ func (b *builder) checkVulnerabilities() {
 			continue
 		}
 		var names []string
+		var core, plugins, themes, unfixed []string
 		for key, v := range res {
 			if key == "timestamp" {
 				continue
 			}
 			var vuln struct {
 				Data struct {
+					Name          string `json:"name"`
 					Vulnerability []struct {
 						Name string `json:"name"`
 					} `json:"vulnerability"`
 				} `json:"data"`
 			}
-			if json.Unmarshal(v, &vuln) != nil {
+			if json.Unmarshal(v, &vuln) != nil || len(vuln.Data.Vulnerability) == 0 {
 				continue
+			}
+			// keys are core_<version>, plugin_<slug> and theme_<slug>
+			kind, rest, _ := strings.Cut(key, "_")
+			label := vuln.Data.Name
+			if kind == "core" {
+				label = "WordPress " + rest
 			}
 			for _, x := range vuln.Data.Vulnerability {
 				names = append(names, x.Name)
+				if n := vulnerableNames([]string{x.Name}); label == "" && len(n) > 0 {
+					label = n[0]
+				}
+				if strings.Contains(x.Name, "unfixed") {
+					unfixed = append(unfixed, label)
+				}
+			}
+			switch kind {
+			case "core":
+				core = append(core, label)
+			case "theme":
+				themes = append(themes, label)
+			default:
+				plugins = append(plugins, label)
 			}
 		}
 		if len(names) == 0 {
 			continue
 		}
 		vulnerable++
+		detail, action := vulnDetail(core, plugins, themes, unfixed)
 		b.attention(Item{
 			Title:  fmt.Sprintf("%s has %s", site.Name, plural(len(names), "known security hole", "known security holes")),
-			Detail: "They're in " + joinAnd(vulnerableNames(names)) + ". An update usually fixes them.",
-			Action: "Update WordPress and its plugins", Link: "/website?domain=" + site.Name,
+			Detail: detail,
+			Action: action, Link: "/website?domain=" + site.Name,
 		})
 	}
 	if checked > 0 && vulnerable == 0 {
 		b.good("Your WordPress sites have no known security holes.")
 	}
+}
+
+// vulnDetail says where the holes are and what to update, WordPress core, plugins and themes each need their own update
+func vulnDetail(core, plugins, themes, unfixed []string) (string, string) {
+	core, plugins, themes, unfixed = uniqSorted(core), uniqSorted(plugins), uniqSorted(themes), uniqSorted(unfixed)
+	var where, update []string
+	if len(core) > 0 {
+		where = append(where, joinAnd(core))
+		update = append(update, "WordPress core")
+	}
+	if len(plugins) > 0 {
+		where = append(where, pluralWord(len(plugins), "the plugin ", "the plugins ")+joinAnd(plugins))
+		update = append(update, pluralWord(len(plugins), "that plugin", "those plugins"))
+	}
+	if len(themes) > 0 {
+		where = append(where, pluralWord(len(themes), "the theme ", "the themes ")+joinAnd(themes))
+		update = append(update, pluralWord(len(themes), "that theme", "those themes"))
+	}
+	detail := "They're in " + joinAnd(where) + ". Updating " + joinAnd(update) + " usually fixes them."
+	if len(core) > 0 && len(plugins) == 0 && len(themes) == 0 {
+		detail = "They're in " + joinAnd(where) + ". Updating WordPress core to the latest version fixes them."
+	}
+	if len(unfixed) > 0 {
+		detail += " " + joinAnd(unfixed) + pluralWord(len(unfixed), " has no fix yet, remove it or replace it.", " have no fix yet, remove them or replace them.")
+	}
+	action := "Update WordPress and its plugins"
+	switch {
+	case len(core) > 0 && len(plugins)+len(themes) == 0:
+		action = "Update WordPress core"
+	case len(core) == 0 && len(themes) == 0:
+		action = "Update the plugins"
+	case len(core) == 0 && len(plugins) == 0:
+		action = "Update the theme"
+	}
+	return detail, action
+}
+
+func pluralWord(n int, one, many string) string {
+	if n == 1 {
+		return one
+	}
+	return many
+}
+
+func uniqSorted(in []string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, s := range in {
+		if s != "" && !seen[s] {
+			seen[s] = true
+			out = append(out, s)
+		}
+	}
+	sort.Strings(out)
+	return out
 }
 
 // checkMalware looks at the account's latest malware scan

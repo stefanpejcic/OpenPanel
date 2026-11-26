@@ -41,6 +41,11 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domain := selectedDomain
 	if idx := strings.Index(selectedDomain, "/"); idx != -1 {
 		domain = selectedDomain[:idx]
+		// only the domain part is ownership-checked, so the rest must stay a plain subfolder
+		if !cmsapp.IsValidSubdirectory(selectedDomain[idx+1:]) {
+			emit(map[string]any{"error": "Invalid domain."})
+			return
+		}
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
 		emit(map[string]any{"error": "You do not own this domain."})
@@ -196,6 +201,9 @@ func resolveOJSDocrootSymlink(userContext, selectedDomain string) (string, error
 
 	// docroot on disk is "/var/www/html/<selectedDomain>" mapped onto htmlVolume, same relation install.go's hostOSPath construction relies on
 	hostOSPath := filepath.Join(htmlVolume, selectedDomain)
+	if !strings.HasPrefix(hostOSPath, htmlVolume) {
+		return "", &execError{msg: "Invalid domain " + selectedDomain}
+	}
 	if info, statErr := tenantfs.Lstat(hostOSPath); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
 		return hostOSPath, nil
 	}

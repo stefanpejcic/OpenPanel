@@ -324,7 +324,7 @@ Usage: opencli server-logrotate
 ------------------------
 opencli server-migrate
 Description: Migrates all data from this server to another.
-Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD> [--force] [--exclude-* options]
+Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD> [--force] [--no-throttle] [--exclude-* options]
 ------------------------
 opencli update
 Description: Check if update is available, install updates.
@@ -416,7 +416,7 @@ Usage: opencli user-suspend <USERNAME> [-y] [--debug]
 ------------------------
 opencli user-transfer
 Description: Transfers a single user account from this server to another.
-Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port <SSH_PORT>] [--force] [--live-transfer]
+Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port <SSH_PORT>] [--force] [--live-transfer] [--no-throttle]
 ------------------------
 opencli user-unsuspend
 Description: Unsuspend user: start all containers and unsuspend domains

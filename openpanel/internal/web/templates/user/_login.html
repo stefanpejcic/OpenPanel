@@ -21,6 +21,7 @@
     <!-- Custom CSS code -->
     <link rel="stylesheet" href="{{static "css/custom.css"}}">
 {{if ne .LoginLayout "split"}}
+    <style>html:not(.dark) .op-logo-dark,html.dark .op-logo-light{display:none!important}</style>
     <style>body{background-image:url("{{static "images/bg-body.png"}}");background-repeat:no-repeat;background-position:left}</style>
 {{end}}
   </head>
@@ -30,7 +31,7 @@
 {{if eq .LoginLayout "split"}}
 <!-- split layout: a brand panel beside the form on wide screens -->
 <aside class="hidden shrink-0 flex-col justify-between gap-10 border-r border-gray-800 bg-gray-950 p-10 text-gray-50 lg:flex lg:w-1/2 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50">
-  {{if .Logo}}<a href="." class="flex items-center"><img src="{{.Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12"></a>{{else if .BrandName}}<a href="." class="text-lg font-semibold tracking-tight">{{.BrandName}}</a>{{else}}<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="text-lg font-semibold tracking-tight">OpenPanel</a>{{end}}
+  {{if or .Logo .LogoDark}}<a href="." class="flex items-center"><img src="{{or .LogoDark .Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12"></a>{{else if .BrandName}}<a href="." class="text-lg font-semibold tracking-tight">{{.BrandName}}</a>{{else}}<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="text-lg font-semibold tracking-tight">OpenPanel</a>{{end}}
   <div>
     <h2 class="text-lg font-semibold">{{.T.Get "Every site, inbox and database in one place."}}</h2>
     <p class="mt-2 max-w-md text-sm text-gray-400 dark:text-gray-400">{{.T.Get "Each service runs in its own container, with its own CPU, memory and versions you pick."}}</p>
@@ -46,8 +47,8 @@
 
 <!-- brand: the admin's logo or name when set, the OpenPanel mark otherwise -->
 <div class="mb-6 flex items-center justify-center">
-{{if .Logo}}
-<a href="." class="flex items-center"><img src="{{.Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12"></a>
+{{if or .Logo .LogoDark}}
+<a href="." class="flex items-center">{{if and .Logo .LogoDark}}<img src="{{.Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12 op-logo-light"><img src="{{.LogoDark}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12 op-logo-dark">{{else}}<img src="{{or .Logo .LogoDark}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12">{{end}}</a>
 {{else if .BrandName}}
 <a href="." class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">{{.BrandName}}</a>
 {{else}}

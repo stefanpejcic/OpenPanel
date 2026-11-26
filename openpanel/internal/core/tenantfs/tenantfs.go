@@ -600,6 +600,21 @@ func ReplaceContents(src, dst string, keep ...string) error {
 	return nil
 }
 
+// LowPrio puts nice -n19 in front of name, and ionice -c3 too when idle, so one account's big scan doesn't slow every other panel user
+func LowPrio(idle bool, name string, args ...string) (string, []string) {
+	var p []string
+	if _, err := exec.LookPath("nice"); err == nil {
+		p = append(p, "nice", "-n19")
+	}
+	if _, err := exec.LookPath("ionice"); err == nil && idle {
+		p = append(p, "ionice", "-c3")
+	}
+	if len(p) == 0 {
+		return name, args
+	}
+	return p[0], append(append(p[1:], name), args...)
+}
+
 // OutputIn runs name args... with its working dir set to dir, which is opened through a root on base first so a symlink on the way can't move it outside base
 func OutputIn(ctx context.Context, base, dir, name string, args ...string) ([]byte, error) {
 	rel, err := filepath.Rel(filepath.Clean(base), filepath.Clean(dir))

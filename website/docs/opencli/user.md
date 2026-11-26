@@ -224,7 +224,7 @@ opencli user-add <USERNAME> <PASSWORD> <EMAIL> "<PLAN_NAME>" --reseller=<RESELLE
 To transfer user account to another server:
 
 ```bash
-opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port 22] [--force] [--live-transfer]
+opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port 22] [--force] [--live-transfer] [--no-throttle]
 ```
 
 The transfer is refused before anything is copied when the destination runs the Community edition and the account's domains would bring it over 50 domains. It's also refused when the destination already has 3 or more user accounts, unless both servers have an Enterprise license.
@@ -274,6 +274,7 @@ Import started, log file: /var/log/openpanel/admin/transfers/stefan_203.0.113.20
 - `--port` - SSH port on the destination server (default `22`).
 - `--force` - overwrite the account if the username already exists on the destination server.
 - `--live-transfer` - suspend the account for a final sync after the transfer, then forward its websites and DNS to the new server. If the transfer fails, the account is unsuspended on the source. The DNS zones on the source are kept as `<domain>.zone.pre-move` so the move can be undone.
+- `--no-throttle` - copy at normal priority. By default rsync runs at low CPU and IO priority (`nice -n19`, `ionice -c3`) so the copy doesn't slow down the sites still on this server.
 
 The destination server needs OpenPanel installed. Files, databases, domains, sites, DNS zones, SSL, FTP and email accounts (Enterprise) are copied, and containers are recreated on the destination from the user's volumes. If a plan with the same name already exists on the destination it's reused, and the log shows a warning when its feature set differs from the source. Progress is written to `/var/log/openpanel/admin/transfers/`.
 
@@ -285,7 +286,7 @@ To create a full account `.tar.gz` backup of a single user (files, databases, ma
 opencli user-backup --account <USER> [--output <DIR>] [--quiet] [--no-throttle]
 ```
 
-Without `--output` the archive goes to `/var/www/html/_backups/` in the user's files, and the backup stops if that folder points through a symlink. The tar and compression steps run at low CPU and IO priority (`nice`, `ionice`), `--no-throttle` runs them at normal priority.
+Without `--output` the archive goes to `/var/www/html/_backups/` in the user's files, and the backup stops if that folder points through a symlink. The tar and compression steps run at low CPU and IO priority (`nice -n19`, `ionice -c3`), `--no-throttle` runs them at normal priority.
 
 <details>
   <summary>Example output</summary>

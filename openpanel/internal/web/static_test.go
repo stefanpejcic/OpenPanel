@@ -130,3 +130,23 @@ func TestLoadCustomCode(t *testing.T) {
 		t.Errorf("expected whitespace-only footer to be dropped, got %q", got)
 	}
 }
+
+func TestMissingStaticPathsAreNotCached(t *testing.T) {
+	sa, err := NewStaticAssets(testStaticFS(t), "", true)
+	if err != nil {
+		t.Fatalf("NewStaticAssets: %v", err)
+	}
+	count := func() int {
+		n := 0
+		assetHashes.Range(func(_, _ any) bool { n++; return true })
+		return n
+	}
+	before := count()
+	for i := 0; i < 50; i++ {
+		req := httptest.NewRequest(http.MethodGet, "/nope/"+strings.Repeat("x", i+1)+".js", nil)
+		sa.Handler().ServeHTTP(httptest.NewRecorder(), req)
+	}
+	if after := count(); after != before {
+		t.Fatalf("assetHashes grew from %d to %d on missing files", before, after)
+	}
+}

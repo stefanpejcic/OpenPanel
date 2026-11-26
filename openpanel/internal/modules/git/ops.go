@@ -33,6 +33,11 @@ func sshKeyPath(userContext string) string {
 // PublicKey returns the account's deploy key, generating it on first use
 func PublicKey(ctx context.Context, userContext string) (string, error) {
 	pub := sshKeyPath(userContext) + ".pub"
+	if checkAccountRoot(userContext) != nil {
+		if err := ensureAccountRoot(userContext); err != nil {
+			return "", err
+		}
+	}
 	if data, err := os.ReadFile(pub); err == nil {
 		return strings.TrimSpace(string(data)), nil
 	}
@@ -355,6 +360,9 @@ func latestCommit(ctx context.Context, userContext string, r Repo) (Commit, bool
 func removeRepo(userContext, name string) error {
 	if !isValidRepoName(name) {
 		return errors.New("invalid repository name")
+	}
+	if err := checkAccountRoot(userContext); err != nil {
+		return err
 	}
 	_ = os.RemoveAll(stageDir(userContext, name))
 	return os.RemoveAll(repoDir(userContext, name))

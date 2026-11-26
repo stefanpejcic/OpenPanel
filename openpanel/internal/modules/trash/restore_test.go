@@ -23,6 +23,10 @@ func TestSplitRestoreLine(t *testing.T) {
 		{"no equals sign", "", "", "", false},
 		{"=/home/u/_data/x", "", "", "", false},
 		{"", "", "", "", false},
+		// the file sits in the account's home, so a key that climbs out of the trash dir is forged
+		{"../../../../etc/shadow=/home/u/_data/shadow|deletion_date=d", "", "", "", false},
+		{"..=/home/u/_data/x", "", "", "", false},
+		{"a\\b=/home/u/_data/x", "", "", "", false},
 	}
 	for _, c := range cases {
 		name, meta, ok := splitRestoreLine(c.line)

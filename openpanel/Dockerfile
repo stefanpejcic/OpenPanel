@@ -28,6 +28,7 @@ RUN apk add --no-cache \
     tar \
     gzip \
     acl \
+    util-linux-misc \
     attr \
     shadow \
     quota-tools \

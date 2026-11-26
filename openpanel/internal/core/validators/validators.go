@@ -5,6 +5,7 @@ import (
 	"math"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -32,6 +33,10 @@ func IsValidHost(host string) bool {
 
 // IsValidEmailUsername reports whether username is a valid mailbox local part - crucially excludes '@', so callers building "username@domain" can't get a malformed two-address string
 func IsValidEmailUsername(username string) bool {
+	// opencli builds /var/mail/<domain>/<user> from this and chowns it as root, so ".." or a leading "-" or "." must never get through
+	if strings.Contains(username, "..") || strings.HasPrefix(username, ".") || strings.HasSuffix(username, ".") || strings.HasPrefix(username, "-") {
+		return false
+	}
 	return emailUsernameRegex.MatchString(username)
 }
 
