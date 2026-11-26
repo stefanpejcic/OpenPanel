@@ -13,7 +13,10 @@ import (
 	"github.com/gorilla/sessions"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/apirisk"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
@@ -238,8 +241,17 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 			}
 			if !contains(userFeatures, featureName) {
 				log.Printf("APP - API user %d (%s): access denied to %s (feature %q not enabled for this account)", userID, details.Username, r.URL.Path, featureName)
-				writeJSONError(w, http.StatusForbidden, "Access denied", "")
+				writeJSONError(w, http.StatusForbidden, "Access denied", "This account doesn't have the '"+featureName+"' feature")
 				return
+			}
+
+			// tokens from before feature lists get pinned to what the account has today, from then on they don't grow
+			if via == ViaMCP {
+				if tok, ok := MCPTokenInfo(r); ok && tok.Scope.AllFeatures {
+					if n, err := mcptokens.FreezeLegacy(ctx, a.DB, userID, userFeatures); err == nil && n > 0 {
+						log.Printf("APP - API user %d (%s): pinned %d older MCP token(s) to the account's current features", userID, details.Username, n)
+					}
+				}
 			}
 
 			// same 2fa enforcement as RequireLogin, bearer tokens only get the 2fa enrollment routes until it's on
@@ -254,10 +266,20 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 
 			// only the json-rpc transport itself is exempt, token create/revoke under /api/account/mcp is not
 			isMCPTransport := r.Method == http.MethodPost && r.URL.Path == "/mcp"
-			if via == ViaMCP && MCPReadOnly(r) && !isMCPTransport && r.Method != http.MethodGet && r.Method != http.MethodHead {
+			// a few GET routes change things too (wp-cli update_now), so it's the route's risk that counts, not just the method
+			if via == ViaMCP && MCPReadOnly(r) && !isMCPTransport && (r.Method != http.MethodGet && r.Method != http.MethodHead || apirisk.ForRequest(r) != apirisk.Read) {
 				log.Printf("APP - API user %d (%s): read-only MCP token blocked %s %s", userID, details.Username, r.Method, r.URL.Path)
 				writeJSONError(w, http.StatusForbidden, "This token is read-only", "Generate a token without the read-only option to make changes")
 				return
+			}
+
+			if via == ViaMCP && !isMCPTransport {
+				tok, _ := MCPTokenInfo(r)
+				if msg, hint := MCPScopeBlock(tok.Scope, featureName, r); msg != "" {
+					log.Printf("APP - API user %d (%s): MCP token #%d blocked %s %s: %s", userID, details.Username, tok.ID, r.Method, r.URL.Path, msg)
+					writeJSONError(w, http.StatusForbidden, msg, hint)
+					return
+				}
 			}
 
 			if r.Method != http.MethodGet && a.DemoMode {
@@ -266,9 +288,39 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 				return
 			}
 
+			// handlers log what changed, this adds which token did it
+			if via == ViaMCP && !isMCPTransport && r.Method != http.MethodGet && r.Method != http.MethodHead {
+				tok, _ := MCPTokenInfo(r)
+				_ = logger.RecordUserAction(a.Config, details.Username, fmt.Sprintf("used MCP token \"%s\" (#%d) for %s %s", tok.Name, tok.ID, r.Method, r.URL.Path), reqip.ClientIP(r))
+			}
+
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// MCPScopeBlock says why a token may not make this request, empty when it may
+func MCPScopeBlock(scope mcptokens.Scope, featureName string, r *http.Request) (string, string) {
+	// a token minting or revoking tokens could hand itself more than it was given
+	if TokenManagementWrite(r.Method, r.URL.Path) {
+		return "Tokens can't create or revoke tokens", "Manage tokens on Account > AI Assistant (MCP) in OpenPanel"
+	}
+	if featureName != "api" && featureName != "mcp" && !scope.Allows(featureName) {
+		return "This token isn't allowed to use the '" + featureName + "' feature", "Make a new token that includes '" + featureName + "' on Account > AI Assistant (MCP)"
+	}
+	// a database login works around read-only and no-deletes, you can drop tables with it
+	if scope.Mode != mcptokens.ModeFull && apirisk.ExposesSecrets(r) {
+		return "This token can't read database passwords or log in to phpMyAdmin", "Use a full-access token that includes the feature"
+	}
+	if scope.Mode == mcptokens.ModeModify && apirisk.ForRequest(r) == apirisk.Destructive {
+		return "This token can't delete or overwrite things", "Use a full-access token for deletes, restores, password changes and similar actions"
+	}
+	return "", ""
+}
+
+// TokenManagementWrite is true for creating or revoking MCP tokens
+func TokenManagementWrite(method, path string) bool {
+	return strings.HasPrefix(path, "/api/account/mcp") && method != http.MethodGet && method != http.MethodHead
 }
 
 func writeJSONError(w http.ResponseWriter, status int, errMsg, hint string) {

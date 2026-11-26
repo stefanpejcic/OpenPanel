@@ -36,8 +36,9 @@
 {{end}}
 
 <div id="mcp-add" x-show="adding" x-cloak class="border-t border-gray-200 dark:border-gray-800">
-    <form id="mcp-generate-form" method="POST" action="/account/mcp/create" class="max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
+    <form id="mcp-generate-form" method="POST" action="/account/mcp/create" class="max-w-2xl px-4 py-6 sm:px-6 lg:px-8" x-data="{ readOnly: false }">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="scope_form" value="1"/>
         <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Generate new token"}}</h3>
         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div class="sm:col-span-2">
@@ -55,9 +56,43 @@
             </div>
         </div>
         <label class="mt-4 flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input type="checkbox" name="read_only" class="mt-0.5">
+            <input type="checkbox" name="read_only" class="mt-0.5" x-model="readOnly">
             {{.T.Get "Read-only (blocks anything other than GET requests, e.g. Claude can look things up but not change them)"}}
         </label>
+        <label class="mt-3 flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400" :class="readOnly && 'opacity-50'">
+            <input type="checkbox" name="allow_destructive" id="mcp_allow_destructive" class="mt-0.5" checked :disabled="readOnly">
+            {{.T.Get "Allow deletes and other destructive actions (removing things, restores, password changes, overwriting config). Untick it to let the assistant create and change things but not remove them."}}
+        </label>
+        <input type="hidden" name="features_form" value="1"/>
+        <div id="mcp-features" class="mt-4 rounded-md border border-gray-200 p-3 dark:border-gray-800" x-data="{ all: true }">
+            <label class="flex items-start gap-2 text-sm font-medium text-gray-900 dark:text-gray-50">
+                <input type="checkbox" name="all_features" class="mt-0.5" checked x-model="all">
+                {{.T.Get "All features your account has today"}}
+            </label>
+            <p class="mt-1 text-xs text-gray-500">{{.T.Get "The token keeps this list. Features added to your account later aren't added to it, make a new token for those."}}</p>
+            <div x-show="!all" x-cloak class="mt-3 grid max-h-64 grid-cols-1 gap-x-4 gap-y-2 overflow-y-auto sm:grid-cols-2">
+                {{range .FeatureOptions}}{{if not .Sensitive}}
+                <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" name="features" value="{{.Feature}}" class="mt-0.5">
+                    <span>{{.Label}}</span>
+                </label>
+                {{end}}{{end}}
+            </div>
+            {{if .SensitiveOptions}}
+            <div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-800">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Sensitive, never included by default"}}</p>
+                <p class="mt-1 text-xs text-red-600 dark:text-red-500">{{.T.Get "These let the token change your password, email, 2FA or passkeys, or log in to phpMyAdmin. That's close to full control of your account, only tick what the assistant really needs."}}</p>
+                <div class="mt-3 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                    {{range .SensitiveOptions}}
+                    <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <input type="checkbox" name="features" value="{{.Feature}}" class="mt-0.5">
+                        <span>{{.Label}}</span>
+                    </label>
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
         <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "Generate new token"}}</button>
             <p class="text-xs text-gray-500">{{.T.Get "The full token is only ever shown once, right after you generate it."}}</p>
@@ -73,20 +108,82 @@
         {{.T.Get "endpoint with the token as a Bearer credential."}}
     </p>
 
-    <p class="mt-6 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Claude Code CLI"}}</p>
-    <div class="relative mt-2">
-        <pre id="claude-code-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">claude mcp add --transport http openpanel {{.MCPURL}} \
-  --header "Authorization: Bearer &lt;your-token&gt;"</pre>
-        <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="claude-code-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
-    </div>
-
-    <p class="mt-6 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Claude Desktop (claude_desktop_config.json)"}}</p>
-    <div class="relative mt-2">
-        <pre id="claude-desktop-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">"openpanel": {
-  "url": "{{.MCPURL}}",
-  "headers": { "Authorization": "Bearer &lt;your-token&gt;" }
+    {{$tok := "<your-token>"}}{{if .NewToken}}{{$tok = .NewToken}}{{end}}
+    <div x-data="{ client: 'claude-code' }">
+        <label for="mcp_client" class="mt-6 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Client"}}</label>
+        <select id="mcp_client" x-model="client" class="mt-2 block w-full max-w-xs appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+            <option value="claude-code">Claude Code</option>
+            <option value="claude-desktop">Claude Desktop</option>
+            <option value="codex">Codex</option>
+            <option value="cursor">Cursor</option>
+            <option value="vscode">VS Code / GitHub Copilot</option>
+            <option value="gemini">Gemini CLI</option>
+        </select>
+        {{if .NewToken}}<p class="mt-2 text-xs text-gray-500">{{.T.Get "These include the token you just generated."}}</p>{{end}}
+        <div x-show="client === 'claude-code'" class="mt-3">
+            <p class="text-xs text-gray-500">{{$.T.Get "Run in a terminal."}}</p>
+            <div class="relative mt-2">
+                <pre id="claude-code-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">claude mcp add --transport http openpanel {{$.MCPURL}} \
+  --header "Authorization: Bearer {{$tok}}"</pre>
+                <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="claude-code-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{$.T.Get "Copy"}}</button>
+            </div>
+        </div>
+        <div x-show="client === 'claude-desktop'" x-cloak class="mt-3">
+            <p class="text-xs text-gray-500">{{$.T.Get "Add to the mcpServers section of claude_desktop_config.json and restart Claude Desktop. It runs mcp-remote through npx, so Node.js has to be installed."}}</p>
+            <div class="relative mt-2">
+                <pre id="claude-desktop-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">"openpanel": {
+  "command": "npx",
+  "args": ["-y", "mcp-remote", "{{$.MCPURL}}", "--header", "Authorization:${OPENPANEL_AUTH}"],
+  "env": { "OPENPANEL_AUTH": "Bearer {{$tok}}" }
 }</pre>
-        <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="claude-desktop-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
+                <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="claude-desktop-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{$.T.Get "Copy"}}</button>
+            </div>
+        </div>
+        <div x-show="client === 'codex'" x-cloak class="mt-3">
+            <p class="text-xs text-gray-500">{{$.T.Get "Add to ~/.codex/config.toml."}}</p>
+            <div class="relative mt-2">
+                <pre id="codex-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">[mcp_servers.openpanel]
+url = "{{$.MCPURL}}"
+http_headers = { Authorization = "Bearer {{$tok}}" }</pre>
+                <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="codex-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{$.T.Get "Copy"}}</button>
+            </div>
+        </div>
+        <div x-show="client === 'cursor'" x-cloak class="mt-3">
+            <p class="text-xs text-gray-500">{{$.T.Get "Add to ~/.cursor/mcp.json, or .cursor/mcp.json in a project."}}</p>
+            <div class="relative mt-2">
+                <pre id="cursor-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">{
+  "mcpServers": {
+    "openpanel": {
+      "url": "{{$.MCPURL}}",
+      "headers": { "Authorization": "Bearer {{$tok}}" }
+    }
+  }
+}</pre>
+                <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="cursor-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{$.T.Get "Copy"}}</button>
+            </div>
+        </div>
+        <div x-show="client === 'vscode'" x-cloak class="mt-3">
+            <p class="text-xs text-gray-500">{{$.T.Get "Add to .vscode/mcp.json in your project."}}</p>
+            <div class="relative mt-2">
+                <pre id="vscode-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">{
+  "servers": {
+    "openpanel": {
+      "type": "http",
+      "url": "{{$.MCPURL}}",
+      "headers": { "Authorization": "Bearer {{$tok}}" }
+    }
+  }
+}</pre>
+                <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="vscode-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{$.T.Get "Copy"}}</button>
+            </div>
+        </div>
+        <div x-show="client === 'gemini'" x-cloak class="mt-3">
+            <p class="text-xs text-gray-500">{{$.T.Get "Run in a terminal."}}</p>
+            <div class="relative mt-2">
+                <pre id="gemini-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">gemini mcp add --transport http --header "Authorization: Bearer {{$tok}}" openpanel {{$.MCPURL}}</pre>
+                <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="gemini-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{$.T.Get "Copy"}}</button>
+            </div>
+        </div>
     </div>
   </div>
 </div>
@@ -123,9 +220,18 @@
                 <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">
                     {{if .ReadOnly}}
                         <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{$root.T.Get "Read-only"}}</span>
+                    {{else if eq .Mode "modify"}}
+                        <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{$root.T.Get "No deletes"}}</span>
                     {{else}}
                         <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$root.T.Get "Full access"}}</span>
                     {{end}}
+                    {{with index $root.FeatureSummaries .ID}}
+                        <span class="mt-1 block max-w-xs truncate text-xs text-gray-500">{{$root.T.Get .}}</span>
+                    {{else}}{{if .Features}}
+                        <span class="mt-1 block max-w-xs truncate text-xs text-gray-500" title="{{range $i, $f := .Features}}{{if $i}}, {{end}}{{with index $root.FeatureLabels $f}}{{.}}{{else}}{{$f}}{{end}}{{end}}">{{range $i, $f := .Features}}{{if $i}}, {{end}}{{with index $root.FeatureLabels $f}}{{.}}{{else}}{{$f}}{{end}}{{end}}</span>
+                    {{else}}
+                        <span class="mt-1 block text-xs text-red-600 dark:text-red-500">{{$root.T.Get "No features"}}</span>
+                    {{end}}{{end}}
                 </td>
                 <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center">{{.CreatedAt}}</td>
                 <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center">{{if .ExpiresAt.Valid}}{{.ExpiresAt.String}}{{else}}<span class="text-gray-400 dark:text-gray-600">{{$root.T.Get "Never"}}</span>{{end}}</td>
