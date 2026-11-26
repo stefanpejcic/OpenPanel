@@ -58,3 +58,35 @@ patch_ols_conf /etc/openpanel/openlitespeed/httpd_config.conf
 for uconf in /home/*/openlitespeed.conf; do
     patch_ols_conf "$uconf"
 done
+
+# Keep OpenAdmin (the control plane) responsive and alive under load: a bit more CPU, a strong
+# bias against the OOM killer, and a reserved slice of CPU/memory. Applied to the live unit and
+# the template copy, then systemd is reloaded and admin restarted so it takes effect.
+harden_admin_unit() {
+    local f="$1"
+    [ -f "$f" ] || return 0
+    grep -q '^OOMScoreAdjust=' "$f" && return 0
+    awk '
+        /^\[Service\]/ && !done {
+            print
+            print "# keep the control plane responsive and alive when the server is under load (2.0.30)"
+            print "Nice=-5"
+            print "OOMScoreAdjust=-800"
+            print "CPUWeight=400"
+            print "MemoryLow=128M"
+            done = 1
+            next
+        }
+        { print }
+    ' "$f" > "$f.tmp-2030" && cat "$f.tmp-2030" > "$f" && rm -f "$f.tmp-2030"
+    echo "Hardened $f"
+    admin_unit_changed=1
+}
+admin_unit_changed=0
+harden_admin_unit /etc/systemd/system/admin.service
+harden_admin_unit /etc/openpanel/openadmin/service/openadmin.service
+if [ "$admin_unit_changed" = "1" ]; then
+    systemctl daemon-reload
+    systemctl restart admin 2>/dev/null || true
+    echo "Reloaded systemd and restarted admin with the new resource limits"
+fi
