@@ -69,6 +69,28 @@ const DEMO_NAMES = {
   'wp.tests.openpanel.org': 'blog.example.com',
   'tests.openpanel.org': 'example.com',
   'demo.openpanel.com': 'server.example.com',
+  'server.pejcic.rs': 'server.example.com',
+};
+
+// a real account on a test server, its name, domains and owner email become example ones
+const SHOT_USER = process.env.SHOT_USER || 'testinguser';
+const realUser = async page => {
+  await page.evaluate(user => {
+    const swaps = [
+      [/[\w.+-]+@netops\.com|[\w.+-]+@pejcic\.rs/g, 'john@example.com'],
+      [/\bserver\.pejcic\.rs\b/g, 'server.example.com'],
+      [/\b[\w-]+\.(?:pejcic|unl|netops)\.(?:rs|com)\b/g, 'blog.example.com'],
+      [/\b(?:pejcic|unl|netops)\.(?:rs|com)\b/g, 'example.com'],
+      [new RegExp(`\\b${user}\\b`, 'g'), 'john'],
+    ];
+    const swap = s => swaps.reduce((t, [re, to]) => t.replace(re, to), s);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walker.nextNode()); ) {
+      const next = swap(n.textContent);
+      if (next !== n.textContent) n.textContent = next;
+    }
+    document.querySelectorAll('input:not([type=hidden]), textarea').forEach(i => { if (i.value) i.value = swap(i.value); });
+  }, SHOT_USER);
 };
 
 // leftover test resellers on the test server, shown under friendly names
@@ -283,7 +305,6 @@ export const pages = {
       { name: 'permissions', url: '/users/testinguser#permissions', alt: 'Permissions tab where the enabled OpenPanel features follow the plan or are set per user', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'permissions'"] table tbody tr:nth-of-type(6)`, fromTop: true } },
       { name: 'activity', url: '/users/testinguser#activity', alt: 'Activity Log tab with the date and the action performed', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'activity'"] table tbody tr:nth-of-type(8)`, fromTop: true } },
       { name: 'logins', url: '/users/testinguser#logins', alt: 'Login Log tab with the date, country and IP address of each login', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'logins'"] table tbody tr:nth-of-type(8)`, fromTop: true } },
-      { name: 'edit', url: '/users/testinguser#edit', alt: 'Edit tab with the username, email, password, IP address, reseller and hosting package fields', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'edit'"]`, fromTop: true } },
       { name: 'export', url: '/users/testinguser#export', alt: 'Export tab with the Generate full account backup option and the list of existing backups', prepare: async page => { await page.waitForTimeout(2500); }, crop: 'content' },
       { name: 'suspend', url: '/users/testinguser#suspend', alt: 'Suspend tab asking to type the username before suspending the account', prepare: all(async page => { await page.waitForTimeout(2500); }, fillVisible(['testinguser'])), crop: 'content' },
       { name: 'delete', url: '/users/testinguser#delete', alt: 'Delete tab asking to type the username before deleting the account permanently', prepare: all(async page => { await page.waitForTimeout(2500); }, fillVisible(['testinguser'])), crop: 'content' },
@@ -646,7 +667,7 @@ export const pages = {
     url: '/services/podman',
     shots: [
       { name: 'info', alt: 'Podman page on the Info tab with the output of podman info', crop: { content: 'main', maxHeight: 800 } },
-      { name: 'images', alt: 'Podman Images tab listing container images with their tag, size and actions', prepare: clickAlpine("tab = 'images'", 2500), crop: { content: 'main', maxHeight: 900 } },
+      { name: 'images', alt: 'Podman Images tab listing container images with their tag, size and actions', viewportWidth: 1600, prepare: clickAlpine("tab = 'images'", 2500), crop: { content: 'main', maxHeight: 900 } },
       { name: 'volumes', alt: 'Podman Volumes tab listing volumes', prepare: clickAlpine("tab = 'volumes'", 2500), crop: { content: 'main', maxHeight: 900 } },
       { name: 'diskusage', alt: 'Podman Disk Usage tab with the space used by images, containers and volumes', prepare: clickAlpine("tab = 'diskusage'", 2500), crop: { content: 'main', maxHeight: 900 } },
     ],
@@ -931,6 +952,21 @@ export const pages = {
       { ...bulkShot('#exiting_users', ['testinguser', 'anotheruser'], 'Plan step of the bulk actions bar with a dropdown of hosting plans for two selected users', { name: 'bulk-plan', action: 'plan' }), viewportWidth: 1440 },
       { name: 'services', url: '/users/testinguser#services', alt: 'Services tab listing the user containers with their CPU and memory usage, PIDs and actions', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'services'"] table tbody tr:nth-of-type(6)`, fromTop: true } },
       { ...bulkShot('#user_services_table', ['apache', 'cron'], 'Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs', { name: 'services-bulk', rows: 6, wait: 2500 }), url: '/users/testinguser#services' },
+    ],
+  },
+  // the 2.0.30 user page (overview edited in place, stat cards, services editor), until the demo has it:
+  // ADMIN_URL=https://host:2087 SHOT_USER=unl node shoot.mjs --admin accounts/users-2030
+  'accounts/users-2030': {
+    as: 'accounts/users',
+    url: `/users/${SHOT_USER}`,
+    prepare: realUser,
+    shots: [
+      { name: 'stats', url: `/users/${SHOT_USER}#stats`, alt: 'Overview tab of a user with cards for disk, inodes, CPU, memory, processes, domains, websites, databases, emails and FTP accounts', prepare: async page => { await page.waitForTimeout(3000); }, viewportWidth: 1440, crop: { from: 'main', to: 'main .op-ring-card >> nth=-1', fromTop: true, pad: 16 } },
+      { name: 'info', url: `/users/${SHOT_USER}#stats`, alt: 'Account details on the Overview tab with a pencil on each field that can be changed in place', viewportWidth: 1440, prepare: async page => { await page.waitForTimeout(2000); }, crop: { from: 'main div.border-t.p-4:has(span:text-is("Username"))' } },
+      { name: 'services', url: `/users/${SHOT_USER}#services`, alt: 'Services tab listing the user containers with their status, CPU, memory and process limits and actions', viewportWidth: 1440, prepare: all(async page => { await page.waitForTimeout(3000); }, firstRows('#user_services_table', 6)), crop: { from: 'main', to: '#user_services_table tbody tr:visible >> nth=-1', fromTop: true } },
+      { ...bulkShot('#user_services_table', 2, 'Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs', { name: 'services-bulk', rows: 6, wait: 3000 }), url: `/users/${SHOT_USER}#services`, viewportWidth: 1440 },
+      { name: 'transfer', url: `/users/${SHOT_USER}#export`, alt: 'Transfer to another server form on the Export tab with the remote server, SSH credentials and the Live Transfer option', prepare: async page => { await page.waitForTimeout(2000); await page.locator('main button:has-text("Transfer to another server")').click(); await page.waitForTimeout(600); }, crop: 'content' },
+      { name: 'export', url: `/users/${SHOT_USER}#export`, alt: 'Export tab with the Generate full account backup option and the list of existing backups', prepare: async page => { await page.waitForTimeout(2500); }, crop: 'content' },
     ],
   },
   'accounts/administrators-bulk': {
