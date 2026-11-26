@@ -85,7 +85,7 @@ quota -u USERNAME
 
 Services are defined in `/home/USERNAME/docker-compose.yml`. You can extend this file with custom services, but to maintain compatibility with the OpenPanel UI, [follow the guidelines](/docs/articles/containers/how-to-add-custom-docker-image-for-openpanel-user/).
 
-As root, use `opencli podman USERNAME ...` to run `podman` against the user's own rootless instance, and `opencli podman USERNAME compose ...` to run `podman-compose` (from `/home/USERNAME`). See [opencli podman](/docs/articles/opencli/podman/).
+As root, use `opencli podman USERNAME ...` to run `podman` against the user's own rootless instance, and `opencli podman USERNAME compose ...` to run `podman-compose` (from `/home/USERNAME`). See [opencli podman](/docs/opencli/podman/).
 
 Examples:
 
@@ -115,7 +115,7 @@ opencli podman USERNAME compose up -d mysql
 opencli docker USERNAME mysql
 ```
 
-Run `opencli docker USERNAME` without a container name to pick one from a list. See [opencli docker](/docs/articles/opencli/docker/).
+Run `opencli docker USERNAME` without a container name to pick one from a list. See [opencli docker](/docs/opencli/docker/).
 
 * **View resource usage:**
 

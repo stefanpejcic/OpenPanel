@@ -5,7 +5,7 @@ sidebar_position: 5
 # API access
 
 :::info
-The API Access page is only available with an **Enterprise** license. It is also disabled while HTTP Basic Authentication is enabled for OpenAdmin — disable Basic Authentication first to use API Access.
+The API Access page is only available with an **Enterprise** license. It is also disabled while HTTP Basic Authentication is enabled for OpenAdmin, disable Basic Authentication first to use API Access.
 :::
 
 Use the API Access page to browse every API endpoint, test API calls, and see request and response examples.
@@ -41,4 +41,4 @@ To begin:
    ![An API endpoint expanded in the API reference after Try it out and Execute, with the curl command, request URL and server response](/img/openadmin-screenshots/settings/api_server-try.png#gh-light-mode-only)
    ![An API endpoint expanded in the API reference after Try it out and Execute, with the curl command, request URL and server response](/img/openadmin-screenshots/settings/api_server-try_dark.png#gh-dark-mode-only)
 
-For full API reference and additional endpoints, please refer to [OpenAdmin API Specification](/docs/articles/dev-experience/openadmin-api).
+For full API reference and additional endpoints, please refer to [OpenAdmin API Specification](/docs/admin/api/).

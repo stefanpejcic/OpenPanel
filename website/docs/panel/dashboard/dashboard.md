@@ -126,7 +126,7 @@ If the Services feature is allowed on your plan, a **Manage** link next to the b
 
 ## Search
 
-Click the magnifying glass icon in the top-right corner of the header to open the search box. It searches across pages/features, files and folders, websites, domains, email accounts, FTP accounts, containers, services, cron jobs, and MySQL/PostgreSQL databases and users. Results are limited to what's enabled on your plan — some entity types (databases, domains, emails, FTP, containers, services, websites, cron jobs) additionally require an Enterprise license.
+Click the magnifying glass icon in the top-right corner of the header to open the search box. It searches across pages/features, files and folders, websites, domains, email accounts, FTP accounts, containers, services, cron jobs, and MySQL/PostgreSQL databases and users. Results are limited to what's enabled on your plan, some entity types (databases, domains, emails, FTP, containers, services, websites, cron jobs) additionally require an Enterprise license.
 
 ![Search box opened from the magnifying glass icon in the header, with results for mysql](/img/openpanel-screenshots/dashboard/dashboard-search.png#gh-light-mode-only)
 ![Search box opened from the magnifying glass icon in the header, with results for mysql](/img/openpanel-screenshots/dashboard/dashboard-search_dark.png#gh-dark-mode-only)

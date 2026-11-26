@@ -25,6 +25,7 @@ type TrafficReport struct {
 	TotalRequests int       `json:"total_requests"`
 	AIRequests    int       `json:"ai_requests"`
 	BlockedCount  int       `json:"blocked_count"`
+	OtherBlocked  int       `json:"other_blocked"`
 	TopBots       []BotStat `json:"top_bots"`
 	TopNetworks   []NetStat `json:"top_networks"`
 	TopURLs       []URLStat `json:"top_urls"`
@@ -173,15 +174,19 @@ func aggregateLogReader(r io.Reader, domainName, winLabel string, cutoff float64
 		}
 
 		report.TotalRequests++
-		isBlocked := entry.Status == 403 || entry.Status == 429
-		if isBlocked {
-			report.BlockedCount++
-		}
-
 		ua := firstHeader(entry.Request.Headers, "User-Agent")
 		botName, op, cat, isAI := classifyUserAgent(ua)
 		if isAI {
 			report.AIRequests++
+		}
+
+		// bot control only answers AI crawlers, a 403/429 for anyone else came from the site's per-IP limit or the WAF (#1366)
+		denied := entry.Status == 403 || entry.Status == 429
+		isBlocked := denied && isAI
+		if isBlocked {
+			report.BlockedCount++
+		} else if denied {
+			report.OtherBlocked++
 		}
 
 		bk := botKey{name: botName, operator: op, cat: cat}

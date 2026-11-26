@@ -177,14 +177,14 @@ Click **Adding just one domain?** to go back to the single domain form.
 
 Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
 
-- **Edit DNS zone** — opens the [DNS zone editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
-- **Suspend domain** / **Unsuspend domain** — suspends the domain with a reason, see [Suspend a domain](#suspend-a-domain) below, or unsuspends it.
-- **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains. When Caddy failed to get a certificate for the domain, the page shows the **Last certificate error** with the reason in plain words and the full error under **Error details**, next to the **View SSL logs** button.
-- **Edit virtual host** — opens the VirtualHost config editor for the domain.
-- **Edit Apache config** — opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
-- **Edit Caddyfile** — opens the Caddy config editor for the domain.
-- **Restrict to Cloudflare** / **Unrestrict from Cloudflare** — only lets visitors in through Cloudflare's proxy, other requests get a 403. Same as the **Cloudflare** bulk action.
-- **Delete domain** — permanently deletes the domain, see [Delete domain](#delete-domain) below.
+- **Edit DNS zone**: opens the [DNS zone editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
+- **Suspend domain** / **Unsuspend domain**, suspends the domain with a reason, see [Suspend a domain](#suspend-a-domain) below, or unsuspends it.
+- **Manage SSL**: opens the SSL page for the domain. Not shown for suspended domains. When Caddy failed to get a certificate for the domain, the page shows the **Last certificate error** with the reason in plain words and the full error under **Error details**, next to the **View SSL logs** button.
+- **Edit virtual host**: opens the VirtualHost config editor for the domain.
+- **Edit Apache config**: opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
+- **Edit Caddyfile**: opens the Caddy config editor for the domain.
+- **Restrict to Cloudflare** / **Unrestrict from Cloudflare**, only lets visitors in through Cloudflare's proxy, other requests get a 403. Same as the **Cloudflare** bulk action.
+- **Delete domain**: permanently deletes the domain, see [Delete domain](#delete-domain) below.
 
 ![Actions menu of a domain with Edit DNS zone, Manage SSL, Edit virtual host, Edit Apache config, Edit Caddyfile, Restrict to Cloudflare, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions.png#gh-light-mode-only)
 ![Actions menu of a domain with Edit DNS zone, Manage SSL, Edit virtual host, Edit Apache config, Edit Caddyfile, Restrict to Cloudflare, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
@@ -210,7 +210,7 @@ A domain suspended by an Administrator is locked for the user. In OpenPanel the 
 
 To unsuspend, open the actions menu and click **Unsuspend domain**. The domain's original configuration is put back.
 
-From the terminal, use [`opencli domains-suspend`](/docs/articles/opencli/domains/#suspend) with `--by=admin`, `--template=<reason>` and `--comment="..."`, and `opencli domains-unsuspend <domain> --by=admin`. Without `--by=admin` the suspension counts as the user's own.
+From the terminal, use [`opencli domains-suspend`](/docs/opencli/domains/#suspend) with `--by=admin`, `--template=<reason>` and `--comment="..."`, and `opencli domains-unsuspend <domain> --by=admin`. Without `--by=admin` the suspension counts as the user's own.
 
 ## Move domain
 
@@ -227,4 +227,4 @@ Domains can be deleted directly from OpenAdmin:
 ![Delete domain confirmation asking to type the domain name before deleting it permanently](/img/openadmin-screenshots/domains/domains-delete.png#gh-light-mode-only)
 ![Delete domain confirmation asking to type the domain name before deleting it permanently](/img/openadmin-screenshots/domains/domains-delete_dark.png#gh-dark-mode-only)
 
-> Domains with attached websites cannot be deleted — remove all websites from Site Manager first. If the domain is added again later, default configurations are recreated.
+> Domains with attached websites cannot be deleted, remove all websites from Site Manager first. If the domain is added again later, default configurations are recreated.

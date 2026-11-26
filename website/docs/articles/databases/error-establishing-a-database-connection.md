@@ -131,4 +131,4 @@ csf -r
 
 ---
 
-If none of these steps resolve the issue, contact us via the forums or open a support ticket, and we will help troubleshoot the problem.
+If none of these steps resolve the issue, ask on [GitHub Discussions](https://github.com/stefanpejcic/OpenPanel/discussions) or open a support ticket, and we will help troubleshoot the problem.

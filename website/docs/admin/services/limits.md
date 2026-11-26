@@ -4,16 +4,26 @@ sidebar_position: 2
 
 # Service limits
 
-The **Service limits** section allows Administrators to view and adjust the allocated CPU and Memory resources for system services.
+The **Service limits** section shows what each system service uses right now and lets Administrators change its CPU and memory limits.
 
 ![Service Limits page with CPU and memory limits for each system service](/img/openadmin-screenshots/services/limits-page.png#gh-light-mode-only)
 ![Service Limits page with CPU and memory limits for each system service](/img/openadmin-screenshots/services/limits-page_dark.png#gh-dark-mode-only)
 
 ---
 
-To update limits, enter new values in the fields for the appropriate service.  
+Each row is one service container with:
 
-> **Note:** The service must be stopped and restarted for the new limits to take effect.
+- a status dot, green when it's running, orange or red when it's close to a limit, gray when it isn't running
+- **CPU** and **Memory**: a ring with the current usage against the limit, the usage and the allocated limit
+- **Processes**: how many processes the container runs
+
+Click the arrows next to a column name to sort by it.
+
+To change a limit, click the pencil next to **Allocated**, enter the new value and click **Save**. CPU and memory apply to the running container right away. A service that isn't running gets the new limit when it's started from [Service status](/docs/admin/services/status).
+
+`0` means no limit. A running container can't drop a CPU or memory limit, so after saving `0` the page offers to restart the service. Restarting recreates the container, together with the services that depend on it (restarting redis or mysql also restarts openpanel), and it's down for a few seconds.
+
+Click a service name to open its other settings, like the timezone or the version. A `*_VERSION` setting whose image tag comes from `/root/.env` is a select of that image's tags on Docker Hub, cached for a day. A new version or another setting only applies after a restart, the page offers it right after saving.
 
 **Available Services** (by default):
 
@@ -26,7 +36,7 @@ To update limits, enter new values in the fields for the appropriate service.
 - ftp
 - phpmyadmin
 
-This list reflects the CPU/RAM entries currently present in `/root/.env` — the page is built dynamically from that file, so any additional `*_CPU`/`*_RAM` (or `*_CPUS`/`*_RAM`) pairs added there will also appear as editable services.
+This list reflects the entries currently present in `/root/.env`, the page is built from that file, so any additional `*_CPU`/`*_RAM` (or `*_CPUS`/`*_RAM`) pairs added there also appear as editable services. A service's limits are matched to its container through `/root/docker-compose.yml`.
 
 ### Recommendations
 

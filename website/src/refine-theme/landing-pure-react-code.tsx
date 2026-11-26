@@ -15,7 +15,7 @@ type Props = {
 export const LandingPureReactCode: FC<Props> = ({
     className,
     title = "Host any Docker image",
-    description = `Per-user Docker Compose files let you define available services, or hand users the permission to spin up anything they want.`,
+    description = `Each user has a Docker Compose file. You decide which services they can run, or let them run any image they want.`,
     cta = true,
 }) => {
     return (

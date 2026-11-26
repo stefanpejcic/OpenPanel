@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # Drupal
 
-Install and manage [Drupal](https://www.drupal.org/) sites in an existing domain, via [Composer](https://getcomposer.org/) and [Drush](https://www.drush.org/) — deliberately simpler than the WordPress Manager: no dedicated Drupal Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, no drush passthrough console, and no dedicated backup system. Install, a read-only overview, and uninstall.
+Install and manage [Drupal](https://www.drupal.org/) sites in an existing domain, via [Composer](https://getcomposer.org/) and [Drush](https://www.drush.org/), deliberately simpler than the WordPress Manager: no dedicated Drupal Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, no drush passthrough console, and no dedicated backup system. Install, a read-only overview, and uninstall.
 
 ---
 

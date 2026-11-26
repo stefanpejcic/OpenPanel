@@ -1,66 +1,291 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useMemo, useState } from "react";
+import clsx from "clsx";
 import Head from "@docusaurus/Head";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 
+type Kind = "text" | "number" | "password" | "toggle";
+
 interface InstallOption {
-    value: string | boolean;
+    flag: string;
+    label: string;
+    kind: Kind;
     description: string;
+    placeholder?: string;
+    docs?: string;
+    // the value goes in single quotes so spaces and special characters reach the installer as typed
+    quote?: boolean;
+    min?: number;
+    max?: number;
+    // same rules as PODMAN_INSTALL.sh, all holds the other fields for checks that compare them
+    validate?: (v: string, all: Record<string, string | boolean>) => string | undefined;
 }
 
-type InstallOptions = Record<string, InstallOption>;
+interface Group {
+    title: string;
+    description: string;
+    options: InstallOption[];
+}
 
-const defaultOptions: InstallOptions = {
-    key: { value: "", description: "Set Enterprise license key." },
-    "join-cluster": { value: "", description: "Join a multi-server cluster as a slave, paste the code from Generate install command on the master (needs key)." },
-    domain: { value: "", description: "Set the domain to be used for accessing both panels." },
-    "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only." },
-    "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },
-    "user-port": { value: "", description: "Specify a custom port for OpenPanel (default is 2083)." },
-    username: { value: "", description: "Set admin username (by default random generated)." },
-    password: { value: "", description: "Set admin password (by default random generated)." },
-    "skip-firewall": { value: false, description: "Don't setup Sentinel Firewall (CSF)" },
-    "skip-dns-server": { value: false, description: "Don't setup local BIND9 DNS server" },
-    imunifyav: { value: false, description: "Install and Setup ImunifyAV." },
-    "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
-    "post-install": { value: "", description: "Specify the post install script path or URL." },
-    swap: { value: "", description: "Set size in GB for the swap partition." },
-    "skip-requirements": { value: false, description: "Skip the requirements check." },
-    "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
-    "skip-apt-update": { value: false, description: "Skip the APT update." },
-    selfsigned: { value: false, description: "Generate and configure a Self-signed certificate." },
-    repair: { value: false, description: "Retry and overwrite everything." },
+const domainRe = /^(?!-)(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,}$/;
+const str = (v: string | boolean | undefined) => (typeof v === "string" ? v.trim() : "");
+const port = (other: string, otherLabel: string) => (v: string, all: Record<string, string | boolean>) => {
+    if (!/^\d+$/.test(v) || +v < 1000 || +v > 30000) return "A port between 1000 and 30000, the installer stops on anything else.";
+    if (str(all[other]) === v) return `Can't be the same as the ${otherLabel} port.`;
+    return undefined;
 };
 
-const Install: React.FC = () => {
-    const [installOptions, setInstallOptions] = useState<InstallOptions>(defaultOptions);
+const GROUPS: Group[] = [
+    {
+        title: "License & cluster",
+        description: "Activate Enterprise right away, or install this server straight into a multi-server cluster.",
+        options: [
+            {
+                flag: "key",
+                label: "Enterprise license key",
+                kind: "text",
+                placeholder: "enterprise-...",
+                description: "Activates the Enterprise edition during the install.",
+                docs: "/docs/admin/license/#license-key",
+                validate: (v) => (/^(enterprise|noc|lifetime)-\S+$/.test(v) ? undefined : "A license key starts with enterprise-."),
+            },
+            {
+                flag: "join-cluster",
+                label: "Join a cluster",
+                kind: "text",
+                placeholder: "Code from the master server",
+                description: "Paste the code from Generate install command on the master server. Needs a license key.",
+                docs: "/docs/admin/system/multi-server/add-servers/#install-a-new-server-straight-into-the-cluster",
+                validate: (_v, all) => (str(all.key) ? undefined : "Needs the Enterprise license key above, the installer stops without it."),
+            },
+        ],
+    },
+    {
+        title: "Domains & ports",
+        description: "By default both panels open on the server IP, OpenAdmin on port 2087 and OpenPanel on 2083.",
+        options: [
+            {
+                flag: "domain",
+                label: "Domain for both panels",
+                kind: "text",
+                placeholder: "server.example.com",
+                description: "Domain used to open OpenAdmin and OpenPanel, with an SSL certificate.",
+                docs: "/docs/admin/settings/general/#domain",
+                validate: (v) => (domainRe.test(v) ? undefined : "Enter a domain like server.example.com."),
+            },
+            {
+                flag: "panel-domain",
+                label: "Separate OpenPanel domain",
+                kind: "text",
+                placeholder: "panel.example.com",
+                description: "Use a different domain for OpenPanel only.",
+                docs: "/docs/admin/settings/general/#domain",
+                validate: (v, all) => {
+                    if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v)) return "Enter a domain like panel.example.com.";
+                    if (v === str(all.domain)) return "Has to differ from the domain for both panels, otherwise it's ignored.";
+                    return undefined;
+                },
+            },
+            {
+                flag: "admin-port",
+                label: "OpenAdmin port",
+                kind: "number",
+                placeholder: "2087",
+                description: "Custom port for OpenAdmin.",
+                docs: "/docs/admin/settings/general/#ports",
+                min: 1000,
+                max: 30000,
+                validate: port("user-port", "OpenPanel"),
+            },
+            {
+                flag: "user-port",
+                label: "OpenPanel port",
+                kind: "number",
+                placeholder: "2083",
+                description: "Custom port for OpenPanel.",
+                docs: "/docs/admin/settings/general/#ports",
+                min: 1000,
+                max: 30000,
+                validate: port("admin-port", "OpenAdmin"),
+            },
+        ],
+    },
+    {
+        title: "Admin account",
+        description: "Left empty, a random username and password are generated and shown when the install finishes.",
+        options: [
+            {
+                flag: "username",
+                label: "Admin username",
+                kind: "text",
+                placeholder: "Random",
+                description: "Username for the first OpenAdmin administrator.",
+                docs: "/docs/admin/accounts/administrators/",
+                quote: true,
+                validate: (v) => (/^[a-zA-Z0-9_]{5,30}$/.test(v) ? undefined : "5 to 30 letters, numbers or underscores, otherwise the admin account isn't created."),
+            },
+            {
+                flag: "password",
+                label: "Admin password",
+                kind: "password",
+                placeholder: "Random",
+                description: "Password for that administrator.",
+                docs: "/docs/admin/accounts/administrators/",
+                quote: true,
+                validate: (v) => (/^[A-Za-z0-9]{5,30}$/.test(v) ? undefined : "5 to 30 letters and numbers, the installer replaces anything else with a random password."),
+            },
+        ],
+    },
+    {
+        title: "Security",
+        description: "CSF firewall and the CorazaWAF are installed by default, ImunifyAV is optional.",
+        options: [
+            {
+                flag: "skip-firewall",
+                label: "Skip the firewall",
+                kind: "toggle",
+                description: "Don't install Sentinel Firewall (CSF). Make sure the server has another firewall.",
+                docs: "/docs/admin/security/firewall/",
+            },
+            {
+                flag: "no-waf",
+                label: "Skip the WAF",
+                kind: "toggle",
+                description: "Don't install CorazaWAF and keep it off for new domains.",
+                docs: "/docs/admin/security/waf/",
+            },
+            {
+                flag: "imunifyav",
+                label: "Install ImunifyAV",
+                kind: "toggle",
+                description: "Install and set up the ImunifyAV malware scanner.",
+                docs: "/docs/admin/security/imunify/",
+            },
+        ],
+    },
+    {
+        title: "Advanced",
+        description: "For special setups and troubleshooting, the defaults are right for a normal install.",
+        options: [
+            {
+                flag: "swap",
+                label: "Swap size (GB)",
+                kind: "number",
+                placeholder: "Sized by RAM",
+                min: 1,
+                max: 10,
+                description: "Swap file size, 1 to 10 GB. By default it's sized by RAM.",
+                validate: (v) => (/^\d+$/.test(v) && +v >= 1 && +v <= 10 ? undefined : "A whole number from 1 to 10, the installer sizes it by RAM otherwise."),
+            },
+            {
+                flag: "post_install",
+                label: "Post-install script",
+                kind: "text",
+                placeholder: "/root/after.sh or https://...",
+                description: "Path or URL of a script to run when the install finishes.",
+                docs: "/docs/articles/install-update/openpanel-post-install-hook/",
+                quote: true,
+            },
+            {
+                flag: "skip-dns-server",
+                label: "Skip the DNS server",
+                kind: "toggle",
+                description: "Don't set up the local BIND9 DNS server, for example when DNS is hosted elsewhere.",
+                docs: "/docs/admin/domains/dns/",
+            },
+            {
+                flag: "skip-requirements",
+                label: "Skip the requirements check",
+                kind: "toggle",
+                description: "Install even if the server doesn't meet the minimum requirements.",
+                docs: "/docs/articles/install-update/system-requirements/",
+            },
+            {
+                flag: "skip-panel-check",
+                label: "Skip the existing panel check",
+                kind: "toggle",
+                description: "Don't check whether another control panel is already installed.",
+            },
+            {
+                flag: "skip-apt-update",
+                label: "Skip the package update",
+                kind: "toggle",
+                description: "Don't update the system packages before installing.",
+            },
+            {
+                flag: "selfsigned",
+                label: "Self-signed certificate",
+                kind: "toggle",
+                description: "Generate and use a self-signed SSL certificate.",
+            },
+            {
+                flag: "repair",
+                label: "Repair",
+                kind: "toggle",
+                description: "Retry the install and overwrite everything from a previous attempt.",
+            },
+        ],
+    },
+];
 
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target;
-        setInstallOptions(prevState => ({
-            ...prevState,
-            [name]: { ...prevState[name], value: type === "checkbox" ? checked : value },
-        }));
-    };
-    
-    const generateInstallCommand = () => {
-        let command = "bash <(curl -sSL https://openpanel.org)";
-        for (const [option, config] of Object.entries(installOptions)) {
-            if (typeof config.value === "boolean") {
-                if (config.value) {
-                    command += ` --${option}`;
-                }
-            } else if (config.value.trim() !== "") {
-                if (option === "username" || option === "password" || option === "post-install") {
-                    command += ` --${option}='${config.value}'`;
-                } else {
-                    command += ` --${option}=${config.value}`;
-                }
+const ALL = GROUPS.flatMap((g) => g.options);
+const BASE = "bash <(curl -sSL https://openpanel.org)";
+
+const fieldClass = clsx(
+    "w-full",
+    "rounded-lg",
+    "border",
+    "bg-gray-0 dark:bg-gray-900",
+    "text-gray-900 dark:text-gray-100",
+    "placeholder:text-gray-400 dark:placeholder:text-gray-500",
+    "px-3 py-2",
+    "text-sm",
+    "outline-none focus:ring-2 focus:ring-refine-blue/40 dark:focus:ring-refine-cyan-alt/40",
+);
+
+const Install: React.FC = () => {
+    const [values, setValues] = useState<Record<string, string | boolean>>({});
+    const [copied, setCopied] = useState(false);
+
+    const errors = useMemo(() => {
+        const out: Record<string, string> = {};
+        for (const o of ALL) {
+            const v = values[o.flag];
+            if (typeof v === "string" && v.trim() && o.validate) {
+                const e = o.validate(v.trim(), values);
+                if (e) out[o.flag] = e;
             }
         }
-        return command;
+        return out;
+    }, [values]);
+
+    const command = useMemo(() => {
+        let cmd = BASE;
+        for (const o of ALL) {
+            const v = values[o.flag];
+            if (o.kind === "toggle") {
+                if (v === true) cmd += ` --${o.flag}`;
+            } else if (typeof v === "string" && v.trim() && !errors[o.flag]) {
+                cmd += o.quote ? ` --${o.flag}='${v.trim()}'` : ` --${o.flag}=${v.trim()}`;
+            }
+        }
+        return cmd;
+    }, [values, errors]);
+
+    const changed = Object.values(values).some((v) => v === true || (typeof v === "string" && v.trim() !== ""));
+
+    const copy = async () => {
+        try {
+            await navigator.clipboard.writeText(command);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+        } catch {
+            setCopied(false);
+        }
     };
+
+    const set = (flag: string, v: string | boolean) => setValues((s) => ({ ...s, [flag]: v }));
 
     return (
         <CommonLayout
@@ -69,10 +294,7 @@ const Install: React.FC = () => {
         >
             <Head>
                 <title>Install command generator | OpenPanel</title>
-                <meta
-                    property="og:title"
-                    content="Install command generator | OpenPanel"
-                />
+                <meta property="og:title" content="Install command generator | OpenPanel" />
                 <meta property="og:image:width" content="1200" />
                 <meta property="og:image:height" content="630" />
                 <meta property="og:image:type" content="image/png" />
@@ -81,64 +303,169 @@ const Install: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
-                    <h1>Installation</h1>
-                    <p className="mb-0">Connect to your server as root via SSH and run the following command:</p>
-
-                    <div className="mb-0">
-                        <pre style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
+                <div className="not-prose flex-1 flex flex-col gap-8 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
+                    <div className="flex flex-col gap-3">
+                        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-gray-0 m-0">
+                            Install OpenPanel
+                        </h1>
+                        <p className="text-base text-gray-600 dark:text-gray-400 m-0 max-w-[720px]">
+                            Connect to a fresh server as root over SSH and run the command below. The defaults work for most
+                            servers, change the options further down and the command updates as you go.
+                        </p>
                     </div>
 
-                    <div className="mb-2">
-                        <h2>Advanced Install Settings:</h2>
-                        <p className="mt-0">Here you can set what shall be installed and configured when installing OpenPanel:</p>
-                        <ul>
-                            {Object.entries(installOptions).map(([key, config]) => (
-                                <li key={key} className="flex items-center mb-2">
-                                    <input
-                                        type={
-                                            key === "admin-port" ? "number" :
-                                            key === "user-port" ? "number" :
-                                            typeof config.value === "boolean" ? "checkbox" : "text"
-                                        }
-                                        id={key}
-                                        name={key}
-                                        min={key === "admin-port" || key === "user-port" ? 1000 : undefined}
-                                        max={key === "admin-port" || key === "user-port" ? 30000 : undefined}
-                                        {...(typeof config.value === "boolean"
-                                            ? { checked: config.value }
-                                            : { value: config.value })}
-                                        onChange={handleInputChange}
-                                        pattern={
-                                            key === "username" || key === "password"
-                                                ? "^[a-zA-Z0-9]+$"
-                                                : key === "domain" || key === "panel-domain"
-                                                ? "^(?!-)(?:[A-Za-z0-9-]{1,63}\\.)+[A-Za-z]{2,}$"
-                                                : key === "key"
-                                                ? "^enterprise-.*$"
-                                                : undefined
-                                        }
-                                        title={
-                                            key === "username" || key === "password"
-                                                ? "Only letters and numbers are allowed"
-                                                : key === "domain" || key === "panel-domain"
-                                                ? "Enter a valid domain, e.g. openpanel.server.com"
-                                                : key === "key"
-                                                ? "License key must start with 'enterprise-'"
-                                                : undefined
-                                        }
-                                        className="mr-2 w-64 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
-                                    />
-                                    <div>
-                                        <label htmlFor={key} className="font-bold">
-                                            {key.replace(/-/g, " ").toUpperCase()}
-                                        </label>
-                                        <div>{config.description}</div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                    <div
+                        className={clsx(
+                            "sticky top-[72px] z-[5]",
+                            "rounded-2xl",
+                            "border border-gray-300 dark:border-gray-700",
+                            "bg-gray-0/95 dark:bg-gray-900/95 backdrop-blur",
+                            "shadow-sm",
+                            "p-4 flex flex-col gap-3",
+                        )}
+                    >
+                        <div className="flex items-center justify-between gap-3">
+                            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Install command</span>
+                            <div className="flex items-center gap-2">
+                                {changed && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setValues({})}
+                                        className="rounded-full px-3 py-1.5 text-xs font-semibold border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    >
+                                        Reset
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={copy}
+                                    className="rounded-full px-4 py-1.5 text-xs font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110"
+                                >
+                                    {copied ? "Copied" : "Copy"}
+                                </button>
+                            </div>
+                        </div>
+                        <code
+                            data-testid="install-command"
+                            className="block rounded-lg bg-gray-100 dark:bg-gray-800 px-4 py-3 font-mono text-sm text-gray-900 dark:text-gray-100 break-all whitespace-pre-wrap"
+                        >
+                            {command}
+                        </code>
                     </div>
+
+                    <div className="flex flex-col gap-6">
+                        {GROUPS.map((g) => (
+                            <section
+                                key={g.title}
+                                className="rounded-2xl border border-gray-300 dark:border-gray-700 p-5 sm:p-6 flex flex-col gap-5"
+                            >
+                                <div className="flex flex-col gap-1">
+                                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-0 m-0">{g.title}</h2>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 m-0">{g.description}</p>
+                                </div>
+                                <div className="grid gap-5 sm:grid-cols-2">
+                                    {g.options.map((o) => {
+                                        const v = values[o.flag];
+                                        const err = errors[o.flag];
+                                        const meta = (
+                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                                                <code className="rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 font-mono text-gray-700 dark:text-gray-300">
+                                                    --{o.flag}
+                                                </code>
+                                                {o.docs && (
+                                                    <a
+                                                        href={o.docs}
+                                                        className="text-refine-react-light-link dark:text-refine-react-dark-link hover:underline"
+                                                    >
+                                                        Docs
+                                                    </a>
+                                                )}
+                                            </div>
+                                        );
+                                        if (o.kind === "toggle") {
+                                            return (
+                                                <label
+                                                    key={o.flag}
+                                                    htmlFor={o.flag}
+                                                    className={clsx(
+                                                        "flex items-start gap-3 rounded-xl p-3 cursor-pointer",
+                                                        "border",
+                                                        v === true
+                                                            ? "border-refine-blue dark:border-refine-cyan-alt bg-refine-blue-2-light dark:bg-refine-blue-2 dark:bg-opacity-10"
+                                                            : "border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500",
+                                                    )}
+                                                >
+                                                    <input
+                                                        id={o.flag}
+                                                        type="checkbox"
+                                                        checked={v === true}
+                                                        onChange={(e) => set(o.flag, e.target.checked)}
+                                                        className="mt-1 h-4 w-4 shrink-0 accent-refine-blue"
+                                                    />
+                                                    <span className="flex flex-col gap-1">
+                                                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                            {o.label}
+                                                        </span>
+                                                        <span className="text-sm text-gray-600 dark:text-gray-400">{o.description}</span>
+                                                        {meta}
+                                                    </span>
+                                                </label>
+                                            );
+                                        }
+                                        return (
+                                            <div key={o.flag} className="flex flex-col gap-1.5">
+                                                <label htmlFor={o.flag} className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                                    {o.label}
+                                                </label>
+                                                <input
+                                                    id={o.flag}
+                                                    name={o.flag}
+                                                    type={o.kind}
+                                                    min={o.min}
+                                                    max={o.max}
+                                                    step={o.kind === "number" ? 1 : undefined}
+                                                    inputMode={o.kind === "number" ? "numeric" : undefined}
+                                                    value={typeof v === "string" ? v : ""}
+                                                    placeholder={o.placeholder}
+                                                    onChange={(e) => set(o.flag, e.target.value)}
+                                                    aria-invalid={!!err}
+                                                    autoComplete="off"
+                                                    className={clsx(
+                                                        fieldClass,
+                                                        err
+                                                            ? "border-red-500 dark:border-red-500"
+                                                            : "border-gray-300 dark:border-gray-700",
+                                                    )}
+                                                />
+                                                {err ? (
+                                                    <span className="text-xs text-red-600 dark:text-red-400">{err}</span>
+                                                ) : (
+                                                    <span className="text-sm text-gray-600 dark:text-gray-400">{o.description}</span>
+                                                )}
+                                                {meta}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </section>
+                        ))}
+                    </div>
+
+                    <p className="text-sm text-gray-600 dark:text-gray-400 m-0">
+                        Not sure the server is big enough? See the{" "}
+                        <a href="/docs/articles/install-update/system-requirements/" className="text-refine-react-light-link dark:text-refine-react-dark-link hover:underline">
+                            system requirements
+                        </a>{" "}
+                        or the{" "}
+                        <a href="/calculator/" className="text-refine-react-light-link dark:text-refine-react-dark-link hover:underline">
+                            resource calculator
+                        </a>
+                        . After the install, follow the{" "}
+                        <a href="/docs/admin/intro/#post-install-steps" className="text-refine-react-light-link dark:text-refine-react-dark-link hover:underline">
+                            post-install steps
+                        </a>
+                        .
+                    </p>
                 </div>
                 <BlogFooter />
             </div>

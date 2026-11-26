@@ -18,5 +18,5 @@ This page lets you change the MySQL/MariaDB **root** user's password for your ac
 Behind the scenes, the panel updates the `root` user for both `%` (remote) and `localhost` hosts, flushes privileges, saves the new password to your account's `my.cnf`, and restarts the database container so the new credentials take effect immediately.
 
 :::danger
-There's no way to view the current root password from the panel — this page only sets a new one. If the root password is lost, this is the way to recover access.
+There's no way to view the current root password from the panel, this page only sets a new one. If the root password is lost, this is the way to recover access.
 :::

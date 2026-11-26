@@ -15,7 +15,7 @@ The PHP Extensions page lets you install, enable, and disable PHP extensions for
 ![PHP 8.5 Extensions page listing extensions with their status and Enable or Disable buttons](/img/openpanel-screenshots/php/extensions-list.png#gh-light-mode-only)
 ![PHP 8.5 Extensions page listing extensions with their status and Enable or Disable buttons](/img/openpanel-screenshots/php/extensions-list_dark.png#gh-dark-mode-only)
 
-Toggling an extension restarts the PHP container for that version to apply the change — this affects **all domains** using it.
+Toggling an extension restarts the PHP container for that version to apply the change, this affects **all domains** using it.
 
 ## Installing New Extensions
 
@@ -24,7 +24,7 @@ Extensions not yet installed are shown as **Not Installed**. Use **Install Exten
 ![Install PHP extensions dialog with checkboxes for the extensions that can be installed, imagick and memcached selected](/img/openpanel-screenshots/php/extensions-install.png#gh-light-mode-only)
 ![Install PHP extensions dialog with checkboxes for the extensions that can be installed, imagick and memcached selected](/img/openpanel-screenshots/php/extensions-install_dark.png#gh-dark-mode-only)
 
-Only extensions supported by the selected PHP version are offered — the available list is pulled from the [docker-php-extension-installer](https://github.com/mlocati/docker-php-extension-installer) compatibility table (cached for 24 hours).
+Only extensions supported by the selected PHP version are offered, the available list is pulled from the [docker-php-extension-installer](https://github.com/mlocati/docker-php-extension-installer) compatibility table (cached for 24 hours).
 
 A **history** of recently removed extensions is kept per PHP version, so you can see what was previously installed even after it's been uninstalled.
 

@@ -190,6 +190,12 @@ func ensureMasterUser(ctx context.Context) bool {
 	out, listErr := exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "setup", "dovecot-master", "list").Output()
 	exists := listErr == nil && strings.Contains(string(out), masterUser)
 
+	// every update writes a new salt, the mailserver then regenerates all accounts and chown -Rs every mailbox, so skip it when the password already matches
+	if exists && masterPassMatches(ctx, pass) {
+		log.Println("WEBMAIL - Dovecot master user is already set up.")
+		return true
+	}
+
 	var setupErr error
 	action, actionPast := "add", "added"
 	if exists {
@@ -204,6 +210,12 @@ func ensureMasterUser(ctx context.Context) bool {
 	}
 	log.Printf("WEBMAIL - Dovecot master user %s successfully.", actionPast)
 	return true
+}
+
+// masterPassMatches checks the stored master hash with doveadm, which only reads
+func masterPassMatches(ctx context.Context, pass string) bool {
+	script := `h=$(grep "^` + masterUser + `|" /tmp/docker-mailserver/dovecot-masters.cf | cut -d"|" -f2-); [ -n "$h" ] && doveadm pw -t "$h" -p "$1" >/dev/null 2>&1`
+	return exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "sh", "-c", script, "sh", pass).Run() == nil
 }
 
 // createWebmailToken mirrors _create_webmail_token().

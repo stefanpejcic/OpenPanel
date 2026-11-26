@@ -28,7 +28,7 @@ The generated backup archive includes:
 
 ## Generate a Backup
 
-Click **Generate backup** to start creating a new backup. Only one backup can be created at a time — if a backup is already in progress, the button is disabled and a banner shows when it started and its current size. The page refreshes automatically once the backup completes.
+Click **Generate backup** to start creating a new backup. Only one backup can be created at a time, if a backup is already in progress, the button is disabled and a banner shows when it started and its current size. The page refreshes automatically once the backup completes.
 
 ## Existing Backups
 

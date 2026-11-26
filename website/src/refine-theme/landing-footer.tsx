@@ -5,6 +5,7 @@ import { menuItems, secondaryMenuItems, socialLinks } from "./footer-data";
 import { HeartOutlinedIcon } from "./icons/heart-outlined";
 import Link from "@docusaurus/Link";
 import { RefineLogoSingleIcon } from "./icons/refine-logo-single";
+import { StatusBadge } from "./status-badge";
 
 export const LandingFooter = () => {
     const currentYear = new Date().getFullYear();    
@@ -136,8 +137,7 @@ export const LandingFooter = () => {
                         >
                             <RefineLogoSingleIcon />
                         </Link>
-                        <iframe src="https://status.openpanel.com/status/iframe.html" width="250" height="30" frameborder="0" scrolling="no">
-                        </iframe>
+                        <StatusBadge />
                     </div>
                     <div
                         className={clsx(

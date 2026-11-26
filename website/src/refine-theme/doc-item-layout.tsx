@@ -5,6 +5,7 @@ import DocItemPaginator from "@theme/DocItem/Paginator";
 import DocVersionBanner from "@theme/DocVersionBanner";
 import clsx from "clsx";
 import React from "react";
+import { useLocation } from "@docusaurus/router";
 import { DocBreadcrumbs } from "./doc-breadcrumbs";
 import { SourceCodeBadge } from "./doc-sourcecode-badge";
 import { SwizzleBadge } from "./doc-swizzle-badge";
@@ -19,6 +20,8 @@ export const DocItemLayout = ({ children }) => {
         frontMatter: { swizzle, source },
     } = useDoc();
     const { badge, label } = useDocsVersion();
+    // a changelog page is about one release already, the docs version badge would only confuse
+    const isChangelog = useLocation().pathname.startsWith("/docs/changelog/");
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     React.useLayoutEffect(() => {
@@ -72,7 +75,9 @@ export const DocItemLayout = ({ children }) => {
                                 "items-center",
                             )}
                         >
-                            {badge && <DocVersionBadge version={label} />}
+                            {badge && !isChangelog && (
+                                <DocVersionBadge version={label} />
+                            )}
                             {swizzle && <SwizzleBadge />}
                             {source && <SourceCodeBadge path={source} />}
                         </div>

@@ -167,6 +167,142 @@
     {
       "from": "/wisecp-module",
       "to": "/billing/wisecp-module/"
+    },
+    {
+      "from": "/docs/articles/dev-experience/openadmin-api",
+      "to": "/docs/admin/api/"
+    },
+    {
+      "from": "/docs/articles/opencli/opencli",
+      "to": "/docs/opencli/intro/"
+    },
+    {
+      "from": "/docs/articles/opencli/admin",
+      "to": "/docs/opencli/admin/"
+    },
+    {
+      "from": "/docs/articles/opencli/api",
+      "to": "/docs/opencli/api/"
+    },
+    {
+      "from": "/docs/articles/opencli/backup",
+      "to": "/docs/opencli/backup/"
+    },
+    {
+      "from": "/docs/articles/opencli/config",
+      "to": "/docs/opencli/config/"
+    },
+    {
+      "from": "/docs/articles/opencli/docker",
+      "to": "/docs/opencli/docker/"
+    },
+    {
+      "from": "/docs/articles/opencli/domain",
+      "to": "/docs/opencli/domain/"
+    },
+    {
+      "from": "/docs/articles/opencli/domains",
+      "to": "/docs/opencli/domains/"
+    },
+    {
+      "from": "/docs/articles/opencli/email",
+      "to": "/docs/opencli/email/"
+    },
+    {
+      "from": "/docs/articles/opencli/error",
+      "to": "/docs/opencli/error/"
+    },
+    {
+      "from": "/docs/articles/opencli/faq",
+      "to": "/docs/opencli/faq/"
+    },
+    {
+      "from": "/docs/articles/opencli/files",
+      "to": "/docs/opencli/files/"
+    },
+    {
+      "from": "/docs/articles/opencli/ftp",
+      "to": "/docs/opencli/ftp/"
+    },
+    {
+      "from": "/docs/articles/opencli/hooks",
+      "to": "/docs/opencli/hooks/"
+    },
+    {
+      "from": "/docs/articles/opencli/imunify",
+      "to": "/docs/opencli/imunify/"
+    },
+    {
+      "from": "/docs/articles/opencli/license",
+      "to": "/docs/opencli/license/"
+    },
+    {
+      "from": "/docs/articles/opencli/locale",
+      "to": "/docs/opencli/locale/"
+    },
+    {
+      "from": "/docs/articles/opencli/php",
+      "to": "/docs/opencli/php/"
+    },
+    {
+      "from": "/docs/articles/opencli/phpmyadmin",
+      "to": "/docs/opencli/phpmyadmin/"
+    },
+    {
+      "from": "/docs/articles/opencli/plan",
+      "to": "/docs/opencli/plan/"
+    },
+    {
+      "from": "/docs/articles/opencli/podman",
+      "to": "/docs/opencli/podman/"
+    },
+    {
+      "from": "/docs/articles/opencli/port",
+      "to": "/docs/opencli/port/"
+    },
+    {
+      "from": "/docs/articles/opencli/proxy",
+      "to": "/docs/opencli/proxy/"
+    },
+    {
+      "from": "/docs/articles/opencli/report",
+      "to": "/docs/opencli/report/"
+    },
+    {
+      "from": "/docs/articles/opencli/sentinel",
+      "to": "/docs/opencli/sentinel/"
+    },
+    {
+      "from": "/docs/articles/opencli/server",
+      "to": "/docs/opencli/server/"
+    },
+    {
+      "from": "/docs/articles/opencli/update",
+      "to": "/docs/opencli/update/"
+    },
+    {
+      "from": "/docs/articles/opencli/user",
+      "to": "/docs/opencli/user/"
+    },
+    {
+      "from": "/docs/articles/opencli/version",
+      "to": "/docs/opencli/version/"
+    },
+    {
+      "from": "/docs/articles/opencli/waf",
+      "to": "/docs/opencli/waf/"
+    },
+    {
+      "from": "/docs/articles/opencli/websites",
+      "to": "/docs/opencli/websites/"
+    },
+    {
+      "from": "/docs/articles/opencli",
+      "to": "/docs/opencli/intro/"
+    },
+    {
+      "from": "/docs/category/opencli",
+      "to": "/docs/opencli/intro/"
     }
   ]
 }

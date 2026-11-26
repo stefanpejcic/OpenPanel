@@ -6,7 +6,7 @@ sidebar_position: 7
 
 The **Change docroot** option allows you to set a custom document root (docroot) for your domain.
 
-By default, OpenPanel serves websites from the `/var/www/html/{domain}` directory. However, advanced users may want to change this location—for example, to serve a subdirectory like `/var/www/html/{domain}/public` or to point to a different folder entirely.
+By default, OpenPanel serves websites from the `/var/www/html/{domain}` directory. However, advanced users may want to change this location, for example, to serve a subdirectory like `/var/www/html/{domain}/public` or to point to a different folder entirely.
 
 This is useful when:
 - Hosting multiple applications under the same domain.

@@ -1,0 +1,20 @@
+---
+sidebar_position: 31
+---
+
+# Version 
+
+`opencli version` will display installed OpenPanel version:
+
+```bash
+opencli version
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli version
+2.0.20
+```
+</details>

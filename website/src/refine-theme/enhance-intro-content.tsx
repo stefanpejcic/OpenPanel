@@ -22,8 +22,7 @@ export const EnhanceIntroContent = ({
                     "dark:text-gray-0 text-gray-900",
                 )}
             >
-                Why hosting providers choose OpenPanel as their Enhance
-                alternative
+                How OpenPanel compares to Enhance
             </h2>
             <div
                 className={clsx(

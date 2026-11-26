@@ -8,7 +8,7 @@ DNS clustering allows you to synchronize DNS records from one OpenPanel server t
 
 This is separate from [Multi-Server](/docs/admin/system/multi-server/), which manages several OpenPanel servers from one OpenAdmin. Each server in a multi-server cluster keeps its own DNS, so use a DNS cluster as well if they should serve each other's zones.
 
-To use this feature, **all machines in the cluster must be running BIND9** — either through the OpenPanel installation or as a standalone service/container.
+To use this feature, **all machines in the cluster must be running BIND9**, either through the OpenPanel installation or as a standalone service/container.
 
 :::info
 DNS Cluster is only shown in the **Domains** sidebar group when an **Enterprise license** is active **and** the **dns** module is enabled on the server.
@@ -36,7 +36,7 @@ To set up a slave BIND9 server, follow the instructions in [How-to Guides > DNS 
 Once the slave is ready:
 
 1. Click **Add server** and enter the slave server's IPv4 address in the form on the master server.
-2. As you type, OpenAdmin checks connectivity to the slave over `rndc` before allowing you to submit — the **Add** button stays disabled until the connection succeeds.
+2. As you type, OpenAdmin checks connectivity to the slave over `rndc` before allowing you to submit, the **Add** button stays disabled until the connection succeeds.
 3. Click **Add**. OpenAdmin adds the slave's IP to the `allow-transfer`/`also-notify` directives, restarts the DNS service, and syncs all existing DNS zones to the new slave in the background.
 4. All future domains and DNS changes made by users will be automatically propagated to the slave server.
 
@@ -46,7 +46,7 @@ Once the slave is ready:
 
 ### Remove slave server
 
-There is currently no **Remove** button in the DNS Cluster page — slave servers can only be removed via the terminal (or the API).
+There is currently no **Remove** button in the DNS Cluster page, slave servers can only be removed via the terminal (or the API).
 
 ---
 

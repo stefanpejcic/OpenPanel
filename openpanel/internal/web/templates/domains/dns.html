@@ -759,15 +759,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <div class="space-y-4 px-4 pb-6 sm:px-6 lg:px-8">
     <div class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line text-lg leading-5 shrink-0" aria-hidden="true"></i><p><span class="font-semibold">{{.T.Get "Attention:"}}</span> {{.T.Get "Editing DNS file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly."}}</p></div>
+    {{template "editor_draft" (dict "T" .T "Class" "")}}
     <label for="zone_content" class="sr-only">{{.T.Get "Zone file"}}</label>
     <textarea class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 min-h-svh resize-y font-mono text-xs" id="zone_content" name="zone_content" spellcheck="false">{{.ZoneContent}}</textarea>
 </div>
 
 </form>
 
+<script src="{{static "js/editor-draft.js"}}"></script>
 <script>
+const zoneTextarea = document.getElementById('zone_content');
+const zoneDraft = opEditorDraft({
+    key: 'dns:' + {{toJSON .CurrentUsername}} + ':' + {{toJSON .Domain}},
+    initial: zoneTextarea.defaultValue,
+    get: () => zoneTextarea.value,
+    set: (v) => { zoneTextarea.value = v; zoneTextarea.focus(); },
+    onChange: (cb) => zoneTextarea.addEventListener('input', cb),
+});
 document.getElementById('save_zone_button').addEventListener('click', function() {
-    const zoneContent = document.getElementById('zone_content').value;
+    const zoneContent = zoneTextarea.value;
     const domain = encodeURIComponent({{.Domain}});
 
     const params = new URLSearchParams();
@@ -787,6 +797,7 @@ document.getElementById('save_zone_button').addEventListener('click', function()
     .then(response => response.text())
     .then(responseText => {
         if (responseText.includes('saved')) {
+            if (zoneDraft) zoneDraft.saved(zoneContent);
             showToast({{toJSON (.T.Get "Zone file saved successfully")}}, 'success');
         } else {
             showToast(responseText, 'danger');

@@ -23,9 +23,9 @@ export default function ForHostingProviders() {
                 <>
                     Most panels are just the start of the bill: isolation,
                     WAF, backups and security each come as their own licence,
-                    usually priced per account. OpenPanel ships all of it in
-                    one flat licence, so every new customer on a server is
-                    pure margin.
+                    usually priced per account. With OpenPanel all of that is
+                    in one licence per server, so adding customers doesn't
+                    add to the bill.
                 </>
             }
             stats={[
@@ -36,9 +36,9 @@ export default function ForHostingProviders() {
             ]}
             groups={[
                 {
-                    title: "The foundation, already inside",
+                    title: "What's already included",
                     subtitle:
-                        "The problems that cost hosts the most tickets and churn, solved by features that are part of OpenPanel, not bolted on.",
+                        "The problems that cause the most support tickets on a shared server, and what OpenPanel does about each one.",
                     items: [
                         {
                             title: "One noisy account slows the whole server",
@@ -103,9 +103,9 @@ export default function ForHostingProviders() {
                     ],
                 },
                 {
-                    title: "Built for running a hosting business",
+                    title: "For running a hosting business",
                     subtitle:
-                        "Security at the server level, plus the tools to sell, resell and migrate, without another vendor in the chain.",
+                        "Server security, plus what you need to sell hosting, set up resellers and move customers in.",
                     items: [
                         {
                             title: "Brute force and port scans hit the server around the clock",
@@ -122,7 +122,7 @@ export default function ForHostingProviders() {
                             imageAlt: "IP blocker with blocked addresses and ranges",
                         },
                         {
-                            title: "Slow sites drive customers to the competition",
+                            title: "Slow sites mean unhappy customers",
                             problem:
                                 "Page speed is what customers compare, and a slow shared server is the first thing they blame.",
                             solvedBy: ["Varnish", "Redis", "Memcached"],
@@ -170,7 +170,7 @@ export default function ForHostingProviders() {
             columns={[
                 {
                     title: "Flat price, no account tiers",
-                    text: "€14.95 per server whether it hosts 10 accounts or 1,000. You never get pushed to a higher tier because you grew.",
+                    text: "€14.95 per server whether it hosts 10 accounts or 1,000. There's no higher tier to move to when you grow.",
                 },
                 {
                     title: "One vendor, one update cycle",
@@ -214,7 +214,7 @@ export default function ForHostingProviders() {
                 },
                 {
                     question: "Does it work with my billing system?",
-                    answer: "Free provisioning modules are available for WHMCS, Blesta, FOSSBilling, ClientExec and WiseCP, and everything else can be automated through the REST API or the opencli command line.",
+                    answer: "Free provisioning modules are available for WHMCS, Blesta, FOSSBilling, ClientExec and WiseCP, ClientFence has OpenPanel support built in, and everything else can be automated through the REST API or the opencli command line.",
                 },
                 {
                     question: "Can I try it before buying?",

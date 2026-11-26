@@ -96,7 +96,7 @@ done
 
 ## Don't run `opencli update --compose`
 
-[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole `docker-compose.yml` template with the latest upstream version, which brings back every removed webserver. Existing users aren't affected. If you run it, compare the new template with the backup it saves at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`, and remove the webservers again.
+[`opencli update --compose`](/docs/opencli/update/#templates) replaces the whole `docker-compose.yml` template with the latest upstream version, which brings back every removed webserver. Existing users aren't affected. If you run it, compare the new template with the backup it saves at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`, and remove the webservers again.
 
 To add a removed webserver back later, copy its service block from the [upstream template](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/1.0/docker-compose.yml).
 

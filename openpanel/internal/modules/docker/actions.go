@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -60,6 +61,40 @@ func GetRunningContainers(ctx context.Context, userContext string) ([]string, er
 	return strings.Split(trimmed, "\n"), nil
 }
 
+// plain numbers only, these values go into .env as KEY="value" and straight to podman update
+var (
+	cpuLimitRE  = regexp.MustCompile(`^[0-9]{1,5}(\.[0-9]{1,3})?$`)
+	ramLimitRE  = regexp.MustCompile(`^[0-9]{1,6}(\.[0-9]{1,3})?[gG]?$`)
+	pidsLimitRE = regexp.MustCompile(`^[0-9]{1,9}$`)
+)
+
+// limitValueError says what's wrong with a cpu/ram/pids value, "" when it can be saved, a plan total of 0 means no cap
+func limitValueError(action, value string, totalCPU, totalRAM int) string {
+	switch action {
+	case "cpu":
+		if !cpuLimitRE.MatchString(value) {
+			return "CPU limit must be 0 or a positive number of cores, like 1 or 0.5."
+		}
+		if v, _ := strconv.ParseFloat(value, 64); totalCPU > 0 && v > float64(totalCPU) {
+			return fmt.Sprintf("CPU limit can't be more than the %d cores on your plan.", totalCPU)
+		}
+	case "ram":
+		if !ramLimitRE.MatchString(value) {
+			return "Memory limit must be 0 or a positive number of GB, like 1 or 1.5."
+		}
+		if v, _ := strconv.ParseFloat(strings.TrimRight(value, "gG"), 64); totalRAM > 0 && v > float64(totalRAM) {
+			return fmt.Sprintf("Memory limit can't be more than the %d GB on your plan.", totalRAM)
+		}
+	case "pids":
+		if !pidsLimitRE.MatchString(value) {
+			return "PIDs limit must be 0 or a positive whole number."
+		}
+	default:
+		return fmt.Sprintf("Unsupported action: %s.", action)
+	}
+	return ""
+}
+
 // updateContainerRAMOrCPU updates a container's RAM or CPU limit, both in its .env entry and live via `podman update`. action is "ram" or "cpu". Returns (message, success).
 func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext string, planID int, containerName, action, providedValue string) (string, bool) {
 	action = strings.ToLower(action)
@@ -70,6 +105,10 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 	envVar := ServiceKeyPrefix(containerName) + "_" + strings.ToUpper(action)
 
 	totalCPU, totalRAM := getCPUAndRAMForPlanID(a, ctx, planID)
+	providedValue = strings.TrimSpace(providedValue)
+	if msg := limitValueError(action, providedValue, totalCPU, totalRAM); msg != "" {
+		return msg, false
+	}
 
 	var value string
 	if providedValue == "0" {
@@ -115,6 +154,10 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 // updateContainerPIDs updates a container's PIDs (max process count) limit, both in its .env entry and live via `podman update`. Unlike RAM/CPU, PIDs has no plan-level cap to fall back to, so "0" means literally unlimited (podman's --pids-limit -1) rather than "reset to plan max". Returns (message, success).
 func updateContainerPIDs(ctx context.Context, userContext, containerName, providedValue string) (string, bool) {
 	envVar := ServiceKeyPrefix(containerName) + "_PIDS"
+	providedValue = strings.TrimSpace(providedValue)
+	if msg := limitValueError("pids", providedValue, 0, 0); msg != "" {
+		return msg, false
+	}
 
 	if err := setContainerEnvLimit(userContext, envVar, providedValue); err != "" {
 		return err, false
@@ -158,6 +201,10 @@ func podmanUpdate(ctx context.Context, userContext, containerName string, flags 
 
 // setContainerEnvLimit rewrites envVar's value in the user's .env file, returning a non-empty error message on failure, "" on success
 func setContainerEnvLimit(userContext, envVar, value string) string {
+	// a quote or newline would end the value and let the rest become new .env lines
+	if !ValidEnvValue(value) || !envKeyRE.MatchString(envVar) {
+		return "Invalid limit value."
+	}
 	envPath := homePath(userContext, ".env")
 	data, err := tenantfs.ReadFile(envPath)
 	if err != nil {

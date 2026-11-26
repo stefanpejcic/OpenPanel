@@ -22,6 +22,16 @@ After making your changes, click **Save changes** to write the file. If the webs
 
 If a default configuration template is available for your webserver, a **Restore default** button is also shown, letting you overwrite the current file with the stock configuration and restart the service.
 
+:::tip Unsaved changes
+Unsaved edits in this editor are kept as a copy in your browser. If you leave the page, close the tab or the save fails, the next time you open the editor a notice shows when that copy was made, with three options:
+
+- **View changes** shows what's different from the saved file, line by line.
+- **Restore** puts the copy back in the editor, then you can save it.
+- **Discard** deletes the copy.
+
+The copy stays only in that browser and is removed once the file is saved. Leaving the page with unsaved edits also asks you to confirm first.
+:::
+
 ## LiteSpeed license
 
 When your web server is **LiteSpeed**, the page also shows its license above the editor: a trial license with the days it has left, or your serial number.

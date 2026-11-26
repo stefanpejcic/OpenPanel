@@ -38,7 +38,7 @@ For example, if the user selects `'de'` (German) on the login page, that locale 
 
 ### 2. User-Specific File
 
-After logging in, users can change their preferred language — if the `locale` module and feature are enabled for them.
+After logging in, users can change their preferred language, if the `locale` module and feature are enabled for them.
 Navigate to: ***OpenPanel → Account → Change Language*** ([Docs link](/docs/panel/account/language/)) - this view lists all languages installed by the Administrator.
 The user’s chosen locale overrides their browser settings and the system default.
 

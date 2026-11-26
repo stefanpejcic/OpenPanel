@@ -233,7 +233,9 @@ func handleListFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if !requireFTPRunning(a, w, r) {
+	// a stopped FTP server (sentinel stops it while no account exists) just has no connections
+	if !isFTPContainerRunning(r.Context(), ftpContainerName) {
+		flashAndRedirectToAccounts(a, w, r, "info", "No currently active FTP connections")
 		return
 	}
 
@@ -256,9 +258,7 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if !requireFTPRunning(a, w, r) {
-		return
-	}
+	// no running check: sentinel stops the FTP server while no account exists and ftp-add starts it again for the first one
 
 	userDomains, _ := a.AllDomainsForUser(ctx, userID)
 

@@ -121,12 +121,12 @@ const faq = [
     {
         question:
             "Is it possible to upgrade from the Community edition to Enterprise edition?",
-        answer: "Yes, at any time you can upgrade your license from Community to Enterprise edition and all limits will imediately be lifted, and additional features added.",
+        answer: "Yes, at any time you can upgrade your license from Community to Enterprise edition and the limits are removed right away and the Enterprise features show up.",
     },
     {
         question:
             "Do you offer trial license for the Enterprise edition?",
-        answer: "Yes — click \"Start free trial\" above to get instant access to a 30-day Enterprise trial, no credit card required.",
+        answer: "Yes. Click \"Start free trial\" above and you get a 30-day Enterprise trial right away. No credit card needed.",
     },
     {
         question: "What happens after my trial ends?",
@@ -134,7 +134,7 @@ const faq = [
     },
     {
         question: "How often does Enterprise edition receive updates?",
-        answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as daily updates. On the other hand, the community edition receives updates on a monthly basis.",
+        answer: "Enterprise gets new features and fixes as soon as they're ready, sometimes several times a week. Community edition is updated once a month.",
     },
     {
         question: "How much disk space and RAM does OpenPanel need?",
@@ -154,7 +154,7 @@ const faq = [
     },
     {
         question: "Does OpenPanel Enterprise integrate with billing software?",
-        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, ClientExec, WISECP, and Paymenter.org for automated provisioning.",
+        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, ClientExec, WISECP, ClientFence, and Paymenter.org for automated provisioning.",
     },
     {
         question: "What IP is required to purchase a license?",
@@ -186,7 +186,7 @@ const faq = [
                 service was originally purchased. At renewal, the primary
                 payment method on your account is charged for your licenses.
                 To prevent a license from renewing, cancel it before the
-                renewal date — see{" "}
+                renewal date. See{" "}
                 <a href="/docs/articles/license/how_to_cancel_openpanel_license/">
                     How do I cancel my OpenPanel Enterprise license?
                 </a>

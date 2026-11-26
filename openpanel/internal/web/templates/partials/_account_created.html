@@ -92,7 +92,6 @@
                 <span class="w-20 shrink-0 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Password"}}</span>
                 <span class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Use the FTP account's password."}}</span>
             </div>
-            {{template "conn_field" (dict "T" .T "Label" (.T.Get "Directory") "Value" .Created.Path)}}
         </div>
         <div class="space-y-2 rounded-md border border-gray-200 p-3 dark:border-gray-800">
             <h3 class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-50"><i class="ri-server-line text-gray-400" aria-hidden="true"></i>{{.T.Get "Connection"}}</h3>

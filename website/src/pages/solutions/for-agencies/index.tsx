@@ -12,16 +12,15 @@ export default function ForAgencies() {
             heroTitle={
                 <>
                     Host every client.{" "}
-                    <SolutionAccent>Win back the billable hours.</SolutionAccent>
+                    <SolutionAccent>Less time spent fixing client sites.</SolutionAccent>
                 </>
             }
             heroText={
                 <>
                     Hacked plugins, one client's traffic spike taking down
-                    the rest, restores at midnight. OpenPanel gives every
-                    client their own isolated space, a firewall, backups and a
-                    WordPress manager, all in one licence, so your team gets
-                    back to work clients actually pay for.
+                    the rest, restores at midnight. With OpenPanel every
+                    client gets their own isolated account, and the firewall,
+                    backups and WordPress manager come with one licence.
                 </>
             }
             stats={[
@@ -96,7 +95,7 @@ export default function ForAgencies() {
                     ],
                 },
                 {
-                    title: "The security layer, included",
+                    title: "Security is included",
                     subtitle:
                         "Every hacked client site costs you a day of cleanup and a little bit of trust. OpenPanel blocks, scans and recovers without extra tools.",
                     items: [
@@ -162,16 +161,16 @@ export default function ForAgencies() {
             columnsTitle="Spend less time on servers"
             columns={[
                 {
-                    title: "Less firefighting, more billable time",
-                    text: "Isolation, WAF and malware scanning work in the background, so fewer late-night emergencies pull your developers off client work.",
+                    title: "Fewer emergencies",
+                    text: "Isolation, the WAF and malware scans run in the background, so your developers get pulled off client work less often.",
                 },
                 {
-                    title: "Protect your reputation",
-                    text: "Your clients judge you by their site being fast and online. A secure, isolated setup keeps one bad plugin from becoming your problem with every client.",
+                    title: "One bad plugin stays on one site",
+                    text: "Clients notice when their site is slow or down. With each client isolated, a hacked plugin on one site doesn't affect the others.",
                 },
                 {
-                    title: "Many clients, one affordable server",
-                    text: "Host as many client accounts as the hardware allows for one flat price, and turn hosting into recurring revenue instead of a cost. The panel itself needs only ~53 MB of RAM at idle and ~324 MB of disk, so almost the whole server goes to your clients' sites.",
+                    title: "Many clients on one server",
+                    text: "Host as many client accounts as the hardware allows for one flat price, which lets you charge for hosting instead of paying for it. The panel itself needs only ~53 MB of RAM at idle and ~324 MB of disk, so almost the whole server goes to your clients' sites.",
                 },
             ]}
             compareTitle="Everything an agency server needs"

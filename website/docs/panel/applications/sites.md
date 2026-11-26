@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Sites
 
-The **Site manager** (`/sites`) lists every website on your account in one place — static sites, WordPress installs, Node.js/Python/Ruby/Java applications, domains pointed to a [Docker container](/docs/panel/containers/#pointing-a-domain-to-a-container), and sites created via other installers (Drupal, Joomla, OpenCart, etc.) — grouped by type.
+The **Site manager** (`/sites`) lists every website on your account in one place, static sites, WordPress installs, Node.js/Python/Ruby/Java applications, domains pointed to a [Docker container](/docs/panel/containers/#pointing-a-domain-to-a-container), and sites created via other installers (Drupal, Joomla, OpenCart, etc.), grouped by type.
 
 To create a new site, click **+ New Website**, which opens the [Auto Installer](/docs/panel/applications/autoinstaller/).
 

@@ -24,7 +24,7 @@ export const menuItems = [
             },
             {
                 label: "Terminal commands",
-                href: "/docs/articles/opencli/",
+                href: "/docs/opencli/intro/",
             },    
             {
                 label: "OpenPanel API",
@@ -32,7 +32,7 @@ export const menuItems = [
             },
             {
                 label: "OpenAdmin API",
-                href: "/docs/articles/dev-experience/openadmin-api",
+                href: "/docs/admin/api/",
             },
             {
                 label: "Resource Calculator",

@@ -25,11 +25,11 @@ Use the filters next to the search box to show only unread or resolved notificat
 
 Notifications are shown 100 per page, newest first, with **Previous** and **Next** below the table.
 
-Notifications that need attention are shown as unread. When Sentinel detects the same issue again while it's still unread, the notification shows how many times it was detected and when it was last seen, instead of adding a new one. Once the issue is gone, Sentinel marks it as read and shows a **Resolved after …** badge. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read Info entries for history and are not emailed. See [opencli sentinel](/docs/articles/opencli/sentinel) for details.
+Notifications that need attention are shown as unread. When Sentinel detects the same issue again while it's still unread, the notification shows how many times it was detected and when it was last seen, instead of adding a new one. Once the issue is gone, Sentinel marks it as read and shows a **Resolved after …** badge. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read Info entries for history and are not emailed. See [opencli sentinel](/docs/opencli/sentinel/) for details.
 
-Under the page title, **Last check** shows when [`opencli sentinel`](/docs/articles/opencli/sentinel) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
+Under the page title, **Last check** shows when [`opencli sentinel`](/docs/opencli/sentinel/) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
 
-Click the bell icon next to the search box to pause email/webhook alerts for a set time (10 min up to 1 day) — see [Pause Notifications](/docs/admin/settings/notifications#pause-notifications).
+Click the bell icon next to the search box to pause email/webhook alerts for a set time (10 min up to 1 day), see [Pause Notifications](/docs/admin/settings/notifications#pause-notifications).
 
 To manage notification settings, click the **Edit settings** button on the Notifications page or navigate to: [Settings > Notifications](/docs/admin/settings/notifications).
 

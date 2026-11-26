@@ -169,57 +169,31 @@ func handleRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	web.FlashRedirect(a, w, r, "success", "File renamed successfully.", filesRedirectPath(pathParam))
 }
 
-// handleDeleteFile deletes a file or directory, either permanently or by moving it to the trash depending on the "mode" query parameter
-func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	itemName := r.URL.Query().Get("filename")
-	pathParam := r.URL.Query().Get("path_param")
-	itemType := r.URL.Query().Get("item_type")
-	if itemType == "" {
-		itemType = "file"
-	}
-	mode := r.URL.Query().Get("mode")
-	if mode == "" {
-		mode = "permanent"
-	}
-
-	ctx := r.Context()
-	user, err := currentUser(ctx, a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
+// deleteItem removes one item and returns what it did, "symlink" for an unlinked symlink, "trash" or "permanent" otherwise
+func deleteItem(a *appctx.App, r *http.Request, user injectedUser, pathParam, itemName, itemType, mode string) (string, int, error) {
 	targetRelPath := filepath.Join(pathParam, itemName)
 
 	// symlinks just get unlinked, never followed and never trashed
 	if _, linkErr := paths.RemoveUserSymlink("HOME", user.Context, targetRelPath); !errors.Is(linkErr, paths.ErrNotSymlink) {
 		if linkErr != nil {
 			status, msg := pathErrorStatus(linkErr)
-			web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
-			return
+			return "", status, errors.New(msg)
 		}
-		_ = logger.RecordUserAction(a.Config, user.Username, "deleted symlink "+targetRelPath+" using File Manager", reqip.ClientIP(r))
-		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Symlink deleted"})
-		return
+		return "symlink", http.StatusOK, nil
 	}
 
 	root, itemPath, perr := openUserPath(user, targetRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
-		return
+		return "", status, errors.New(msg)
 	}
 	defer root.Close()
-	displayPath := filepath.Join(pathParam, itemName)
 
 	if mode == "trash" {
-		if _, trashErr := moveItemToTrash(ctx, a, root, itemPath, itemName, user.Context); trashErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Delete failed: " + trashErr.Error()})
-			return
+		if _, trashErr := moveItemToTrash(r.Context(), a, root, itemPath, itemName, user.Context); trashErr != nil {
+			return "", http.StatusInternalServerError, errors.New("Delete failed: " + trashErr.Error())
 		}
-		_ = logger.RecordUserAction(a.Config, user.Username, "moved "+itemType+" "+displayPath+" to Trash using File Manager", reqip.ClientIP(r))
-		web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Moved to Trash"})
-		return
+		return "trash", http.StatusOK, nil
 	}
 
 	var rmErr error
@@ -229,11 +203,98 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		rmErr = root.Remove(itemPath)
 	}
 	if rmErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Delete failed: " + rmErr.Error()})
+		return "", http.StatusInternalServerError, errors.New("Delete failed: " + rmErr.Error())
+	}
+	return "permanent", http.StatusOK, nil
+}
+
+// deleteLogLine is the activity line for one kind of delete, a single item keeps the old per-file wording
+func deleteLogLine(kind, itemType string, names []string) string {
+	if len(names) == 1 {
+		switch kind {
+		case "symlink":
+			return "deleted symlink " + names[0] + " using File Manager"
+		case "trash":
+			return "moved " + itemType + " " + names[0] + " to Trash using File Manager"
+		}
+		return "deleted " + itemType + " " + names[0] + " using File Manager"
+	}
+	joined := logger.JoinNames(names)
+	count := strconv.Itoa(len(names))
+	switch kind {
+	case "symlink":
+		return "deleted " + count + " symlinks using File Manager: " + joined
+	case "trash":
+		return "moved " + count + " items to Trash using File Manager: " + joined
+	}
+	return "deleted " + count + " items using File Manager: " + joined
+}
+
+// itemFailure is one item a batch request couldn't handle
+type itemFailure struct {
+	Name  string `json:"name"`
+	Error string `json:"error"`
+}
+
+// handleDeleteFile deletes one or more items (repeated filename/item_type params), permanently or to trash per "mode", and logs one activity line per kind instead of one per file
+func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	names := q["filename"]
+	types := q["item_type"]
+	pathParam := q.Get("path_param")
+	mode := q.Get("mode")
+	if mode == "" {
+		mode = "permanent"
+	}
+	if len(names) == 0 {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
 		return
 	}
-	_ = logger.RecordUserAction(a.Config, user.Username, "deleted "+itemType+" "+displayPath+" using File Manager", reqip.ClientIP(r))
-	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Deleted permanently"})
+
+	user, err := currentUser(r.Context(), a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	done := map[string][]string{}
+	doneType := map[string]string{}
+	var failed []itemFailure
+	failStatus := http.StatusOK
+	for i, name := range names {
+		itemType := "file"
+		if i < len(types) && types[i] != "" {
+			itemType = types[i]
+		}
+		kind, status, derr := deleteItem(a, r, user, pathParam, name, itemType, mode)
+		if derr != nil {
+			failed = append(failed, itemFailure{Name: name, Error: derr.Error()})
+			if failStatus == http.StatusOK {
+				failStatus = status
+			}
+			continue
+		}
+		done[kind] = append(done[kind], filepath.Join(pathParam, name))
+		doneType[kind] = itemType
+	}
+
+	for _, kind := range []string{"trash", "permanent", "symlink"} {
+		if len(done[kind]) > 0 {
+			_ = logger.RecordUserAction(a.Config, user.Username, deleteLogLine(kind, doneType[kind], done[kind]), reqip.ClientIP(r))
+		}
+	}
+
+	if len(failed) > 0 {
+		web.WriteJSON(w, failStatus, map[string]any{"success": false, "error": failed[0].Error, "failed": failed})
+		return
+	}
+	msg := "Deleted permanently"
+	if len(done["trash"]) > 0 {
+		msg = "Moved to Trash"
+	} else if len(done["symlink"]) > 0 && len(done["permanent"]) == 0 {
+		msg = "Symlink deleted"
+	}
+	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": msg})
 }
 
 // a leading special digit (1777, 2755, 4755) used to pass and then get dropped by os.FileMode, the UI only sends three digits
@@ -384,45 +445,40 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, filesRedirectPath(pathParam), http.StatusFound)
 }
 
-// handleCopyItem copies a file or directory to a destination path, failing if the destination already exists
-func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-	itemName := q.Get("item_name")
-	itemType := q.Get("item_type")
-	pathParam := q.Get("path_param")
-	destinationPath := q.Get("destination_path")
-	if destinationPath == "" {
-		destinationPath = pathParam
-	}
-	destinationPath = strings.TrimPrefix(destinationPath, "/")
-
+// transferItem copies or moves one item into destinationPath, failing if the destination already exists
+func transferItem(a *appctx.App, r *http.Request, user injectedUser, action, pathParam, itemName, itemType, destinationPath string) (int, error) {
 	if itemName == "" {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
-		return
+		return http.StatusBadRequest, errors.New("File name is empty")
 	}
-
 	ctx := r.Context()
-	user, err := currentUser(ctx, a, r)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-
 	root, src, perr := openUserPath(user, filepath.Join(pathParam, itemName), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
-		return
+		return status, errors.New(msg)
 	}
 	defer root.Close()
 	dst, perr := root.Rel(destinationPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
-		return
+		return status, errors.New(msg)
 	}
 	if info, statErr := root.Stat(dst); statErr == nil && info.IsDir() {
 		dst = path.Join(dst, itemName)
+	}
+
+	if action == "move" {
+		if moveErr := renameNoReplace(root.Root, src, dst); moveErr != nil {
+			if errors.Is(moveErr, os.ErrExist) {
+				return http.StatusConflict, errors.New("Destination already exists")
+			}
+			return http.StatusInternalServerError, errors.New("Move failed: " + moveErr.Error())
+		}
+		if info, statErr := root.Lstat(dst); statErr == nil && info.IsDir() {
+			chownRecursive(ctx, a, root, dst, user.Context)
+		} else {
+			_ = chownToUser(ctx, a, root, dst, user.Context)
+		}
+		return http.StatusOK, nil
 	}
 
 	var copyErr error
@@ -433,75 +489,92 @@ func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if copyErr != nil {
 		if os.IsExist(copyErr) {
-			web.WriteJSON(w, http.StatusConflict, map[string]any{"success": false, "error": "Destination already exists"})
-			return
+			return http.StatusConflict, errors.New("Destination already exists")
 		}
 		if os.IsPermission(copyErr) {
-			web.WriteJSON(w, http.StatusForbidden, map[string]any{"success": false, "error": "Permission denied"})
-			return
+			return http.StatusForbidden, errors.New("Permission denied")
 		}
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Error copying item: " + copyErr.Error()})
-		return
+		return http.StatusInternalServerError, errors.New("Error copying item: " + copyErr.Error())
 	}
-
 	chownRecursive(ctx, a, root, dst, user.Context)
-	_ = logger.RecordUserAction(a.Config, user.Username,
-		"copied "+itemType+" "+filepath.Join(pathParam, itemName)+" to "+destinationPath+" using File Manager", reqip.ClientIP(r))
-	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
+	return http.StatusOK, nil
 }
 
-// handleMoveItem moves a file or directory to a destination path.
-func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-	itemName := q.Get("item_name")
-	pathParam := q.Get("path_param")
-	destinationPath := strings.TrimPrefix(q.Get("destination_path"), "/")
+// transferLogLine is the activity line for a copy or move, a single item keeps the old wording
+func transferLogLine(action, itemType string, names []string, destinationPath string) string {
+	verb := "copied "
+	if action == "move" {
+		verb = "moved "
+	}
+	if len(names) == 1 {
+		if action == "copy" {
+			verb += itemType + " "
+		}
+		return verb + names[0] + " to " + destinationPath + " using File Manager"
+	}
+	return verb + strconv.Itoa(len(names)) + " items to " + destinationPath + " using File Manager: " + logger.JoinNames(names)
+}
 
-	if itemName == "" {
+// handleTransfer copies or moves one or more items (repeated item_name/item_type params) and logs a single activity line for the batch
+func handleTransfer(a *appctx.App, w http.ResponseWriter, r *http.Request, action string) {
+	q := r.URL.Query()
+	names := q["item_name"]
+	types := q["item_type"]
+	pathParam := q.Get("path_param")
+	destinationPath := q.Get("destination_path")
+	if destinationPath == "" && action == "copy" {
+		destinationPath = pathParam
+	}
+	destinationPath = strings.TrimPrefix(destinationPath, "/")
+
+	if len(names) == 0 {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": "File name is empty"})
 		return
 	}
 
-	ctx := r.Context()
-	user, err := currentUser(ctx, a, r)
+	user, err := currentUser(r.Context(), a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 
-	root, src, perr := openUserPath(user, filepath.Join(pathParam, itemName), true)
-	if perr != nil {
-		status, msg := pathErrorStatus(perr)
-		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
-		return
-	}
-	defer root.Close()
-	dst, perr := root.Rel(destinationPath, false)
-	if perr != nil {
-		status, msg := pathErrorStatus(perr)
-		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
-		return
-	}
-	if info, statErr := root.Stat(dst); statErr == nil && info.IsDir() {
-		dst = path.Join(dst, itemName)
-	}
-
-	if moveErr := renameNoReplace(root.Root, src, dst); moveErr != nil {
-		if errors.Is(moveErr, os.ErrExist) {
-			web.WriteJSON(w, http.StatusConflict, map[string]any{"success": false, "error": "Destination already exists"})
-			return
+	var done []string
+	var failed []itemFailure
+	failStatus := http.StatusOK
+	itemType := "file"
+	for i, name := range names {
+		t := "file"
+		if i < len(types) && types[i] != "" {
+			t = types[i]
 		}
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Move failed: " + moveErr.Error()})
+		status, terr := transferItem(a, r, user, action, pathParam, name, t, destinationPath)
+		if terr != nil {
+			failed = append(failed, itemFailure{Name: name, Error: terr.Error()})
+			if failStatus == http.StatusOK {
+				failStatus = status
+			}
+			continue
+		}
+		done = append(done, filepath.Join(pathParam, name))
+		itemType = t
+	}
+
+	if len(done) > 0 {
+		_ = logger.RecordUserAction(a.Config, user.Username, transferLogLine(action, itemType, done, destinationPath), reqip.ClientIP(r))
+	}
+	if len(failed) > 0 {
+		web.WriteJSON(w, failStatus, map[string]any{"success": false, "error": failed[0].Error, "failed": failed})
 		return
 	}
-
-	if info, statErr := root.Lstat(dst); statErr == nil && info.IsDir() {
-		chownRecursive(ctx, a, root, dst, user.Context)
-	} else {
-		_ = chownToUser(ctx, a, root, dst, user.Context)
-	}
-
-	_ = logger.RecordUserAction(a.Config, user.Username,
-		"moved "+filepath.Join(pathParam, itemName)+" to "+destinationPath+" using File Manager", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
+}
+
+// handleCopyItem copies items to a destination path, failing for any that already exist there
+func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	handleTransfer(a, w, r, "copy")
+}
+
+// handleMoveItem moves items to a destination path
+func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	handleTransfer(a, w, r, "move")
 }

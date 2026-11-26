@@ -246,6 +246,32 @@ func Exec(ctx context.Context, userContext, query string, database string) ([][]
 	return result, rows.Err()
 }
 
+// ExecSeq runs statements in order on one connection, so a SET SESSION applies to the ones after it; it stops at the first error
+func ExecSeq(ctx context.Context, userContext, database string, queries ...string) error {
+	db, err := getConnection(ctx, userContext)
+	if err != nil {
+		return err
+	}
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	if database != "" {
+		if _, err := conn.ExecContext(ctx, "USE `"+strings.ReplaceAll(database, "`", "``")+"`"); err != nil {
+			return err
+		}
+	}
+	for _, q := range queries {
+		rows, err := conn.QueryContext(ctx, q)
+		if err != nil {
+			return err
+		}
+		rows.Close()
+	}
+	return nil
+}
+
 // ToInt converts one Exec result cell to an int, tolerating whatever concrete type the driver hands back ([]byte, int64, etc.) for numeric aggregates
 func ToInt(v any) int {
 	switch t := v.(type) {

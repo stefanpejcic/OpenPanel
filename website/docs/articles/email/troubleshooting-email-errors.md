@@ -20,7 +20,7 @@ root@stefi:/usr/local/mail/openmail# opencli email-setup email list
 2024-08-27 07:55:15+00:00 ERROR listmailuser: Aborting
 ```
 
-**Solution**: Create an email account first with [opencli email-setup email add](/docs/articles/opencli/email/#create-email).
+**Solution**: Create an email account first with [opencli email-setup email add](/docs/opencli/email/#create-email).
 
 ----
 

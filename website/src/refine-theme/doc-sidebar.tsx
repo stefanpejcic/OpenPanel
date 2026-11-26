@@ -11,6 +11,7 @@ import { HEADER_HEIGHT } from "./doc-header";
 import { ChevronDownIcon } from "./icons/chevron-down";
 import { DashIcon } from "./icons/dash";
 import { NewBadgePurple } from "./icons/new-badge-purple";
+import { DocAudienceSwitch } from "./doc-audience-switch";
 
 const SIDEBAR_WIDTH = 260;
 
@@ -488,6 +489,8 @@ const renderItems = ({
 
     return (
         items?.map((item, index) => {
+            // in the sidebar only so its page keeps the sidebar, like the changelog intro
+            if (item.className?.includes("sidebar-item-hidden")) return null;
             switch (item.type) {
                 case "category":
                     return (
@@ -559,6 +562,7 @@ export const DocSidebar = () => {
                     "flex flex-col gap-6",
                 )}
             >
+                <DocAudienceSwitch />
                 {renderItems({
                     items: sidebar?.items,
                     path: pathname,

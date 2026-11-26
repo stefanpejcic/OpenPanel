@@ -7,6 +7,16 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { HeaderDiscordIcon } from "@site/src/refine-theme/icons/header-discord";
 import { inProgress, plannedFeatures } from "@site/src/assets/roadmap";
+import { HIGHLIGHTS } from "@site/src/components/changelog-overview";
+
+const card = "rounded-2xl border border-gray-300 dark:border-gray-700 p-5 sm:p-6";
+const h2 = "text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-0 m-0";
+const lead = "text-base text-gray-600 dark:text-gray-400 m-0";
+const link = "text-refine-react-light-link dark:text-refine-react-dark-link hover:underline";
+const primaryBtn =
+    "inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900 hover:brightness-110 no-underline";
+const secondaryBtn =
+    "inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 no-underline";
 
 const Roadmap: React.FC = () => {
     return (
@@ -25,312 +35,97 @@ const Roadmap: React.FC = () => {
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
-                <div
-                    className={clsx(
-                        "flex flex-col",
-                        "gap-16 landing-sm:gap-20 landing-md:gap-28",
-                        "w-full max-w-[592px] landing-sm:max-w-[656px] landing-md:max-w-[896px] landing-lg:max-w-[1200px]",
-                        "px-2 landing-sm:px-0",
-                        "pt-8 landing-sm:pt-12 landing-lg:pt-20",
-                        "pb-16 landing-sm:pb-24 landing-md:pb-32",
-                        "mx-auto",
-                        "not-prose",
-                    )}
-                >
-                    <div className={clsx("px-4 landing-md:px-10")}>
-                        <h1
-                            className={clsx(
-                                "text-3xl landing-sm:text-[40px] landing-sm:leading-[48px]",
-                                "font-semibold",
-                                "tracking-tight",
-                                "p-0",
-                                "dark:text-gray-0 text-gray-900",
-                            )}
-                        >
-                            Roadmap
-                        </h1>
-                        <p
-                            className={clsx(
-                                "mt-4 landing-sm:mt-6",
-                                "max-w-lg",
-                                "text-base",
-                                "dark:text-gray-400 text-gray-600",
-                            )}
-                        >
-                            A look at where OpenPanel is headed - shared openly so you
-                            know what's coming, and can tell us what should come next.
+                <div className="not-prose flex flex-col gap-14 pt-8 lg:pt-16 pb-32 max-w-[928px] landing-lg:max-w-[1232px] w-full mx-auto px-4">
+                    <section className="flex flex-col gap-4">
+                        <h1 className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-gray-0 m-0">Roadmap</h1>
+                        <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 m-0 max-w-[720px]">
+                            What we&apos;re building next. Nothing is set in stone, priorities can shift based on community feedback.
                         </p>
-                    </div>
+                    </section>
 
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2
-                                className={clsx(
-                                    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-                                    "tracking-tight",
-                                    "p-0",
-                                    "dark:text-gray-0 text-gray-900",
-                                )}
-                            >
-                                In active{" "}
-                                <span
-                                    className={clsx(
-                                        "font-semibold",
-                                        "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                                        "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
-                                    )}
-                                >
-                                    development
-                                </span>
-                                .
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                The two things our team is building right now, shipping
-                                in the next releases.
-                            </p>
-                        </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12 landing-lg:mt-20",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-2",
-                                "gap-4 landing-sm:gap-6",
-                            )}
-                        >
-                            {inProgress.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className={clsx(
-                                        "not-prose",
-                                        "p-4 landing-sm:p-10",
-                                        "flex",
-                                        "flex-col landing-sm:flex-row",
-                                        "items-start",
-                                        "gap-6",
-                                        "dark:bg-landing-noise",
-                                        "dark:bg-gray-800 bg-gray-50",
-                                        "rounded-2xl landing-sm:rounded-3xl",
-                                    )}
-                                >
-                                    <div>{item.icon}</div>
-                                    <div className={clsx("flex", "flex-col", "gap-4")}>
-                                        <div
-                                            className={clsx(
-                                                "flex items-center gap-3",
-                                            )}
-                                        >
-                                            <div
-                                                className={clsx(
-                                                    "text-xl",
-                                                    "font-semibold",
-                                                    "text-gray-900 dark:text-gray-0",
-                                                )}
-                                            >
-                                                {item.title}
-                                            </div>
-                                            <div
-                                                className={clsx(
-                                                    "text-xs",
-                                                    "font-semibold",
-                                                    "uppercase",
-                                                    "tracking-wide",
-                                                    "px-2.5 py-1",
-                                                    "rounded-full",
-                                                    "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                                                    "dark:text-refine-cyan-alt text-refine-blue",
-                                                )}
-                                            >
+                    {inProgress.length > 0 && (
+                        <section className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-2">
+                                <h2 className={h2}>In progress</h2>
+                                <p className={lead}>What our team is building right now, shipping in the next releases.</p>
+                            </div>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {inProgress.map((f) => (
+                                    <div key={f.title} className={clsx(card, "flex gap-4")}>
+                                        <div className="shrink-0">{f.icon}</div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <span className="self-start rounded-full px-2 py-0.5 text-[11px] font-semibold bg-refine-blue/10 text-refine-blue dark:bg-refine-cyan-alt/10 dark:text-refine-cyan-alt">
                                                 In progress
-                                            </div>
-                                        </div>
-                                        <div
-                                            className={clsx(
-                                                "text-base",
-                                                "dark:text-gray-400 text-gray-600",
-                                            )}
-                                        >
-                                            {item.description}
+                                            </span>
+                                            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-0 m-0">{f.title}</h3>
+                                            <p className="text-sm text-gray-600 dark:text-gray-400 m-0">{f.description}</p>
                                         </div>
                                     </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    <section className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-2">
+                            <h2 className={h2}>Planned</h2>
+                            <p className={lead}>Up next, in no particular order.</p>
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {plannedFeatures.map((f) => (
+                                <div key={f.title} className={clsx(card, "flex items-center gap-4")}>
+                                    <div className="shrink-0">{f.icon}</div>
+                                    <h3 className="text-base font-semibold text-gray-900 dark:text-gray-0 m-0">{f.title}</h3>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    <div className={clsx("w-full")}>
-                        <div className={clsx("px-4 landing-md:px-10")}>
-                            <h2
-                                className={clsx(
-                                    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-                                    "tracking-tight",
-                                    "p-0",
-                                    "dark:text-gray-0 text-gray-900",
-                                )}
-                            >
-                                On the{" "}
-                                <span
-                                    className={clsx(
-                                        "font-semibold",
-                                        "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                                        "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
-                                    )}
-                                >
-                                    roadmap
-                                </span>
-                                .
-                            </h2>
-                            <p
-                                className={clsx(
-                                    "mt-4 landing-sm:mt-6",
-                                    "max-w-md",
-                                    "text-base",
-                                    "dark:text-gray-400 text-gray-600",
-                                )}
-                            >
-                                Up next, in no particular order. Nothing is set in stone
-                                - priorities can shift based on community feedback.
+                    <section className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-2">
+                            <h2 className={h2}>Recently shipped</h2>
+                            <p className={lead}>
+                                The biggest changes from the last releases, see the{" "}
+                                <Link to="/docs/changelog/intro/" className={link}>
+                                    changelog
+                                </Link>{" "}
+                                for everything.
                             </p>
                         </div>
-
-                        <div
-                            className={clsx(
-                                "mt-8 landing-sm:mt-12",
-                                "grid",
-                                "grid-cols-1 landing-sm:grid-cols-2",
-                                "gap-4",
-                            )}
-                        >
-                            {plannedFeatures.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className={clsx(
-                                        "not-prose",
-                                        "p-4 landing-sm:p-6",
-                                        "flex",
-                                        "items-center",
-                                        "gap-4",
-                                        "dark:bg-landing-noise",
-                                        "dark:bg-gray-800 bg-gray-50",
-                                        "rounded-2xl",
-                                    )}
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {HIGHLIGHTS.map(([v, title, desc]) => (
+                                <Link
+                                    key={title}
+                                    to={`/docs/changelog/${v}/`}
+                                    className={clsx(card, "flex flex-col gap-1.5 no-underline hover:border-gray-400 dark:hover:border-gray-500")}
                                 >
-                                    <div
-                                        className={clsx(
-                                            "flex-shrink-0",
-                                            "dark:text-refine-cyan-alt text-refine-blue",
-                                        )}
-                                    >
-                                        {item.icon}
-                                    </div>
-                                    <div
-                                        className={clsx(
-                                            "text-base",
-                                            "font-semibold",
-                                            "text-gray-900 dark:text-gray-0",
-                                        )}
-                                    >
-                                        {item.title}
-                                    </div>
-                                </div>
+                                    <span className="self-start rounded-full px-2 py-0.5 text-[11px] font-semibold font-mono bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                                        Shipped in {v}
+                                    </span>
+                                    <span className="text-base font-semibold text-gray-900 dark:text-gray-0">{title}</span>
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">{desc}</span>
+                                </Link>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    <div
-                        className={clsx(
-                            "not-prose",
-                            "flex flex-col items-center text-center",
-                            "gap-4",
-                            "px-6 py-12 landing-sm:px-20 landing-sm:py-16",
-                            "dark:bg-landing-noise",
-                            "dark:bg-gray-800 bg-gray-50",
-                            "rounded-2xl landing-sm:rounded-3xl",
-                        )}
-                    >
-                        <h2
-                            className={clsx(
-                                "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-                                "tracking-tight",
-                                "font-semibold",
-                                "p-0",
-                                "dark:text-gray-0 text-gray-900",
-                            )}
-                        >
-                            Want to shape the roadmap?
-                        </h2>
-                        <p
-                            className={clsx(
-                                "max-w-lg",
-                                "text-base",
-                                "dark:text-gray-400 text-gray-600",
-                            )}
-                        >
-                            Join our community and tell us what matters most to your
-                            hosting business - operator feedback drives what we build
-                            next.
-                        </p>
-                        <div
-                            className={clsx(
-                                "mt-4",
-                                "flex flex-col landing-xs:flex-row",
-                                "items-center justify-center",
-                                "gap-4",
-                                "w-full landing-xs:w-auto",
-                            )}
-                        >
-                            <Link
-                                to="https://discord.com/invite/7bNY8fANqF"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={clsx(
-                                    "w-full landing-xs:w-auto",
-                                    "!text-gray-0 dark:!text-gray-900",
-                                    "bg-refine-blue dark:bg-refine-cyan-alt",
-                                    "transition-[filter]",
-                                    "duration-150",
-                                    "ease-in-out",
-                                    "hover:brightness-110",
-                                    "hover:!no-underline",
-                                    "rounded-3xl",
-                                    "py-3 px-8",
-                                    "flex items-center justify-center gap-2",
-                                    "text-base font-semibold",
-                                )}
-                            >
-                                <HeaderDiscordIcon width={20} height={20} />
-                                Join Discord
+                    <section className={clsx(card, "flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between sm:!p-8")}>
+                        <div className="flex flex-col gap-1">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-0 m-0">Want to shape the roadmap?</h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 m-0 max-w-[620px]">
+                                Join our community and tell us what matters most to your hosting business, operator feedback drives
+                                what we build next.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                            <Link to="https://github.com/stefanpejcic/OpenPanel/discussions" className={primaryBtn}>
+                                Suggest a feature
                             </Link>
-                            <Link
-                                to="https://github.com/stefanpejcic/OpenPanel/discussions"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={clsx(
-                                    "w-full landing-xs:w-auto",
-                                    "dark:text-refine-cyan-alt text-refine-blue",
-                                    "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
-                                    "transition-[filter]",
-                                    "duration-150",
-                                    "ease-in-out",
-                                    "hover:brightness-110",
-                                    "hover:!no-underline",
-                                    "rounded-3xl",
-                                    "py-3 px-8",
-                                    "flex items-center justify-center gap-2",
-                                    "text-base font-semibold",
-                                )}
-                            >
-                                Discussions
+                            <Link to="https://discord.com/invite/7bNY8fANqF" className={secondaryBtn}>
+                                <HeaderDiscordIcon className="w-4 h-4" /> Join Discord
                             </Link>
                         </div>
-                    </div>
+                    </section>
                 </div>
                 <BlogFooter />
             </div>

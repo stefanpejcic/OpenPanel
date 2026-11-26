@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"syscall"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -72,17 +73,37 @@ func RemoveLockFile(username string) {
 
 const backupsHtaccess = "# added by OpenPanel: backups hold database dumps and copies of wp-config.php, never serve them\nRequire all denied\n"
 
-// ProtectBackupsDir puts a deny-all .htaccess in htmlVolume/backups unless one is already there, so apache and litespeed won't serve dumps even if a docroot ends up pointing at that folder
+// ProtectBackupsDir puts a deny-all .htaccess in htmlVolume/backups unless one is already there, so apache and litespeed won't serve dumps even if a docroot ends up pointing at that folder.
+// The folder and the file get the volume's owner, made as root the user couldn't delete them and the file manager showed them as root
 func ProtectBackupsDir(htmlVolume string) {
 	dir := filepath.Join(htmlVolume, "backups")
 	path := filepath.Join(dir, ".htaccess")
-	if _, err := tenantfs.Lstat(path); err == nil {
+	if _, err := tenantfs.Lstat(path); err != nil {
+		if tenantfs.MkdirAll(dir, 0o755) != nil {
+			return
+		}
+		_ = tenantfs.WriteFile(path, []byte(backupsHtaccess), 0o644)
+		OwnUnder(htmlVolume, path)
+	}
+	// also fixes backups folders older versions left owned by root
+	OwnUnder(htmlVolume, dir)
+}
+
+// OwnUnder gives p and every folder between it and htmlVolume the owner of htmlVolume, for folders the panel made as root with MkdirAll
+func OwnUnder(htmlVolume, p string) {
+	fi, err := tenantfs.Lstat(htmlVolume)
+	if err != nil {
 		return
 	}
-	if tenantfs.MkdirAll(dir, 0o755) != nil {
+	st, ok := fi.Sys().(*syscall.Stat_t)
+	if !ok || st.Uid == 0 {
 		return
 	}
-	_ = tenantfs.WriteFile(path, []byte(backupsHtaccess), 0o644)
+	uid, gid := int(st.Uid), int(st.Gid)
+	root := filepath.Clean(htmlVolume)
+	for d := filepath.Clean(p); strings.HasPrefix(d, root+string(filepath.Separator)); d = filepath.Dir(d) {
+		_ = tenantfs.Lchown(d, uid, gid)
+	}
 }
 
 // DomainRow is the shape installers read from the domains table

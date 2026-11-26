@@ -155,8 +155,27 @@ command = php -q /var/www/html/whmcs-paths/crons/cron.php
 ```
 
 :::info
-You can also set `no-overlap` for a cronjob, to avoid running the job multiple times in parallel if the previous execution did not finish.
+You can also set `no-overlap` for a cronjob, to avoid running the job multiple times in parallel if the previous execution did not finish. Add it as the last line of the block, either as `no-overlap` on its own or as `no-overlap = true`. Both mean the same thing, and `no-overlap = false` turns it off.
 :::
+
+:::tip Unsaved changes
+Unsaved edits in this editor are kept as a copy in your browser. If you leave the page, close the tab or the save fails, the next time you open the File editor a notice shows when that copy was made, with three options:
+
+- **View changes** shows what's different from the saved file, line by line.
+- **Restore** puts the copy back in the editor, then you can save it.
+- **Discard** deletes the copy.
+
+The copy stays only in that browser and is removed once the file is saved. Leaving the page with unsaved edits also asks you to confirm first.
+:::
+
+Example with no-overlap:
+```
+[job-exec "wp-cron"]
+schedule = @every 5m
+container = php-fpm-8.4
+command = wp cron event run --due-now --path=/var/www/html/example.com
+no-overlap
+```
 
 
 ## Import / Export

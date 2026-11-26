@@ -25,7 +25,7 @@ The DNS zone editor in OpenAdmin is only shown in the **Domains** sidebar group 
 Before overwriting the zone file, OpenAdmin automatically creates a temporary backup of the previous version. The new content is validated (`named-checkzone`) before it is applied:
 
 - ✅ If validation passes, the zone file is saved, BIND is reloaded (`rndc reload`), and propagation begins immediately.
-- ⚠️ If there are syntax errors, the save is rejected and the zone file is automatically reverted to its previous version — your changes are **not** applied.
+- ⚠️ If there are syntax errors, the save is rejected and the zone file is automatically reverted to its previous version, your changes are **not** applied.
 
 > If you reload the page after a failed save with unsaved changes still pending, OpenAdmin will offer to restore your last edited (but not yet valid) version from its temporary backup so you don't lose your work.
 

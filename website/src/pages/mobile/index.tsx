@@ -40,7 +40,7 @@ const features = [
     {
         title: "OpenPanel & OpenAdmin, both supported",
         description:
-            "One app for both products - pick the type when you add a server, or let the app detect it from the port.",
+            "Pick the type when you add a server, or let the app detect it from the port.",
     },
     {
         title: "Credentials stay on your device",
@@ -110,7 +110,7 @@ const Mobile: React.FC = () => {
                                 "dark:text-gray-0 text-gray-900",
                             )}
                         >
-                            OpenPanel, in your pocket.
+                            OpenPanel mobile app
                         </h1>
                         <p
                             className={clsx(
@@ -120,7 +120,7 @@ const Mobile: React.FC = () => {
                             )}
                         >
                             Manage your OpenPanel accounts and OpenAdmin servers from your
-                            phone - add every server you run, check their status, and log
+                            phone. Add every server you run, check their status, and log
                             in without typing a URL each time.
                         </p>
                         <div
@@ -248,7 +248,7 @@ const Mobile: React.FC = () => {
                                 "dark:text-gray-0 text-gray-900",
                             )}
                         >
-                            Getting started.
+                            Getting started
                         </h2>
                         <ol
                             className={clsx(

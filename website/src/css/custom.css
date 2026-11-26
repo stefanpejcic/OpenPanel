@@ -1210,3 +1210,11 @@ html[data-theme="dark"] .sandpack-container .sp-layout .resize-handler {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+
+/* links styled as solid blue buttons keep white text on hover, the global a:hover color made it blue on blue */
+a[class~="bg-refine-blue"]:hover {
+    color: rgb(var(--color-gray-0));
+}
+html[data-theme="dark"] a[class~="dark:bg-refine-cyan-alt"]:hover {
+    color: rgb(var(--color-gray-900));
+}

@@ -2,7 +2,7 @@
 
 This page lists the configuration files used across the OpenPanel stack: the **OpenPanel** user panel, **OpenAdmin** admin panel, **opencli** command-line tool, and the default files shipped by [openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration), deployed to `/etc/openpanel/` on install.
 
-Unless noted otherwise, all paths are on the **host filesystem**, not inside containers. Files under `/etc/openpanel/` are considered defaults/templates — most are copied into a user's home directory (`/home/<username>/...`) on account creation, where the user's own copy takes over.
+Unless noted otherwise, all paths are on the **host filesystem**, not inside containers. Files under `/etc/openpanel/` are considered defaults/templates, most are copied into a user's home directory (`/home/<username>/...`) on account creation, where the user's own copy takes over.
 
 :::danger
 Manually editing these files can break the panel or be overwritten during updates. Prefer changing settings from **OpenAdmin > Settings** (or the relevant panel UI) whenever an option is exposed there.
@@ -31,7 +31,7 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/no_port` | opencli | flag file | Marker file |
 | `/etc/openpanel/upgrade/skip_versions` | opencli | text list | Versions to skip during `opencli update` |
 
-### Per-user account data — `/etc/openpanel/openpanel/core/users/<username>/`
+### Per-user account data: `/etc/openpanel/openpanel/core/users/<username>/`
 
 | Path | Format | Purpose |
 |---|---|---|
@@ -121,7 +121,7 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openlitespeed/start.sh` | script | Container entrypoint |
 | `/etc/openpanel/openresty/nginx.conf` | conf | OpenResty template, copied to `/home/<user>/openresty.conf` |
 | `/etc/openpanel/varnish/default.vcl`, `default` | VCL | Varnish cache config, copied to `/home/<user>/default.vcl` |
-| `/home/<user>/nginx.conf`, `openresty.conf`, `openlitespeed.conf`, `httpd.conf`, `default.vcl` | — | Per-user generated webserver configs |
+| `/home/<user>/nginx.conf`, `openresty.conf`, `openlitespeed.conf`, `httpd.conf`, `default.vcl` | - | Per-user generated webserver configs |
 | `/var/log/caddy/domlogs/` | dir | Per-domain access logs |
 | `/var/log/caddy/stats/` | dir | GoAccess stats data |
 | `/var/log/caddy/coraza_waf/<domain>.log` | JSON-lines | Coraza WAF access log |

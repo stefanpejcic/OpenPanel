@@ -104,7 +104,7 @@ export const MENU_ITEMS: MenuItemType[] = [
       },
       {
         label: "Billing Integrations",
-        description: "WHMCS, Blesta, FOSSBilling, ClientExec, WiseCP.",
+        description: "WHMCS, Blesta, FOSSBilling, ClientExec, WiseCP, ClientFence.",
         link: "/billing/",
         icon: BillingIcon,
       },

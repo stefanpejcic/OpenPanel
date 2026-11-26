@@ -52,4 +52,14 @@ export const weekOfRefineCards: CardProps[] = [
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
         link: "/billing/wisecp-module/",
     },
+    {
+        title: "ClientFence",
+        dateRange: "November 22, 2026",
+        description:
+            "Free, open-source billing with built-in OpenPanel support.",
+        logo: StrapiWithText,
+        bgLinearGradient:
+            "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
+        link: "https://clientfence.com/",
+    },
 ];

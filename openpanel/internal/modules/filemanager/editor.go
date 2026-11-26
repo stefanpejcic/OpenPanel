@@ -186,6 +186,18 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		// the body was read after the path check, so the write has to go through the root handle, not the path string
 		writeErr := root.WriteFileAtomic(rel, []byte(contentToWrite), 0o644)
 
+		// the editor saves over fetch so undo history survives, it wants JSON not a flash + redirect
+		if wantsJSON {
+			if writeErr != nil {
+				web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": web.Tr(a, r, "Error saving file.")})
+				return
+			}
+			_ = chownToUser(ctx, a, root, rel, user.Context)
+			_ = logger.RecordUserAction(a.Config, user.Username, "edited file "+filePath, reqip.ClientIP(r))
+			web.WriteJSON(w, http.StatusOK, map[string]string{"message": web.Tr(a, r, "File saved successfully")})
+			return
+		}
+
 		sess, _ := a.Sessions.Get(r, session.CookieName)
 		if writeErr != nil {
 			flash.Add(sess, "error", "Error saving file.")

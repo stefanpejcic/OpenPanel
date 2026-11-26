@@ -126,10 +126,8 @@ func apiFTPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // apiFTPCreate creates a new FTP account scoped to a domain the caller owns
+// no service check: sentinel stops the FTP server while no account exists and ftp-add starts it again for the first one
 func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	if !apiFTPServiceCheck(w, r) {
-		return
-	}
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -301,13 +299,15 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 // apiFTPConnections returns the current user's active FTP connections.
+// a stopped FTP server (sentinel stops it while no account exists) has no connections, not an error
 func apiFTPConnections(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	if !apiFTPServiceCheck(w, r) {
-		return
-	}
 	_, currentUsername, _, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	if !isFTPContainerRunning(r.Context(), ftpContainerName) {
+		writeAPIFTPJSON(w, http.StatusOK, map[string]string{"connections": "", "message": "No active FTP connections"})
 		return
 	}
 

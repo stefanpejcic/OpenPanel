@@ -45,7 +45,17 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.TEST_SSH_KEY }}" > ~/.ssh/id
           chmod 600 ~/.ssh/id
-          ssh-keyscan -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          if [ -z "${{ secrets.TEST_SSH_HOST }}" ]; then
+            echo "::error::TEST_SSH_HOST secret is empty"; exit 1
+          fi
+          if ! timeout 20 bash -c '</dev/tcp/${{ secrets.TEST_SSH_HOST }}/22' 2>/dev/null; then
+            echo "::error title=Test box unreachable::cannot reach the test box on port 22 (connection timed out or refused), the box or its network is down, no tests were run"
+            exit 1
+          fi
+          if ! ssh-keyscan -T 15 -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts; then
+            echo "::error title=ssh-keyscan failed::port 22 is open but ssh-keyscan got no host key from the test box"
+            exit 1
+          fi
 
       - name: Acquire exclusive box lock
         # user-panel (this repo) and the admin suite (openadmin repo) share one
@@ -79,6 +89,16 @@ jobs:
             [ -x /root/after-test-deploy.sh ] && /root/after-test-deploy.sh "$TAG" || true
             echo "deployed $TAG"
           '
+
+      # the admin suite turns modules off and recreates accounts, start from a known state
+      - name: Reset the test box baseline
+        env:
+          PANEL_USERNAME: ${{ secrets.PANEL_USERNAME }}
+          PANEL_PASSWORD: ${{ secrets.PANEL_PASSWORD }}
+        run: |
+          ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" \
+            "PANEL_USERNAME=$(printf %q "$PANEL_USERNAME") PANEL_PASSWORD=$(printf %q "$PANEL_PASSWORD") bash -s" \
+            < tests/openpanel/e2e-baseline.sh
 
       - uses: actions/setup-node@v4
         with:
@@ -125,6 +145,44 @@ jobs:
         run: |
           ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" 'rm -rf /tmp/e2e-box.lock; echo "lock released"' || true
 
+      # pass/fail counts and every failed test with its first error line, for the Job Summary and the issue
+      - name: Test report
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            let md = '';
+            try {
+              const dir = 'tests/logs';
+              const file = fs.readdirSync(dir).find(f => f.endsWith('-latest.json'));
+              const data = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+              const st = data.stats || {};
+              const esc = s => String(s).replace(/\|/g, '\\|');
+              const rows = [];
+              const walk = suite => {
+                for (const spec of suite.specs || []) for (const t of spec.tests || []) {
+                  if (t.status !== 'unexpected') continue;
+                  const r = (t.results || [])[t.results.length - 1] || {};
+                  const err = ((r.error || {}).message || '').replace(/\x1b\[[0-9;]*m/g, '').split('\n')[0].slice(0, 160);
+                  rows.push(`| \`${esc(spec.file.replace(/^tests\//, ''))}\` | ${esc(spec.title)} | ${esc(err)} |`);
+                }
+                for (const c of suite.suites || []) walk(c);
+              };
+              for (const s of data.suites || []) walk(s);
+              md += `**${st.expected || 0} passed, ${st.unexpected || 0} failed, ${st.flaky || 0} flaky**, ${st.skipped || 0} skipped or not run.\n\n`;
+              if ((st.duration || 0) >= 7200000 - 60000) md += `The run hit the suite time limit, the tests after that point never ran.\n\n`;
+              if (rows.length) {
+                md += `<details><summary>${rows.length} failed tests</summary>\n\n| spec | test | first error line |\n|---|---|---|\n`;
+                md += rows.slice(0, 150).join('\n') + (rows.length > 150 ? `\n| ... | ${rows.length - 150} more | see the artifact |` : '') + '\n\n</details>\n';
+              }
+            } catch (e) {
+              md = `No results file to summarize (${e.message}), see the run log.\n`;
+            }
+            fs.writeFileSync(path.join(process.env.RUNNER_TEMP, 'e2e-report.md'), md);
+            await core.summary.addRaw(md).write();
+
       - name: Open/update issue on failure
         if: always() && env.TESTS_FAILED == '1'
         uses: actions/github-script@v7
@@ -135,6 +193,8 @@ jobs:
               `The user panel E2E suite failed for image tag \`${{ inputs.image_tag }}\`.`,
               ``,
               `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              ``,
+              require('fs').existsSync(`${process.env.RUNNER_TEMP}/e2e-report.md`) ? require('fs').readFileSync(`${process.env.RUNNER_TEMP}/e2e-report.md`, 'utf8') : '',
             ].join('\n');
             try {
               const existing = await github.rest.issues.listForRepo({

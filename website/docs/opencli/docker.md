@@ -1,0 +1,374 @@
+---
+sidebar_position: 11
+---
+
+# Containers
+
+Manage containers: open a shell into them, check for and apply image updates, prefetch autostart images, back them up, view log sizes, and collect resource usage stats.
+
+### docker
+
+Command opens an interactive shell into system or user containers. When the user or container is not given, an interactive `fzf` picker is shown to select it (press `ESC` to quit).
+
+To pick a user and then one of their containers:
+```bash
+opencli docker
+```
+
+To pick one of the active containers for a user:
+```bash
+opencli docker <USERNAME>
+```
+
+To open terminal directly in a container for a user:
+```bash
+opencli docker <USERNAME> <container>
+```
+
+
+### Update
+
+Checks for image updates across root's stack and every non-suspended user's stack (via [skopeo](https://github.com/containers/skopeo)), prints what's available, and optionally pulls the new images and recreates the running containers that use an outdated image. Nothing else in a stack is stopped or started. Each image is pulled at most once into the shared image store, so multiple stacks referencing the same image only download it once.
+
+```bash
+opencli docker-update [IMAGE] [options]
+```
+
+With `IMAGE` (e.g. `openpanel/php-fpm:8.4`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
+
+Existing accounts still on `shinsenter/php` are moved to `openpanel/php-fpm`: every `php-fpm-X.Y` service on a `shinsenter/php` image gets the matching block from the compose template (`/etc/openpanel/docker/compose/1.0/docker-compose.yml`), keeping keys the admin added to the old block (e.g. `extra_hosts`). Running php-fpm containers are recreated on the new image and the user's webserver is reloaded. A copy of the old file is saved as `docker-compose.yml.bak-php-image-<date>`. Users without `PHP_FPM_LISTEN` in their `.env` get `PHP_FPM_LISTEN="port"`, so their vhosts keep using port 9000; switch them to the socket with `opencli php-listen <user> socket`. A service is left on `shinsenter/php` (with a warning) if a file its new block mounts is missing on the server, e.g. the ionCube loader for that PHP version. This is skipped when `IMAGE` is given, unless it's an `openpanel/php-fpm` image, and with `--no-php-move`.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-update openpanel/php-fpm:8.5 -y
+php-fpm moving from shinsenter/php to openpanel/php-fpm:
+  user: demo: php-fpm-8.4 shinsenter/php:8.4-fpm -> openpanel/php-fpm:8.4
+  user: demo: php-fpm-8.5 shinsenter/php:8.5-fpm -> openpanel/php-fpm:8.5
+
+openpanel/php-fpm:8.5
+  registry: sha256:9acaa2a26e7aa41cb873c7766fb68b480c18fff118627070c8fee952d3f33f7d
+  shared store: newer image available, will be pulled
+  recreate: user: demo: php-fpm-8.5, then reload its webserver
+1 pull(s), 1 container(s) to recreate, 2 php-fpm service(s) to move to openpanel/php-fpm.
+2026-11-18 11:02:10 : === Update run started ===
+2026-11-18 11:02:10 :   PHP_FPM_LISTEN="port" added to .env for user: demo, its vhosts use port 9000
+2026-11-18 11:02:10 : moved php-fpm-8.4 php-fpm-8.5 to openpanel/php-fpm for user: demo
+2026-11-18 11:02:10 : pull openpanel/php-fpm:8.5 into the shared store
+2026-11-18 11:02:18 : recreating php-fpm-8.5 for user: demo
+2026-11-18 11:02:20 :   reloaded apache (USR1) for user: demo
+2026-11-18 11:02:20 : === Update run finished ===
+```
+</details>
+
+After pulling an image with PHP in it, the PHP version inside it is checked. If it's older than its branch's latest security release, the image's containers are not recreated and the run is reported as failed, run the command again once the image is rebuilt.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-update openpanel/php-fpm:8.5 -y
+openpanel/php-fpm:8.5
+  registry: sha256:9acaa2a26e7aa41cb873c7766fb68b480c18fff118627070c8fee952d3f33f7d
+  shared store: newer image available, will be pulled
+  recreate: user: stefan: php-fpm-8.5, then reload its webserver
+  recreate: user: demo: php-fpm-8.5, then reload its webserver
+  not running, left alone: user: test: php-fpm-8.5
+1 pull(s), 2 container(s) to recreate, 0 php-fpm service(s) to move to openpanel/php-fpm.
+2026-10-21 15:54:07 : === Update run started ===
+2026-10-21 15:54:07 : pull openpanel/php-fpm:8.5 into the shared store
+2026-10-21 15:54:17 : recreating php-fpm-8.5 for user: stefan
+2026-10-21 15:54:30 :   reloaded apache (USR1) for user: stefan
+2026-10-21 15:54:30 : recreating php-fpm-8.5 for user: demo
+2026-10-21 15:54:45 :   reloaded apache (USR1) for user: demo
+2026-10-21 15:54:45 : === Update run finished ===
+```
+</details>
+
+Update every PHP version used on the server:
+
+```bash
+for v in 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 8.5 8.6; do
+  opencli docker-update openpanel/php-fpm:${v} -y
+done
+```
+
+Options:
+
+- `-y`, `--yes` - apply updates without prompting for confirmation.
+- `--dry-run` - only check and print available updates, never prompt or apply.
+- `--no-php-move` - keep every php-fpm service on the image it uses (`shinsenter/php` stays `shinsenter/php`), only the new build of that image is pulled and the containers on it recreated.
+
+Pull the new builds of the PHP images an account uses, without moving anyone to another image:
+
+```bash
+opencli docker-update shinsenter/php:8.3-fpm -y --no-php-move
+opencli docker-update openpanel/php-fpm:8.3 -y --no-php-move
+```
+
+With no options, available updates are printed and confirmation is asked for 10 seconds, if there's no answer in that time, the command exits without changing anything. Every run is logged to `/var/log/openpanel/admin/docker/<date>.log`.
+
+### Autostart
+
+Prefetches (pulls) container images for services listed as autostart, skipping if free disk space is low.
+
+```bash
+opencli docker-autostart [-f|--force]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-autostart
+Root disk free is 142GB — proceeding with prefetch.
+
+Autostart services: nginx php-fpm-8.3 mysql
+Compose services with images: 24
+
+pull   mysql -> docker.io/library/mysql:latest ... OK
+pull   nginx -> docker.io/library/nginx:latest ... OK
+skip   openlitespeed (not in autostart)
+pull   php-fpm-8.3 -> docker.io/openpanel/php-fpm:8.3 ... OK
+skip   redis (not in autostart)
+...
+
+Fixing permissions on /var/lib/containers/shared-storage ...
+Done.
+
+Store contents:
+REPOSITORY                  TAG         IMAGE ID      CREATED      SIZE
+docker.io/library/mysql     latest      a1b2c3d4e5f6  2 weeks ago  803 MB
+docker.io/library/nginx     latest      b2c3d4e5f6a7  3 weeks ago  197 MB
+docker.io/openpanel/php-fpm  8.3         c3d4e5f6a7b8  5 days ago   242 MB
+
+Shared store disk usage: 1.5G (1.47 GB) at /var/lib/containers/shared-storage
+```
+</details>
+
+- `-f`, `--force` - prefetch images even when free disk space is low.
+
+### Backup
+
+Backs up every account whose backups the hosting provider manages, or one with `--account`. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/opencli/user/#backup-user).
+
+The provider manages an account's backups when the account has an `admin.backups` marker in `/etc/openpanel/openpanel/core/users/<context>/`, see [User Backups](/docs/admin/backups/user/). Accounts without it manage their own backups and are skipped:
+
+```bash
+2026-09-24 02:00:01 : Skipping user: demo (manages its own backups)
+2026-09-24 02:00:01 : Skipped 1 users that manage their own backups: demo
+```
+
+```bash
+opencli docker-backup
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-backup
+2026-09-24 02:00:01 : === Backup started at 2026-09-24 02:00:01 ===
+2026-09-24 02:00:01 : Fetching list of active users...
+2026-09-24 02:00:01 : Found 2 active users to process
+2026-09-24 02:00:01 : Processing user: stefan (1/2)
+2026-09-24 02:00:01 : Processing user: stefan
+2026-09-24 02:00:01 : docker-proxy is ready for context: stefan (after 0s)
+2026-09-24 02:00:03 : --- backup container output for user: stefan ---
+...
+2026-09-24 02:00:40 : --- end of backup container output for user: stefan ---
+2026-09-24 02:00:41 : Backup completed for user: stefan (context: stefan) | Time taken: 40s
+2026-09-24 02:00:41 : Backups reindexed for user: stefan
+2026-09-24 02:00:41 : ------------------------------
+2026-09-24 02:00:41 : Processing user: demo (2/2)
+...
+2026-09-24 02:01:15 : Successfully processed all 2 users
+2026-09-24 02:01:15 : === Backup finished at 2026-09-24 02:01:15 | Total time: 74s ===
+```
+</details>
+
+- `--parallel=N` - number of users backed up at the same time. Default is one per 4 CPU cores, at least 1 and at most the number of users.
+
+```bash
+opencli docker-backup --parallel=4
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-backup --parallel=4
+2026-09-24 02:00:01 : === Backup started at 2026-09-24 02:00:01 ===
+2026-09-24 02:00:01 : Fetching list of active users...
+2026-09-24 02:00:01 : Found 2 active users to process
+2026-09-24 02:00:01 : Running up to 2 user backups in parallel
+2026-09-24 02:00:01 : Processing user: stefan (1/2)
+2026-09-24 02:00:01 : Processing user: demo (2/2)
+...
+2026-09-24 02:00:45 : Successfully processed all 2 users
+2026-09-24 02:00:45 : === Backup finished at 2026-09-24 02:00:45 | Total time: 44s ===
+```
+</details>
+
+- `--account=USERNAME` - back up only this user, now. It can't be combined with `--parallel`.
+
+```bash
+opencli docker-backup --account=stefan
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-backup --account=stefan
+2026-09-24 10:15:02 : === Backup of user stefan started at 2026-09-24 10:15:02 ===
+2026-09-24 10:15:02 : Processing user: stefan
+2026-09-24 10:15:02 : docker-proxy is ready for context: stefan (after 0s)
+2026-09-24 10:15:04 : --- backup container output for user: stefan ---
+...
+2026-09-24 10:15:20 : --- end of backup container output for user: stefan ---
+2026-09-24 10:15:21 : Backup completed for user: stefan (context: stefan) | Time taken: 16s
+2026-09-24 10:15:21 : Backups reindexed for user: stefan
+2026-09-24 10:15:21 : === Backup of user stefan finished at 2026-09-24 10:15:21 ===
+```
+</details>
+
+`--account` checks the user the same way the scheduled run does, and exits with code `1` without backing up when one of these applies:
+
+- the user doesn't exist: `ERROR: user stefan does not exist`
+- the user is suspended: `ERROR: user stefan is suspended, suspended accounts are not backed up`
+- the user is excluded: `ERROR: user stefan is excluded from backups (/home/stefan/backup.off exists)`
+- the user manages its own backups: `ERROR: user stefan manages its own backups (/etc/openpanel/openpanel/core/users/stefan/admin.backups doesn't exist)`
+
+Only one backup of an account runs at a time. When the account is already being backed up, `--account` exits with code `75` (`ERROR: a backup of user stefan is already running`), and a run for all users skips that account instead of counting it as failed:
+
+```bash
+2026-09-24 02:00:03 : Skipping user: stefan (a backup of this account is already running)
+...
+2026-09-24 02:01:15 : Skipped 1 users that were already being backed up: stefan
+2026-09-24 02:01:15 : Successfully processed 1 of 2 users
+```
+
+After each successful backup, the user's backup list in OpenPanel is reindexed so the new backup shows up there right away.
+
+A `backup` container left running for the account (for example started by a full `podman-compose up`) is removed before the backup, so its hooks don't run twice.
+
+To skip a user, create `/home/<context>/backup.off`. Everything is logged to `/var/log/openpanel/admin/docker-backup.log`.
+
+Before backing up a user, a running `mysql`, `mariadb` or `postgres` container that was created before the `backup_meta` volume was added to the user's `docker-compose.yml` is recreated once (`Recreating mysql for context: stefan to add the backup_meta volume`), so its dumps get listed in the archive's `backup/00-meta/` folder.
+
+If the backup fails for any user (also with `--account`), or the list of active users can't be read from the database, a critical **Backup failed** notification is added in OpenAdmin with the failed usernames and the log path. Set `docker_backup=no` in `/etc/openpanel/openadmin/config/notifications.ini` (or turn off *Backup failed* under OpenAdmin > Settings > Notifications) to disable it.
+
+### logs
+
+View logs sizes for user and system containers.
+
+
+```bash
+# opencli docker-logs
+
+Usage: opencli docker-logs [options]
+
+Options:
+  <USERNAME>                                    Display log sizes for specified user.
+  --system                                      Display log sizes just for system containers.
+  --users                                       Display log sizes just for user containers.
+  --all                                         Display log sizes for all user and system containers.
+
+Examples:
+  opencli docker-logs stefan
+  opencli docker-logs --users
+  opencli docker-logs --system
+  opencli docker-logs --all
+
+```
+
+
+### Hosts
+
+Write the hosts file that users' containers start with. The panel domain and the mail hostname point at `169.254.1.2` there, the address under which rootless containers reach the server, so apps can connect to the server's mail (or the panel) by name and over TLS without `extra_hosts` in the compose file.
+
+The file is `/etc/openpanel/docker/container_hosts` and podman uses it for every container of a user whose `~/.config/containers/containers.conf` has `base_hosts_file` set. `opencli user-add` sets it for new users, `opencli domain set` and `opencli email-server` rewrite the file when the domain or mail hostname changes. Lines from `/etc/openpanel/docker/container_hosts.custom` are added to the end as they are.
+
+```bash
+opencli docker-hosts
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-hosts
+Updated /etc/openpanel/docker/container_hosts, new containers will use it.
+```
+</details>
+
+To print the file without writing it:
+```bash
+opencli docker-hosts --show
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-hosts --show
+# written by opencli docker-hosts, put your own lines in /etc/openpanel/docker/container_hosts.custom
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+169.254.1.2	srv.example.net mail.example.net
+```
+</details>
+
+Existing users don't get `base_hosts_file` on their own. To set it for all of them (or one user) and apply it right away, use `--apply`, it does a stop and start of their running `php-fpm-*` containers first and then the webserver from `WEB_SERVER` in their `.env`. Other containers pick the file up the next time they start.
+```bash
+opencli docker-hosts --apply [USERNAME]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-hosts --apply stefan
+Updated /etc/openpanel/docker/container_hosts, new containers will use it.
+stefan:
+  restarted php-fpm-8.5
+  restarted php-fpm-8.3
+  restarted apache
+```
+</details>
+
+
+### Collect Stats
+
+To collect container resource usage information (cpu, ram, i/o) for all users:
+```bash
+opencli docker-collect_stats --all
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-collect_stats --all
+{"timestamp":"2026-09-24T10:30:00Z","user":"stefan","uid":1001,"memory":{"total":{"bytes":1073741824,"human":"1.0G"},"used":{"bytes":314572800,"human":"300.0M"},"free":{"bytes":759169024,"human":"724.0M"},"buff_cache":{"bytes":52428800,"human":"50.0M"},"available":{"bytes":759169024,"human":"724.0M"},"usage_pct":29},"cpu":{"usage":{"pct":100,"human":"1.0 cores"},"total":{"pct":4,"human":"0.0 cores"},"server":{"pct":400,"human":"4.0 cores"}},"tasks":{"current":37,"limit":100,"usage_pct":37},"bandwidth":{"limit":{"bits":100000000,"human":"100.0Mbit"},"total_sent":{"bytes":1048576,"human":"8.4Mbit"},"usage_pct":8},"warning":null}
+{"timestamp":"2026-09-24T10:30:00Z","user":"demo","uid":1002,"memory":{"total":{"bytes":1073741824,"human":"1.0G"},"used":{"bytes":314572800,"human":"300.0M"},"free":{"bytes":759169024,"human":"724.0M"},"buff_cache":{"bytes":52428800,"human":"50.0M"},"available":{"bytes":759169024,"human":"724.0M"},"usage_pct":29},"cpu":{"usage":{"pct":100,"human":"1.0 cores"},"total":{"pct":4,"human":"0.0 cores"},"server":{"pct":400,"human":"4.0 cores"}},"tasks":{"current":37,"limit":100,"usage_pct":37},"bandwidth":{"limit":{"bits":100000000,"human":"100.0Mbit"},"total_sent":{"bytes":1048576,"human":"8.4Mbit"},"usage_pct":8},"warning":null}
+```
+</details>
+
+For a single user:
+```bash
+opencli docker-collect_stats <USERNAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-collect_stats stefan
+{"timestamp":"2026-09-24T10:30:00Z","user":"stefan","uid":1001,"memory":{"total":{"bytes":1073741824,"human":"1.0G"},"used":{"bytes":314572800,"human":"300.0M"},"free":{"bytes":759169024,"human":"724.0M"},"buff_cache":{"bytes":52428800,"human":"50.0M"},"available":{"bytes":759169024,"human":"724.0M"},"usage_pct":29},"cpu":{"usage":{"pct":100,"human":"1.0 cores"},"total":{"pct":4,"human":"0.0 cores"},"server":{"pct":400,"human":"4.0 cores"}},"tasks":{"current":37,"limit":100,"usage_pct":37},"bandwidth":{"limit":{"bits":100000000,"human":"100.0Mbit"},"total_sent":{"bytes":1048576,"human":"8.4Mbit"},"usage_pct":8},"warning":null}
+```
+</details>
+
+`collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/docs/opencli/config/#resource_usage_retention)

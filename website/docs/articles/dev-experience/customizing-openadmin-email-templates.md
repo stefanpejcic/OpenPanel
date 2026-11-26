@@ -30,5 +30,5 @@ systemctl restart admin
 ## Fallback behavior
 
 - If a file for a given template name isn't present, OpenAdmin uses its built-in default for that email.
-- If a file is present but fails to parse as a valid template, OpenAdmin logs the error and falls back to the built-in default for that email — a broken override never blocks outbound mail.
+- If a file is present but fails to parse as a valid template, OpenAdmin logs the error and falls back to the built-in default for that email, a broken override never blocks outbound mail.
 - You only need to add the files for the templates you want to change; the rest keep using the built-in defaults.

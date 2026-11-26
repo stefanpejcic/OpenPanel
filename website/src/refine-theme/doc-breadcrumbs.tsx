@@ -7,6 +7,16 @@ import { translate } from "@docusaurus/Translate";
 import { HomeIcon } from "./icons/home";
 import { ChevronRightIcon } from "./icons/chevron-right";
 import { useTWBreakpoints } from "../hooks/use-tw-breakpoints";
+import { useLocation } from "@docusaurus/router";
+
+// the docs section a page belongs to, shown right after the home icon
+const DOC_SECTIONS = [
+    { prefix: "/docs/panel/", label: "OpenPanel", href: "/docs/panel/intro/" },
+    { prefix: "/docs/admin/", label: "OpenAdmin", href: "/docs/admin/intro/" },
+    { prefix: "/docs/opencli/", label: "OpenCLI", href: "/docs/opencli/intro/" },
+    { prefix: "/docs/articles/", label: "Articles", href: "/docs/articles/intro/" },
+    { prefix: "/docs/changelog/", label: "Changelog", href: "/docs/changelog/intro/" },
+];
 
 const hiddenBreadcrumbText = "...";
 
@@ -14,6 +24,8 @@ export const DocBreadcrumbs = () => {
     const breakpoints = useTWBreakpoints();
     const breadcrumbs = useSidebarBreadcrumbs();
     const homePageRoute = useHomePageRoute();
+    const { pathname } = useLocation();
+    const section = DOC_SECTIONS.find((s) => pathname.startsWith(s.prefix));
 
     if (!breadcrumbs) {
         return null;
@@ -80,6 +92,28 @@ export const DocBreadcrumbs = () => {
                         </Link>
                     </li>
                 )}
+                {section && (
+                    <li
+                        className="flex flex-row flex-nowrap"
+                        itemScope={true}
+                        itemProp="itemListElement"
+                        itemType="https://schema.org/ListItem"
+                    >
+                        <ChevronRightIcon className="text-gray-400 dark:text-gray-500" />
+                        <Link
+                            href={section.href}
+                            className={clsx(
+                                "text-gray-500 dark:text-gray-400",
+                                "text-base",
+                            )}
+                            itemProp="item"
+                            itemID={section.href}
+                        >
+                            <span itemProp="name">{section.label}</span>
+                        </Link>
+                        <meta itemProp="position" content="2" />
+                    </li>
+                )}
                 {breadcrumbList.map((item, idx) => {
                     const isLast = idx === breadcrumbs.length - 1;
 
@@ -126,7 +160,7 @@ export const DocBreadcrumbs = () => {
                                 )}
                                 <meta
                                     itemProp="position"
-                                    content={String(idx + 2)}
+                                    content={String(idx + (section ? 3 : 2))}
                                 />
                             </li>
                             {idx === 0 &&

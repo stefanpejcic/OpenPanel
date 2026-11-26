@@ -5,22 +5,20 @@
 <!-- START templates/files/edit_file.html -->
 
 <style>
-    html, body { height: 100%; margin: 0; }
-    .container-fluid { padding: 0; }
-    .editor-container { min-height: 90vh; height: 100%; }
-
-    #editor-container.fullscreen {
-        position: fixed; top: 0; left: 0;
-        width: 100%; height: 100%;
-        z-index: 55;
+    html, body { height: 100%; margin: 0; overflow: hidden; }
+    /* the page renders bare, so the editor just fills the window: toolbar on top, editor below */
+    #editor-container {
+        position: fixed; inset: 0;
+        display: flex; flex-direction: column;
+        z-index: 40;
     }
+    #editor-body { flex: 1; min-height: 0; }
+    #editor-body > * { height: 100%; }
     .editor-header { display: flex; padding: 0px 10px; justify-content: space-between; align-items: center; }
-    #editor-container.fullscreen h3 { display: none; }
-
 
     /* textarea editor */
     #editor-text {
-        width: 100%; min-height: 90vh; height: 100%;
+        width: 100%; height: 100%;
         font-size: 14px;
         border: none; outline: none; resize: none;
         padding: 16px; box-sizing: border-box;
@@ -29,22 +27,12 @@
 
     /* CodeMirror */
     .CodeMirror {
-        height: 90vh !important;
+        height: 100% !important;
         font-size: 14px;
-    }
-    #editor-container.fullscreen .CodeMirror {
-        height: 100vh !important;
     }
 
     /* Ace */
-    #editor-ace {
-        width: 100%;
-        min-height: 90vh;
-        height: 100%;
-    }
-    #editor-container.fullscreen #editor-ace {
-        height: 100vh;
-    }
+    #editor-ace { width: 100%; }
 </style>
 
 
@@ -78,8 +66,8 @@
 <form method="post">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-    <section aria-label="{{.T.Get "File Editor Header"}}" id="editor-container" class="bg-white dark:bg-gray-950" x-data="{ isFullscreen: true }" :class="{ 'fullscreen': isFullscreen }">
-        <div class="flex flex-col gap-4 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:border-gray-800">
+    <section aria-label="{{.T.Get "File Editor Header"}}" id="editor-container" class="bg-white dark:bg-gray-950">
+        <div class="flex shrink-0 flex-col gap-4 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:border-gray-800">
             <div>
 
                 {{if eq .FilePath "wpcli_themes.txt"}}
@@ -104,7 +92,7 @@
 
       <!-- START breadcrumbs -->
       <p class="mt-1 text-sm text-gray-500 flex flex-wrap font-mono text-xs">
-<a href="/files" title="{{.T.Get "Open in File Manager"}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">/var/www/html/</a>{{range .Breadcrumbs}}{{if .Last}}<span class="text-gray-900 dark:text-gray-50">{{.Name}}</span>{{else}}<a href="/files/{{.Path}}" title="{{$.T.Get "Open in File Manager"}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">{{.Name}}</a>{{end}}{{if not .Last}}/{{end}}{{end}}</p>
+<span>/var/www/html/</span>{{range .Breadcrumbs}}{{if .Last}}<span class="text-gray-900 dark:text-gray-50">{{.Name}}</span>{{else}}<span>{{.Name}}/</span>{{end}}{{end}}</p>
       <!-- END breadcrumbs -->
 
                 {{end}}
@@ -142,6 +130,7 @@
 
         <input type="hidden" name="editor_content" id="editor_content">
 
+        <div id="editor-body">
         {{if eq .Editor "text"}}
             <textarea id="editor-text" aria-label="{{.T.Get "Edit file"}}" class="block bg-white font-mono text-gray-900 dark:bg-gray-950 dark:text-gray-50" spellcheck="false" autocorrect="off" autocapitalize="off">{{.FileContent}}</textarea>
         {{else if eq .Editor "codemirror"}}
@@ -152,6 +141,7 @@
         {{else}}
             <div class="editor-container" id="editor"></div>
         {{end}}
+        </div>
 
     </section>
 </form>
@@ -165,27 +155,23 @@
     const isDark      = document.documentElement.classList.contains('dark');
     const i18n = {
         unsavedChanges: "{{.T.Get "You have unsaved changes. Leave anyway?"}}",
-        leave: "{{.T.Get "Leave"}}"
+        leave: "{{.T.Get "Leave"}}",
+        saved: "{{.T.Get "File saved successfully"}}",
+        saveFailed: "{{.T.Get "Error saving file."}}"
     };
 
     function getExtension(name) {
         return name.split('.').pop().toLowerCase();
     }
 
-    const editorContainer = document.getElementById('editor-container');
     const hiddenInput     = document.getElementById('editor_content');
     const saveBtn         = document.getElementById('editorcontentvalue');
 
 
     let editor = null;   // used by Monaco and Ace
     let cm     = null;   // used by CodeMirror
+    let getContent = () => fileContent;   // each backend swaps in its own getter
 
-
-
-    // ?fullscreen
-    const urlParams   = new URLSearchParams(window.location.search);
-    let isFullscreen  = urlParams.get('fullscreen') === 'true';
-    editorContainer.classList.toggle('fullscreen', isFullscreen);
 
     // opened from the file manager as its own window: offer Close, and tell the file manager after a save
     const opener = (() => { try { return window.opener && window.opener !== window && window.opener.location.origin === location.origin ? window.opener : null; } catch (e) { return null; } })();
@@ -193,13 +179,6 @@
         const closeBtn = document.getElementById('closeWindowButton');
         closeBtn.hidden = false;
         closeBtn.addEventListener('click', () => window.close());
-        saveBtn.form.addEventListener('submit', () => { try { sessionStorage.setItem('opfile-saved', filePath); } catch (e) {} });
-        try {
-            if (sessionStorage.getItem('opfile-saved') === filePath) {
-                sessionStorage.removeItem('opfile-saved');
-                opener.postMessage({ type: 'op-file-saved', path: filePath }, location.origin);
-            }
-        } catch (e) {}
     }
 
     // Ctrl/Cmd+S to save, regardless of which editor backend is active
@@ -256,9 +235,7 @@
                 if (pos) setHashLine(pos.lineNumber);
             });
 
-            saveBtn.addEventListener('click', () => {
-                hiddenInput.value = editor.getValue();
-            });
+            getContent = () => editor.getValue();
 
             editor.onDidChangeModelContent(() => { isDirty = true; });
         });
@@ -292,9 +269,7 @@
             setHashLine(editor.getCursorPosition().row + 1);
         });
 
-        saveBtn.addEventListener('click', () => {
-            hiddenInput.value = editor.getValue();
-        });
+        getContent = () => editor.getValue();
     }
 
     // CODEMIRROR
@@ -330,18 +305,8 @@
         extraKeys: { Tab: (cm) => cm.replaceSelection('    ') },
     });
 
-    function initCMSize() {
-        const h = isFullscreen ? '100vh' : '90vh';
-        cm.setSize('100%', h);
-        cm.refresh();   // fixes missing cursor
-    }
-    requestAnimationFrame(() => requestAnimationFrame(initCMSize));
-
-    window._editorLayout = () => {
-        const h = editorContainer.classList.contains('fullscreen') ? '100vh' : '90vh';
-        cm.setSize('100%', h);
-        cm.refresh();
-    };
+    // refresh once laid out or the cursor goes missing
+    requestAnimationFrame(() => requestAnimationFrame(() => cm.refresh()));
 
     const line = getHashLine();
     if (line) {
@@ -355,9 +320,7 @@
         setHashLine(cm.getCursor().line + 1);
     });
 
-    saveBtn.addEventListener('click', () => {
-        hiddenInput.value = cm.getValue();
-    });
+    getContent = () => cm.getValue();
 }
 
     // PLAIN TEXT
@@ -374,9 +337,7 @@
             }
         });
 
-        saveBtn.addEventListener('click', () => {
-            hiddenInput.value = ta.value;
-        });
+        getContent = () => ta.value;
     }
 
     // UNSAVED CHANGES
@@ -392,7 +353,37 @@
         document.getElementById('editor-text').addEventListener('input', () => { isDirty = true; });
     }
 
-    saveBtn.closest('form').addEventListener('submit', () => { isDirty = false; });
+    // save over fetch instead of a form post so the page doesn't reload and undo/redo history stays
+    const form = saveBtn.closest('form');
+    const saveIcon = saveBtn.querySelector('i');
+    let saving = false;
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (saving) return;
+        saving = true;
+        saveBtn.disabled = true;
+        saveIcon.className = 'ri-loader-4-line animate-spin';
+        const sent = getContent();
+        hiddenInput.value = sent;
+        const url = new URL(location.href);
+        url.hash = '';
+        url.searchParams.set('output', 'json');
+        try {
+            const res = await fetch(url, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || i18n.saveFailed);
+            // only clean if nothing was typed while the request was out
+            if (getContent() === sent) isDirty = false;
+            showToast(data.message || i18n.saved, 'success');
+            if (opener) { try { opener.postMessage({ type: 'op-file-saved', path: filePath }, location.origin); } catch (err) {} }
+        } catch (err) {
+            showToast(err.message || i18n.saveFailed, 'error');
+        } finally {
+            saving = false;
+            saveBtn.disabled = false;
+            saveIcon.className = 'ri-save-line';
+        }
+    });
 
     window.addEventListener('beforeunload', (e) => {
         if (!isDirty) return;

@@ -6,7 +6,7 @@ sidebar_label: "Setting Up ImunifyAV"
 
 ImunifyAV regularly scans user files and alerts you if any malware is detected.
 
-ImunifyAV is not installed by default. Install it from **OpenAdmin > Security > ImunifyAV**, with [`opencli imunify install`](/docs/articles/opencli/imunify/), or on a new server with the `--imunifyav` installer flag.
+ImunifyAV is not installed by default. Install it from **OpenAdmin > Security > ImunifyAV**, with [`opencli imunify install`](/docs/opencli/imunify/), or on a new server with the `--imunifyav` installer flag.
 
 ---
 
@@ -14,7 +14,7 @@ To configure ImunifyAV via the control panel:
 
 1. Go to **OpenAdmin > Security > ImunifyAV**.
 2. Click the **cog icon** to access settings.
-3. Adjust the resource limits for scans and set the scan schedule — by default, scans run monthly.
+3. Adjust the resource limits for scans and set the scan schedule, by default, scans run monthly.
 
 [![imunifyav.png](/img/docs-content/PqmmF0JV-imunifyav.png)](pathname:///img/docs-content/PqmmF0JV-imunifyav.png)
 

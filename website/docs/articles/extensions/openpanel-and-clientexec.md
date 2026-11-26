@@ -96,7 +96,7 @@ On ClientExec:
 2. Check the module log in the ClientExec admin area
 
 On OpenPanel server:
-1. [Enable `DEV_MODE` on OpenAdmin](/docs/articles/opencli/config/#dev_mode)
+1. [Enable `DEV_MODE` on OpenAdmin](/docs/opencli/config/#dev_mode)
 2. Send requests from the ClientExec server
 3. View the logs in: `/var/log/openpanel/admin/api.log`
 

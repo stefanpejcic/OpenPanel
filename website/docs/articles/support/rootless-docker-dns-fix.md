@@ -168,7 +168,7 @@ docker --context=<user> network inspect <network-name>
 
 ### Notes
 
-- Newly created users may already have a correct `daemon.json` by default — this issue can occur when an existing user's config predates the current reference format or was manually edited.
+- Newly created users may already have a correct `daemon.json` by default, this issue can occur when an existing user's config predates the current reference format or was manually edited.
 - If the fix doesn't resolve DNS, double-check whether `slirp4netns` is required for your specific OS/network driver combination, and share diagnostic output with platform support to help reproduce the environment.
 
 ### Summary Checklist

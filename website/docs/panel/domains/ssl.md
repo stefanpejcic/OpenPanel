@@ -25,7 +25,7 @@ Once configured, your custom certificate details will appear on the same page, a
 ## AutoSSL
 
 **AutoSSL** is the default option in OpenPanel.
-If you're adding a new domain, no action is required — a certificate is requested automatically the first time the domain is accessed over `https://`.
+If you're adding a new domain, no action is required, a certificate is requested automatically the first time the domain is accessed over `https://`.
 
 If the status shows **Auto SSL** but no certificate has been issued yet, click **Generate now** to reload the webserver and trigger issuance immediately.
 

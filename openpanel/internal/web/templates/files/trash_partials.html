@@ -256,18 +256,23 @@
         closeConfirm = close;
     }
 
-    // one request per item, then reload so the table and the trash metadata stay in sync
-    function runEach(rows, request, doneMsg) {
-        var failed = 0;
-        Promise.all(rows.map(function (row) {
-            return request(row)
-                .then(function (r) { return r.json(); })
-                .then(function (data) { if (!data.success) throw new Error(data.error || '{{.T.Get "Unknown error"}}'); })
-                .catch(function (e) { failed++; showToast(row.dataset.file + ': ' + e.message, 'error'); });
-        })).then(function () {
-            showToast(failed ? i18n.failed : doneMsg, failed ? 'warning' : 'success');
-            setTimeout(function () { location.reload(); }, failed ? 1500 : 500);
-        });
+    // one request for every selected row so the activity log gets a single combined entry, then reload so the table and the trash metadata stay in sync
+    function runBatch(rows, url, method, doneMsg) {
+        var params = new URLSearchParams();
+        rows.forEach(function (row) { params.append('filename', row.dataset.file); });
+        fetch(url + '?' + params, { method: method, headers: { 'X-CSRF-Token': csrf_token } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) return 0;
+                var failed = data.failed || [{ name: rows[0].dataset.file, error: data.error || '{{.T.Get "Unknown error"}}' }];
+                failed.forEach(function (f) { showToast(f.name + ': ' + f.error, 'error'); });
+                return failed.length;
+            })
+            .catch(function (e) { showToast(e.message, 'error'); return rows.length; })
+            .then(function (failed) {
+                showToast(failed ? i18n.failed : doneMsg, failed ? 'warning' : 'success');
+                setTimeout(function () { location.reload(); }, failed ? 1500 : 500);
+            });
     }
 
     function postAll(action) {
@@ -318,11 +323,7 @@
         restoreButton.addEventListener('click', function () {
             var rows = selectedTrashRows();
             startConfirm('restore', rows, function () {
-                runEach(rows, function (row) {
-                    return fetch('/file-manager/restoreTrash?filename=' + encodeURIComponent(row.dataset.file), {
-                        method: 'POST', headers: { 'X-CSRF-Token': csrf_token }
-                    });
-                }, i18n.restored);
+                runBatch(rows, '/file-manager/restoreTrash', 'POST', i18n.restored);
             });
         });
     }
@@ -332,11 +333,7 @@
         deleteTrashButton.addEventListener('click', function () {
             var rows = selectedTrashRows();
             startConfirm('delete', rows, function () {
-                runEach(rows, function (row) {
-                    return fetch('/file-manager/deleteTrash?filename=' + encodeURIComponent(row.dataset.file) + '&item_type=' + encodeURIComponent(row.dataset.type), {
-                        method: 'DELETE', headers: { 'X-CSRF-Token': csrf_token }
-                    });
-                }, i18n.deleted);
+                runBatch(rows, '/file-manager/deleteTrash', 'DELETE', i18n.deleted);
             });
         });
     }

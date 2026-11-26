@@ -50,11 +50,11 @@ Updated load to 10
 
 ## Pause notifications
 
-Temporarily silence email and webhook alerts without changing any of the settings below — useful during planned maintenance so a batch of expected service restarts doesn't flood your inbox.
+Temporarily silence email and webhook alerts without changing any of the settings below, useful during planned maintenance so a batch of expected service restarts doesn't flood your inbox.
 
-The control lives on the **Notifications** page itself (next to the search box), not here — click the bell icon to pick a duration: 10 minutes, 30 minutes, 1 hour, 6 hours, or 1 day. While paused, the bell shows "Paused until \<time\>" and doubles as a button to resume immediately.
+The control lives on the **Notifications** page itself (next to the search box), not here, click the bell icon to pick a duration: 10 minutes, 30 minutes, 1 hour, 6 hours, or 1 day. While paused, the bell shows "Paused until \<time\>" and doubles as a button to resume immediately.
 
-Pausing only skips the email/webhook sends — notifications still get logged and show up on the Notifications page as usual, and the pause always expires on its own even if you never click resume.
+Pausing only skips the email/webhook sends, notifications still get logged and show up on the Notifications page as usual, and the pause always expires on its own even if you never click resume.
 
 Under the hood this writes a timestamp to a flag file (`/tmp/openpanel_notifications_paused`) that `opencli sentinel` checks before sending any alert. See [`GET/POST /api/notifications/pause`](/docs/admin/settings/api) and [`POST /api/notifications/resume`](/docs/admin/settings/api) to control it via the API.
 
@@ -199,7 +199,7 @@ Below the list, your current IP and the IPs that logged into OpenAdmin before (f
 
 ## SMTP settings
 
-No SMTP server is configured by default — email notifications will **not** be sent until you set one up here.
+No SMTP server is configured by default, email notifications will **not** be sent until you set one up here.
 
 ![SMTP section with the mail server settings and the Test SMTP connection button](/img/openadmin-screenshots/settings/notifications-smtp.png#gh-light-mode-only)
 ![SMTP section with the mail server settings and the Test SMTP connection button](/img/openadmin-screenshots/settings/notifications-smtp_dark.png#gh-dark-mode-only)

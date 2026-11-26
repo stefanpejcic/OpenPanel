@@ -6,7 +6,7 @@ sidebar_position: 2
 
 **OpenAdmin > Server > Scheduled actions** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/var/log/openpanel-cron.log`.
 
-Each job shows a one-line description of what that command does and a **Learn more** link to its [OpenCLI](/docs/articles/opencli/) docs page.
+Each job shows a one-line description of what that command does and a **Learn more** link to its [OpenCLI](/docs/opencli/intro/) docs page.
 
 A warning is shown above the table for any job with an invalid schedule, or a schedule that can never run (for example `59 23 31 2 *`, the 31st of February), since that job is effectively disabled. `opencli docker-backup` is skipped when it uses its default *Disabled* schedule, since admin-configured backups are off by default.
 

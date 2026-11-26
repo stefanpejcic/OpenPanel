@@ -162,7 +162,7 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                             "dark:text-gray-300 text-gray-900",
                         )}
                     >
-                        No addons. No surprise invoices.
+                        Backups and WordPress included
                     </h6>
                     <div
                         className={clsx(
@@ -184,7 +184,7 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            All the necessary features for running a web hosting server are integrated, eliminating the need to purchase additional software for tasks like backups, WordPress management or user isolation.
+                            Backups, WordPress management, user isolation and email come with the license. You don't buy separate plugins for them, and the price doesn't go up per account.
                         </p>
                         <LandingSectionCtaButton to="/enterprise">
                             Explore Enterprise edition

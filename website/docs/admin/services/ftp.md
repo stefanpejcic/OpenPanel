@@ -30,7 +30,7 @@ To change many accounts at once, tick their checkboxes (or the one in the table 
 ![Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota](/img/openadmin-screenshots/services/ftp-bulk.png#gh-light-mode-only)
 ![Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota](/img/openadmin-screenshots/services/ftp-bulk_dark.png#gh-dark-mode-only)
 
-The quota is the size of the account's folder, checked by the FTP service every 60 seconds. Once the folder is over the quota, uploads and new folders are refused and the account's open sessions are closed, downloads and deletes still work. Quotas can also be set with [`opencli ftp-quota`](/docs/articles/opencli/ftp/#quota).
+The quota is the size of the account's folder, checked by the FTP service every 60 seconds. Once the folder is over the quota, uploads and new folders are refused and the account's open sessions are closed, downloads and deletes still work. Quotas can also be set with [`opencli ftp-quota`](/docs/opencli/ftp/#quota).
 
 Accounts themselves are created and removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
 

@@ -215,6 +215,7 @@
         <div class="max-w-3xl px-4 pb-8 sm:px-6 lg:px-8">
             <form method="POST" action="/emails/filter/{{.Email}}/raw">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                {{template "editor_draft" (dict "T" .T "Class" "mb-4")}}
                 <label for="raw_content" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Sieve file"}}</label>
                 <p class="mt-1 font-mono text-xs text-gray-500">{{.SieveFile}}</p>
                 <textarea id="raw_content" name="new_content" rows="22"
@@ -230,7 +231,20 @@
 
 </div>
 
+<script src="{{static "js/editor-draft.js"}}"></script>
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const ta = document.getElementById('raw_content');
+    if (!ta) return;
+    opEditorDraft({
+        key: 'sieve:' + {{toJSON .CurrentUsername}} + ':' + {{toJSON .Email}},
+        initial: ta.defaultValue,
+        get: () => ta.value,
+        set: (v) => { ta.value = v; ta.focus(); },
+        onChange: (cb) => ta.addEventListener('input', cb),
+        form: ta.form,
+    });
+});
 function filterPage() {
     return {
         mode: {{toJSON .ViewMode}},

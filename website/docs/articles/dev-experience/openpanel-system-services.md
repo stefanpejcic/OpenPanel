@@ -124,7 +124,7 @@ To customize these reports edit the [/etc/openpanel/goaccess/goaccess.conf](http
 
 Admins can set the OpenPanel version by changing the tag in the `/root/.env` file with any tag from [hub.docker.com](https://hub.docker.com/r/openpanel/openpanel/tags):
 ```
-VERSION="2.0.28"
+VERSION="2.0.29"
 ```
 
 By default OpenPanel is accesible on port `2083` but this can also be configured by Admin by editing the `PORT` value:
@@ -216,7 +216,7 @@ FTP_PORT_RANGE="21000-21010"
 
 OpenPanel Enterprise supports mailserver. [Docker Mailserver](https://docker-mailserver.github.io/docker-mailserver/latest/) is used as a fullstack mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.)
 
-OpenPanel provides [terminal commands](/docs/articles/opencli/email/) and [UI](https://openpanel.com/docs/panel/intro/) for users to manage emails.
+OpenPanel provides [terminal commands](/docs/opencli/email/) and [UI](https://openpanel.com/docs/panel/intro/) for users to manage emails.
 
 ## Webmail
 

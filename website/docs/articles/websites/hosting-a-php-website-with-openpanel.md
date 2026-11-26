@@ -8,7 +8,7 @@ This guide walks you through hosting a PHP website on OpenPanel.
 
 ---
 
-## Step 1 — Add a Domain
+## Step 1: Add a Domain
 
 1. Go to **OpenPanel → Domains → Add New Domain**.
 2. Enter your new domain name and click **Add Domain**.
@@ -17,7 +17,7 @@ This guide walks you through hosting a PHP website on OpenPanel.
 
 ---
 
-## Step 2 — Set PHP version
+## Step 2: Set PHP version
 
 1. Open **OpenPanel → PHP → Select PHP version**.
 2. For your domain click on the version and then click on 'Change'
@@ -26,7 +26,7 @@ This guide walks you through hosting a PHP website on OpenPanel.
 
 ---
 
-## Step 3 — Upload Your Files
+## Step 3: Upload Your Files
 
 1. Open **OpenPanel → File Manager**.
 2. Navigate to your domain’s directory.
@@ -36,7 +36,7 @@ This guide walks you through hosting a PHP website on OpenPanel.
 
 ---
 
-## Step 4 — Test Your Website
+## Step 4: Test Your Website
 
 1. Visit your domain using `https://` to trigger SSL generation.
 2. Your php site should now be live and visible immediately.

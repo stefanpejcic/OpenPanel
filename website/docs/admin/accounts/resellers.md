@@ -115,6 +115,6 @@ Besides their users, [User Packages](/docs/admin/plans/hosting_plans), the Featu
 | **Server > Scheduled actions** | View the system jobs and their schedule, read only. |
 | **Settings > Locales** | Install and update locales. Setting the default locale and deleting locales stays with administrators. |
 
-The same rules apply to the API endpoints behind these pages when they're called with a reseller's token, see the [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/).
+The same rules apply to the API endpoints behind these pages when they're called with a reseller's token, see the [OpenAdmin API](/docs/admin/api/).
 
 Business guide: [How to offer reseller hosting with OpenPanel](/docs/articles/hosting-business/reseller-hosting/)

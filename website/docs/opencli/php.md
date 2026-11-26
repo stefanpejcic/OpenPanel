@@ -1,0 +1,125 @@
+---
+sidebar_position: 7
+---
+
+# PHP
+
+Manage users' PHP versions: list enabled, list available, change version, etc.
+
+### Get version for a domain
+
+To view the current PHP version used by a domain, run the following command:
+
+```bash
+opencli php-domain <DOMAIN-NAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli php-domain pejcic.rs
+Domain 'pejcic.rs' (owned by user: stefan) uses PHP version: 8.1
+```
+</details>
+
+### Change version for a domain
+
+To change a PHP version for a domain name use the `--update` flag:
+
+```bash
+opencli php-domain <DOMAIN-NAME> --update <PHP-VERSION>
+```
+
+<details>
+  <summary>Example output</summary>
+
+Cron jobs of that domain that ran in the old `php-fpm-X.Y` container move to the new one: jobs whose command has the domain in a `Host:` header or URL, or a path in the domain's document root. Jobs of other domains stay where they are. The PHP version switch in the user panel does the same.
+
+```bash
+# opencli php-domain pejcic.rs --update 8.3
+Moved 1 cron job(s) of pejcic.rs from php-fpm-8.5 to php-fpm-8.3
+Updated PHP version in the configuration file to 8.3
+```
+</details>
+
+### View default version
+
+The default PHP version for a user determines which PHP version will be used for all domains that the user adds in the future. It does not change the PHP version for any existing domains.
+
+To list the currently set default PHP version for a user, run the following command:
+
+```bash
+opencli php-default <USERNAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli php-default stefan
+Default PHP version for user 'stefan' is: 8.3
+```
+</details>
+
+### Change the default version
+
+To update the default PHP version for a user use the php-default with `--update` flag and provide the new PHP version.
+
+```bash
+opencli php-default <USERNAME> --update <VERSION>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli php-default stefan --update 8.1
+Default PHP version for user 'stefan' updated to: 8.1
+```
+</details>
+
+### List versions
+
+To list all available PHP versions for a user, grep 'php-fpm' in docker-compose.yml file for the user:
+
+```bash
+grep php-fpm- /home/<USERNAME>/docker-compose.yml
+```
+
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# grep php-fpm- /home/demo/docker-compose.yml
+  php-fpm-5.6:
+    container_name: php-fpm-5.6
+  php-fpm-7.0:
+    container_name: php-fpm-7.0
+  php-fpm-7.1:
+    container_name: php-fpm-7.1
+  php-fpm-7.2:
+    container_name: php-fpm-7.2
+  php-fpm-7.3:
+    container_name: php-fpm-7.3
+  php-fpm-7.4:
+    container_name: php-fpm-7.4
+  php-fpm-8.0:
+    container_name: php-fpm-8.0
+  php-fpm-8.1:
+    container_name: php-fpm-8.1
+  php-fpm-8.2:
+    container_name: php-fpm-8.2
+  php-fpm-8.3:
+    container_name: php-fpm-8.3
+  php-fpm-8.4:
+    container_name: php-fpm-8.4
+  php-fpm-8.5:
+    container_name: php-fpm-8.5
+```
+</details>
+
+To add PHP versions that are newer than the user's `docker-compose.yml` file, run [`opencli update --php`](/docs/opencli/update/#php).
+
+These are also the versions users can select in OpenPanel. To stop offering old versions, see [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/).

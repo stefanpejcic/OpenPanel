@@ -1,21 +1,36 @@
+---
+title: Changelog
+description: "What's new in OpenPanel: the latest release, what's in progress, recent highlights and every version with its release date."
+hide_table_of_contents: true
+---
+
+import ChangelogOverview from "@site/src/components/changelog-overview";
+
 # Changelog
 
+OpenPanel ships small, frequent releases. Here's the latest, what's coming next and the biggest changes lately, with every version listed below.
+
+<ChangelogOverview />
+
+## All releases
+
 ### Upcoming version
-
-| Version| Release date | 
+| Version| Release date |
 |---|---|
-|__[1.7.67](/docs/changelog/1.7.67)__|  |
-
+| __[2.0.30](/docs/changelog/2.0.30)__| December 16, 2026 |
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[2.0.28](/docs/changelog/2.0.28)__| November 22, 2026 |
+|__[2.0.29](/docs/changelog/2.0.29)__| November 25, 2026 |
 
+| Version| Release date |
+|---|---|
 ### Previous versions
 
 | Version| Release date | 
 |---|---|
+|__[2.0.28](/docs/changelog/2.0.28)__| November 22, 2026 |
 |__[2.0.27](/docs/changelog/2.0.27)__| November 20, 2026 |
 |__[2.0.26](/docs/changelog/2.0.26)__| November 18, 2026 |
 |__[2.0.25](/docs/changelog/2.0.25)__| November 17, 2026 |

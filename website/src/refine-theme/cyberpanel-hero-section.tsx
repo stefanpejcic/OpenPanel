@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Built around containers for true per-user isolation, with a security track record and a fixed price that never changes.{" "}
+                Every user and every service runs in its own container, for one fixed price per server.{" "}
             </p>
             <div
                 className={clsx(

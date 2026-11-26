@@ -22,4 +22,4 @@ When the copy is done the move waits for you:
 
 An account with a dedicated IP address gets the shared IP address of the new server, since the dedicated one belongs to the old server. Assign it another dedicated IP there if it needs one.
 
-The move uses [`opencli user-transfer`](/docs/articles/opencli/user#transfer-user), which you can also run yourself between any two servers.
+The move uses [`opencli user-transfer`](/docs/opencli/user/#transfer-user), which you can also run yourself between any two servers.

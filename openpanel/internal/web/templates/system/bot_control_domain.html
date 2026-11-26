@@ -62,10 +62,17 @@
                 <div class="mt-1 text-2xl font-semibold text-yellow-700 dark:text-yellow-500">{{.Report.AIRequests}}</div>
             </div>
             <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
-                <div class="text-xs text-gray-500">{{.T.Get "Blocked / throttled (403 / 429)"}}</div>
+                <div class="text-xs text-gray-500">{{.T.Get "AI crawlers blocked / throttled"}}</div>
                 <div class="mt-1 text-2xl font-semibold text-red-600 dark:text-red-400">{{.Report.BlockedCount}}</div>
             </div>
         </div>
+
+        {{if gt .Report.OtherBlocked 0}}
+        <div class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 mt-0.5"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
+            <p>{{.T.Get "Requests that aren't from AI crawlers also got 403 or 429:"}} <strong>{{.Report.OtherBlocked}}</strong>. {{.T.Get "Those come from the site's per-IP rate limit or the firewall (WAF), not from AI & bot control, and aren't counted as blocked here."}}</p>
+        </div>
+        {{end}}
 
         {{if .Report.LogMissing}}
         <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/40 p-4 text-sm text-gray-600 dark:text-gray-400">

@@ -58,7 +58,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 
 - focus on [security](https://openpanel.com/docs/articles/security/securing-openpanel/)
 - lightweight: uses only **~53 MB of RAM at idle** (OpenPanel ~20 MB, OpenAdmin ~33 MB) and **~324 MB on disk** (OpenPanel 278 MB, OpenAdmin 34.5 MB, OpenCLI 11.4 MB) and with ~0% CPU[^3]
-- billing integrations: [FOSSBilling](https://openpanel.com/billing/fossbilling-module/), [WHMCS](https://openpanel.com/billing/whmcs-module/), [Blesta](https://openpanel.com/billing/blesta-module/), [ClientExec](https://openpanel.com/billing/clientexec-module/), [WISECP](https://openpanel.com/billing/wisecp-module/)
+- billing integrations: [FOSSBilling](https://openpanel.com/billing/fossbilling-module/), [WHMCS](https://openpanel.com/billing/whmcs-module/), [Blesta](https://openpanel.com/billing/blesta-module/), [ClientExec](https://openpanel.com/billing/clientexec-module/), [WISECP](https://openpanel.com/billing/wisecp-module/), [ClientFence](https://clientfence.com/)
 - dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [detailed activity log](https://openpanel.com/docs/panel/account/account_activity/#recorded-actions) for all user actions.
@@ -81,17 +81,17 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 <!-- OS_TEST_RESULTS_START -->
 | Operating System | Version | Last Tested | Status | Average install time[^2] | Notes |
 |---|---|---|---|---|---|
-| Ubuntu | 24 | 2026-11-22 08:43 UTC | ❌ Fail | 2m30s | **recommended for AMD CPU** |
-| Ubuntu | 26 | 2026-11-22 08:30 UTC | ❌ Fail | 4m36s |  |
-| Debian | 12 | 2026-11-22 08:56 UTC | ❌ Fail | 3m1s |  |
-| Debian | 13 | 2026-11-22 09:09 UTC | ❌ Fail | 2m34s |  |
-| AlmaLinux | 9.7 | 2026-11-22 08:03 UTC | ❌ Fail | 7m59s | **recommended for ARM CPU** |
-| AlmaLinux | 10 | 2026-11-22 07:50 UTC | ❌ Fail | 10m6s |  |
+| Ubuntu | 24 | 2026-11-25 09:45 UTC | ✅ Pass | 2m40s | **recommended for AMD CPU** |
+| Ubuntu | 26 | 2026-11-25 09:33 UTC | ✅ Pass | 4m55s |  |
+| Debian | 12 | 2026-11-25 09:53 UTC | ✅ Pass | 3m11s |  |
+| Debian | 13 | 2026-11-25 10:01 UTC | ✅ Pass | 2m51s |  |
+| AlmaLinux | 9.7 | 2026-11-25 09:02 UTC | ✅ Pass | 8m40s | **recommended for ARM CPU** |
+| AlmaLinux | 10 | 2026-11-25 08:45 UTC | ✅ Pass | 11m42s |  |
 | OracleLinux | 10 | |  |  |  |
 | RockyLinux | 9.6 | | | |  |
-| RockyLinux | 10 | 2026-11-22 09:23 UTC | ❌ Fail |  |  |
+| RockyLinux | 10 | 2026-11-25 13:28 UTC | ✅ Pass | 12m50s |  |
 | CentOS | 9.5 | | | |  |
-| CentOS | 10 | 2026-11-22 08:16 UTC | ❌ Fail | 9m0s |  |
+| CentOS | 10 | 2026-11-25 09:17 UTC | ✅ Pass | 10m19s |  |
 
 <!-- OS_TEST_RESULTS_END -->
 
@@ -112,7 +112,7 @@ For full installation options and configuration flags: [https://openpanel.com/in
 - [OpenAdmin - Admin panel documentation](https://openpanel.com/docs/admin/intro/)
 - [OpenPanel - End-user panel documentation](https://openpanel.com/docs/panel/intro/)
 - [Guides and How-to](https://openpanel.com/docs/articles/intro/)
-- [OpenCLI - Terminal commands](https://openpanel.com/docs/articles/opencli/)
+- [OpenCLI - Terminal commands](https://openpanel.com/docs/opencli/intro/)
 
 
 ## Team
@@ -151,7 +151,7 @@ Special thanks to all [contributors](https://github.com/stefanpejcic/OpenPanel/g
 
 ## Version
 
-Latest OpenPanel version is: **2.0.28** - [View Changelog](https://openpanel.com/docs/changelog/2.0.28/)
+Latest OpenPanel version is: **2.0.29** - [View Changelog](https://openpanel.com/docs/changelog/2.0.29/)
 
 ## Contribute
 

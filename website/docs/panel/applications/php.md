@@ -21,14 +21,14 @@ On the install page, configure:
 
 * **Domain / Subfolder** – The domain (and optional subfolder) to install into. Leave the subfolder blank to install at the domain root.
 * **Initial project** – Optional. Leave blank to deploy into a directory that already exists and already has its own `composer.json`, or provide one of:
-  * An `https://` URL to an archive ending in `.zip`, `.tar.gz`, `.tgz`, or `.tar` — downloaded (capped at 200MB) and extracted directly into the docroot.
-  * A Composer package name (`vendor/package`, e.g. `laravel/laravel`) — installed via `composer create-project`.
+  * An `https://` URL to an archive ending in `.zip`, `.tar.gz`, `.tgz`, or `.tar`, downloaded (capped at 200MB) and extracted directly into the docroot.
+  * A Composer package name (`vendor/package`, e.g. `laravel/laravel`), installed via `composer create-project`.
 * **Run composer install** – Runs `composer install` after deployment. Required if the directory doesn't already contain a built `vendor/` folder.
 * **Optimize autoloader** – Adds `--optimize-autoloader` to the composer run.
 
-There's no Name, Port, Startup File/Command, Type, Version picker, or CPU/Memory allocation — none of that applies, since the app doesn't get its own container. The domain must already have a PHP version assigned (via PHP Selector) before you can install; otherwise the install fails immediately.
+There's no Name, Port, Startup File/Command, Type, Version picker, or CPU/Memory allocation, none of that applies, since the app doesn't get its own container. The domain must already have a PHP version assigned (via PHP Selector) before you can install; otherwise the install fails immediately.
 
-Behind the scenes, this starts the domain's `php-fpm-<version>` container if it isn't already running, then either downloads and extracts the archive host-side, or runs `composer create-project <package> <path> --no-interaction` inside that container. If **Run composer install** is checked, it then runs `composer install --no-interaction` (with `--optimize-autoloader` if selected) — both composer calls use `--working-dir` rather than `podman exec`'s own working-directory flag, since the container's `composer` binary is itself a wrapper that otherwise resets its working directory regardless. The app's settings (initial project, composer flags, working directory) are recorded as `.env` keys under a synthetic prefix, since — unlike the containerized app types — there's no dedicated container to key them off of. The site is then added to Site Manager with type `PHP`. Progress is streamed live as each step completes.
+Behind the scenes, this starts the domain's `php-fpm-<version>` container if it isn't already running, then either downloads and extracts the archive host-side, or runs `composer create-project <package> <path> --no-interaction` inside that container. If **Run composer install** is checked, it then runs `composer install --no-interaction` (with `--optimize-autoloader` if selected), both composer calls use `--working-dir` rather than `podman exec`'s own working-directory flag, since the container's `composer` binary is itself a wrapper that otherwise resets its working directory regardless. The app's settings (initial project, composer flags, working directory) are recorded as `.env` keys under a synthetic prefix, since, unlike the containerized app types, there's no dedicated container to key them off of. The site is then added to Site Manager with type `PHP`. Progress is streamed live as each step completes.
 
 ## Manage a PHP Application
 

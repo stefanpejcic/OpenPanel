@@ -22,8 +22,7 @@ export const DirectadminIntroContent = ({
                     "dark:text-gray-0 text-gray-900",
                 )}
             >
-                Why hosting providers choose OpenPanel as their DirectAdmin
-                alternative
+                How OpenPanel compares to DirectAdmin
             </h2>
             <div
                 className={clsx(
@@ -54,7 +53,7 @@ export const DirectadminIntroContent = ({
                     jailed shell or requires paid CloudLinux, and services
                     like PHP and MySQL are shared across accounts by default.
                     OpenPanel isolates every user and every service in its
-                    own Podman container out of the box.
+                    own Podman container by default.
                 </p>
                 <p>
                     DirectAdmin exposes a REST API, but its MCP server for AI

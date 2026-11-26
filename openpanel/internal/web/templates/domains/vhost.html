@@ -6,6 +6,7 @@
     <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
     <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
+    <script src="{{static "js/editor-draft.js"}}"></script>
     <style>
         .CodeMirror {min-height: 50vh;height: auto;font-size: 0.8125rem;}
         div.CodeMirror-sizer {min-height: 500px!important;}
@@ -28,6 +29,7 @@
 
 
     <div class="px-4 pb-6 sm:px-6 lg:px-8">
+        {{template "editor_draft" (dict "T" .T "Class" "mb-4")}}
         <div id="editor-container" class="overflow-auto rounded-md border border-gray-200 dark:border-gray-800">
             <label for="editor" class="sr-only">{{.T.Get "VirtualHosts file"}}</label>
             <textarea id="editor" name="vhost_content" rows="40" cols="100">{{.VhostContent}}</textarea>
@@ -53,6 +55,14 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
     mode: "javascript",
     theme: document.documentElement.classList.contains("dark") ? "dracula" : "default",
     lineNumbers: true,
+});
+opEditorDraft({
+    key: 'vhost:' + {{toJSON .CurrentUsername}} + ':' + {{toJSON .DomainName}},
+    initial: editor.getTextArea().defaultValue,
+    get: () => editor.getValue(),
+    set: (v) => { editor.setValue(v); editor.focus(); },
+    onChange: (cb) => editor.on('change', cb),
+    form: editor.getTextArea().closest('form'),
 });
 
 function validateVhostConfig(content, serverType) {

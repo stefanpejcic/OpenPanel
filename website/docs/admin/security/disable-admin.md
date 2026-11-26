@@ -13,4 +13,4 @@ Navigate to **Security > Disable OpenAdmin**, then click **Confirm** to disable 
 ![Disable OpenAdmin page with the Cancel and Confirm buttons](/img/openadmin-screenshots/security/disable-admin-page.png#gh-light-mode-only)
 ![Disable OpenAdmin page with the Cancel and Confirm buttons](/img/openadmin-screenshots/security/disable-admin-page_dark.png#gh-dark-mode-only)
 
-Use this feature with caution — re-enabling OpenAdmin access will require manual intervention via server-side configuration. To enable access to the OpenAdmin: `opencli admin on`
+Use this feature with caution, re-enabling OpenAdmin access will require manual intervention via server-side configuration. To enable access to the OpenAdmin: `opencli admin on`

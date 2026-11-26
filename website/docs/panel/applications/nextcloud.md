@@ -4,7 +4,7 @@ sidebar_position: 16
 
 # Nextcloud
 
-Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing domain, via Nextcloud's own `occ maintenance:install` CLI installer — deliberately simpler than the WordPress Manager: no dedicated Nextcloud Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
+Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing domain, via Nextcloud's own `occ maintenance:install` CLI installer, deliberately simpler than the WordPress Manager: no dedicated Nextcloud Manager sidebar page, no cloning, no filesystem scan for existing installs, no hardening rules, and no dedicated backup system. Install, a read-only overview with live status, cache clearing, one-time admin login, error logs, and uninstall.
 
 ---
 
@@ -21,7 +21,7 @@ On the install page, configure:
 * **Nextcloud version** – Latest, or pin to a specific release, fetched live from [download.nextcloud.com](https://download.nextcloud.com/server/releases/) (Nextcloud doesn't publish release assets on GitHub, so this is scraped from the official releases directory instead).
 * **Admin username / password / email** – The initial administrator account Nextcloud creates during install. Leave the password blank to generate one.
 
-Behind the scenes, this downloads the matching `nextcloud-<version>.zip` release archive, extracts it into the docroot, creates a dedicated MySQL/MariaDB database, and runs Nextcloud's own `occ maintenance:install` CLI installer with the details you provided. It then sets `trusted_domains` and `overwrite.cli.url` to the installed domain — required steps, since a fresh Nextcloud install otherwise refuses requests from any domain other than `localhost`. Progress is streamed live as each step completes.
+Behind the scenes, this downloads the matching `nextcloud-<version>.zip` release archive, extracts it into the docroot, creates a dedicated MySQL/MariaDB database, and runs Nextcloud's own `occ maintenance:install` CLI installer with the details you provided. It then sets `trusted_domains` and `overwrite.cli.url` to the installed domain, required steps, since a fresh Nextcloud install otherwise refuses requests from any domain other than `localhost`. Progress is streamed live as each step completes.
 
 ## Manage a Nextcloud site
 
@@ -42,7 +42,7 @@ The **Cache** widget clears Nextcloud's generated preview/thumbnail cache and, i
 
 ### Logs
 
-The **Logs** tab shows the tail of `data/nextcloud.log` — Nextcloud's default JSON-lines application log.
+The **Logs** tab shows the tail of `data/nextcloud.log`, Nextcloud's default JSON-lines application log.
 
 ### Remove
 

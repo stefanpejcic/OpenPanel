@@ -4,7 +4,7 @@
 
 **POP3** and **IMAP** are two distinct protocols for accessing email stored on a server.
 
-* **POP3 (Post Office Protocol v3)** was introduced in **[1996](https://www.ietf.org/rfc/rfc1939.txt)**. It’s designed for environments with limited internet connectivity and minimal server storage. It downloads emails to a local device and typically removes them from the server afterward—making it ideal for older dial-up connections.
+* **POP3 (Post Office Protocol v3)** was introduced in **[1996](https://www.ietf.org/rfc/rfc1939.txt)**. It’s designed for environments with limited internet connectivity and minimal server storage. It downloads emails to a local device and typically removes them from the server afterward, making it ideal for older dial-up connections.
 
 * **IMAP (Internet Message Access Protocol)** came later in **[2003](https://datatracker.ietf.org/doc/html/rfc3501)**, evolving alongside persistent broadband connections (like cable or DSL). IMAP stores emails on the server and synchronizes their status (read, unread, replied, labeled, etc.) across all devices. This makes it ideal for modern use across phones, tablets, and desktops.
 

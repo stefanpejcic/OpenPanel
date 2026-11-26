@@ -60,36 +60,17 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                         "dark:text-gray-0 text-gray-900",
                     )}
                 >
+                    Everything in the panel also works from the{" "}
                     <span
                         className={clsx(
                             "font-semibold",
-                            "dark:text-refine-green-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.3)]",
-                            "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
+                            "dark:text-refine-cyan-alt",
+                            "text-refine-indigo",
                         )}
                     >
-                        Faster
-                    </span>{" "}
-                    setup,{" "}
-                    <span
-                        className={clsx(
-                            "font-semibold",
-                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                            "text-refine-indigo drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
-                        )}
-                    >
-                        better
-                    </span>{" "}
-                    isolation,{" "}
-                    <span
-                        className={clsx(
-                            "font-semibold",
-                            "dark:text-refine-red dark:drop-shadow-[0_0_30px_rgba(255,76,77,0.4)]",
-                            "text-refine-purple drop-shadow-[0_0_30px_rgba(128,0,255,0.3)]",
-                        )}
-                    >
-                        fair
-                    </span>{" "}
-                    price.
+                        terminal
+                    </span>
+                    .
                 </h2>
             </div>
 
@@ -166,7 +147,7 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            OpenCLI serves as the command line interface, enabling you to execute all actions through the terminal.
+                            Anything you can click in OpenAdmin, you can also run from the terminal with opencli, so it is easy to script.
                         </p>
                         <LandingSectionCtaButton to="https://dev.openpanel.com/cli/">
                             All Commands

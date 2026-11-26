@@ -46,7 +46,7 @@ A recommendation is shown under the dropdown for the two options that skip secur
 - **Never:** update manually at least once a month.
 - **Major versions only:** update manually at least once a quarter, to get the minor versions with bug fixes and security patches.
 
-Both link to [how to update manually](/docs/articles/opencli/update/), and also say how many days ago the last update ran when that's over a month (Never) or 90 days (Major versions only).
+Both link to [how to update manually](/docs/opencli/update/), and also say how many days ago the last update ran when that's over a month (Never) or 90 days (Major versions only).
 
 ## Update logs
 The Update logs section provides a record of all updates that have been applied to OpenPanel.

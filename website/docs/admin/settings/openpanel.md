@@ -80,7 +80,7 @@ What changes for users:
 - Existing records of other types stay in the zone and keep working. Users can't edit them, but they can delete them.
 - The [Advanced Editor](/docs/panel/domains/dns/#advanced-editor) edits the zone file directly, so it isn't limited by this setting.
 
-The value is saved as `dns_record_types` and can also be [set with OpenCLI](/docs/articles/opencli/config/#dns_record_types).
+The value is saved as `dns_record_types` and can also be [set with OpenCLI](/docs/opencli/config/#dns_record_types).
 
 ## Display
 
@@ -89,6 +89,7 @@ Additional display settings include:
 - **Menu Style:** The default menu for OpenPanel users - **Classic** (expandable groups) or **Modern** (one link per area, with that area's pages as tabs at the top of each page). Users can still switch to the other style for themselves, see [Menu Style](/docs/panel/dashboard/menu-style/). The same setting also switches OpenAdmin's own menu, right after saving.
 - **Avatar Type:** Choose between Gravatar, Letter, or Icon for user avatars.
 - **Theme:** The look of the OpenPanel user panel. **Default** uses the templates built into OpenPanel. Below it are the installed themes (folders in `/etc/openpanel/openpanel/templates/`, shown with their screenshot, version, author and license from the theme's `readme.txt`) and the themes from the official list that aren't installed yet, each with an **Install** button. The chosen theme is saved as `template=` and applies after OpenPanel restarts. To build your own theme or submit one to the list, see [How to create and install themes](/docs/articles/dev-experience/openpanel-themes/).
+- <span id="users-can-switch-theme"></span>**Users can switch theme:** **No, everyone uses the selected theme** (default) or **Yes, users can pick any installed theme**. When it's on, users pick any installed theme for themselves from their account menu and in the first step of [Onboarding](/docs/panel/dashboard/onboarding/#steps), and the theme selected above stays the default for everyone who doesn't. Saved as `allow_user_theme=` in `openpanel.config`.
 - **Charts Mode for Resource Usage:** Select to show 1 chart, 2 charts, or no charts on the Resource Usage page.
 - **Enable Password Reset:** Allow users to reset passwords via the login form (not recommended for security reasons). When enabled without SMTP configured, a warning links to [SMTP settings](/docs/admin/settings/notifications#smtp-settings), since reset emails won't reach users until it's set up.
 - **Display 2FA Widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication for enhanced security.
@@ -169,7 +170,7 @@ Captcha, 2FA, and password protections for login and signup forms:
 ![Security section with the OpenPanel login and session options](/img/openadmin-screenshots/settings/openpanel-security_dark.png#gh-dark-mode-only)
 
 :::info
-Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed — these settings have no effect until it is installed.
+Captcha requires the [captcha plugin](https://github.com/stefanpejcic/captcha/) to be installed, these settings have no effect until it is installed.
 :::
 
 - **Minimum Password Strength:** A value between 1-100 setting the minimum password strength required for all password input fields in OpenPanel (account, FTP, Emails, Databases, etc).
@@ -210,8 +211,8 @@ Plugins and themes installed on new WordPress sites, and the profiles users can 
 The global default list of WordPress plugins, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [plugins set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
 Enter one item per row. Supported formats:
 
-* **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
-* **URL** — a direct link to a `.zip` plugin file hosted online
+* **wp\_org\_slug**: the plugin slug from the WordPress.org plugin page
+* **URL**: a direct link to a `.zip` plugin file hosted online
 
 Stored in `/etc/openpanel/wordpress/sets/plugins.txt` file.
 
@@ -220,8 +221,8 @@ Stored in `/etc/openpanel/wordpress/sets/plugins.txt` file.
 The global default list of WordPress themes, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [themes set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
 Enter one item per row. Supported formats:
 
-* **wp\_org\_slug** — the theme slug from the WordPress.org themes page
-* **URL** — a direct link to a `.zip` theme file hosted online
+* **wp\_org\_slug**: the theme slug from the WordPress.org themes page
+* **URL**: a direct link to a `.zip` theme file hosted online
 
 Stored in `/etc/openpanel/wordpress/sets/themes.txt` file.
 

@@ -72,7 +72,7 @@ done
 
 ### 2. Move them to a supported version
 
-For each domain from the list, run [`opencli php-domain`](/docs/articles/opencli/php/#change-version-for-a-domain):
+For each domain from the list, run [`opencli php-domain`](/docs/opencli/php/#change-version-for-a-domain):
 
 ```bash
 opencli php-domain example.com --update 8.3
@@ -82,7 +82,7 @@ Users can also do this themselves from **OpenPanel > PHP > Domains**.
 
 ### 3. Change the default version
 
-If a user's default PHP version is one you are removing, change it with [`opencli php-default`](/docs/articles/opencli/php/#change-the-default-version):
+If a user's default PHP version is one you are removing, change it with [`opencli php-default`](/docs/opencli/php/#change-the-default-version):
 
 ```bash
 opencli php-default <USERNAME>
@@ -121,9 +121,9 @@ podman restart openpanel
 
 ## Don't run `opencli update --php` or `--compose`
 
-[`opencli update --php`](/docs/articles/opencli/update/#php) adds every PHP version from the upstream template that is missing on your server. It adds them to the template and to all users, so it would bring the removed versions back. It only runs when you start it manually. It doesn't run with automatic updates.
+[`opencli update --php`](/docs/opencli/update/#php) adds every PHP version from the upstream template that is missing on your server. It adds them to the template and to all users, so it would bring the removed versions back. It only runs when you start it manually. It doesn't run with automatic updates.
 
-[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole template with the latest upstream version, so the removed versions come back for new users. Existing users aren't affected. If you run it, remove the versions from the template again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
+[`opencli update --compose`](/docs/opencli/update/#templates) replaces the whole template with the latest upstream version, so the removed versions come back for new users. Existing users aren't affected. If you run it, remove the versions from the template again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
 
 The [PHP Settings](/docs/admin/settings/php/) page in OpenAdmin may show a recommendation to install supported PHP versions that are missing. You can ignore it for the versions you removed on purpose.
 

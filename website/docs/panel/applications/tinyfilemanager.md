@@ -4,7 +4,7 @@ sidebar_position: 18
 
 # TinyFileManager
 
-Install and manage [TinyFileManager](https://github.com/prasathmani/tinyfilemanager) in an existing domain. This installs a standalone, password-protected, web-based file manager as a regular PHP application into a domain's docroot — a separate tool visitors log into at the site's own URL — which is entirely distinct from OpenPanel's own built-in [File Manager](/docs/panel/files/) used for browsing your hosting account's files from inside the panel. TinyFileManager is a single PHP file with no database, no CLI installer, no versioning, and no update mechanism upstream, so this manager is deliberately minimal: no dedicated sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
+Install and manage [TinyFileManager](https://github.com/prasathmani/tinyfilemanager) in an existing domain. This installs a standalone, password-protected, web-based file manager as a regular PHP application into a domain's docroot, a separate tool visitors log into at the site's own URL, which is entirely distinct from OpenPanel's own built-in [File Manager](/docs/panel/files/) used for browsing your hosting account's files from inside the panel. TinyFileManager is a single PHP file with no database, no CLI installer, no versioning, and no update mechanism upstream, so this manager is deliberately minimal: no dedicated sidebar page, no cloning, no scanning for existing installs, no hardening rules, no maintenance mode, no admin auto-login, and no cache to clear.
 
 ---
 
@@ -27,9 +27,9 @@ Behind the scenes, this downloads `tinyfilemanager.php` from the project's maste
 Every TinyFileManager install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a TinyFileManager site to open its overview page:
 
 * **Screenshot** and **TinyFileManager / PHP / Created** status cards. TinyFileManager always reports as "main" since there is no real versioning upstream.
-* **Files** – Docroot path, a File Manager shortcut, and live folder size. There is no Database card — TinyFileManager has no database.
+* **Files** – Docroot path, a File Manager shortcut, and live folder size. There is no Database card, TinyFileManager has no database.
 * **PHP version** – Editable for root-level installs; subdirectory installs inherit the domain's PHP version.
-* **Setup** – A reminder that TinyFileManager is ready to use immediately — log in with the admin credentials set at install time — with a link to open the site.
+* **Setup** – A reminder that TinyFileManager is ready to use immediately, log in with the admin credentials set at install time, with a link to open the site.
 
 ### Backups
 

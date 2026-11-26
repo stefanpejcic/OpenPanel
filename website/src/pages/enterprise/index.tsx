@@ -20,7 +20,7 @@ import { ENTERPRISE_TRIAL_URL } from "@site/src/refine-theme/enterprise-get-in-t
 import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 
 const Enterprise: React.FC = () => {
-    const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
+    const title = "OpenPanel Enterprise | Hosting Panel for Hosting Providers";
     // tawk.to chat widget, disabled for now — uncomment to re-enable
     /*
     useEffect(() => {
@@ -64,7 +64,7 @@ const Enterprise: React.FC = () => {
             </Head>
             <SoftwareApplicationSchema
                 name="OpenPanel Enterprise"
-                description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price."
+                description="OpenPanel Enterprise adds email, FTP, resellers and unlimited accounts to OpenPanel, for €14.95 per server per month."
                 url="https://openpanel.com/enterprise/"
                 offers={{
                     price: "14.95",
@@ -73,7 +73,7 @@ const Enterprise: React.FC = () => {
                 }}
             />
             <CommonLayout
-                description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price."
+                description="OpenPanel Enterprise adds email, FTP, resellers and unlimited accounts to OpenPanel, for €14.95 per server per month."
                 image="/img/og/enterprise.png"
             >
                 <div className={clsx()}>

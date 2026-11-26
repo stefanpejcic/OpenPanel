@@ -68,7 +68,7 @@ For your own company branding, see [White-label OpenPanel](/docs/articles/hostin
 
 ## Step 5: Automate It with Billing
 
-Sell reseller packages through your billing system, so resellers are created and suspended automatically when they pay (or don't). The [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/#resellers) creates a reseller on a package with `{"action":"create", ..., "plan":"<package>"}` and upgrades or downgrades it with `change_plan`. OpenPanel integrates with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
+Sell reseller packages through your billing system, so resellers are created and suspended automatically when they pay (or don't). The [OpenAdmin API](/docs/admin/api/#resellers) creates a reseller on a package with `{"action":"create", ..., "plan":"<package>"}` and upgrades or downgrades it with `change_plan`. OpenPanel integrates with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
 
 Resellers who run their own billing system can use the same modules to automate *their* client accounts.
 

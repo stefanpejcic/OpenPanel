@@ -60,7 +60,7 @@ const siteConfig = {
                               process.env.DISABLE_VERSIONING === "true",
                           versions: {
                               current: {
-                                  label: "2.0.28",
+                                  label: "2.0.29",
                               },
                           },
                           lastVersion: "current",
@@ -91,13 +91,17 @@ const siteConfig = {
                                   return item;
                               });
 
-                              // Docusaurus sorts file names as text (2.0.19 before 2.0.2), so put changelog versions in numeric order
+                              // changelog menu: newest version first in numeric order (Docusaurus sorts 2.0.19 before 2.0.2 as text), the intro page stays reachable but isn't listed
                               if (args.item.dirName === 'changelog') {
                                   const isVersion = (item) => item.type === 'doc' && /\/\d+(\.\d+)*$/.test(item.id);
+                                  const isIntro = (item) => item.type === 'doc' && /\/intro$/.test(item.id);
                                   const versions = modifiedSidebarItems
                                       .filter(isVersion)
-                                      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-                                  return modifiedSidebarItems.map((item) => (isVersion(item) ? versions.shift() : item));
+                                      .sort((a, b) => b.id.localeCompare(a.id, undefined, { numeric: true }));
+                                  const rest = modifiedSidebarItems.filter((item) => !isVersion(item) && !isIntro(item));
+                                  // the intro stays in the sidebar but hidden, a doc that isn't in any sidebar renders without one
+                                  const intro = modifiedSidebarItems.filter(isIntro).map((item) => ({ ...item, className: 'sidebar-item-hidden' }));
+                                  return [...versions, ...rest, ...intro];
                               }
 
                               return modifiedSidebarItems;
@@ -151,6 +155,13 @@ const siteConfig = {
                                 "/api-references/",
                             ),
                         ];
+                    }
+                    // the separate 2.0.10 docs are gone, its old URLs land on the current page with the same path
+                    if (
+                        existingPath.startsWith("/docs/") &&
+                        !/^\/docs\/(0|1)\.X\.X(\/|$)/.test(existingPath)
+                    ) {
+                        return [existingPath.replace(/^\/docs\//, "/docs/2.0.10/")];
                     }
                     return undefined; // Return a falsy value: no redirect created
                 },

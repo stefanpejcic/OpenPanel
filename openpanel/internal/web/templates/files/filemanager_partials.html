@@ -564,7 +564,7 @@ document.addEventListener("DOMContentLoaded", function () {
    <div class="readme-content mx-4 my-6 overflow-hidden rounded-md border border-gray-200 sm:mx-6 lg:mx-8 dark:border-gray-800">
       <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-2 dark:border-gray-800">
          <h2 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-50"><i class="ri-book-open-line text-gray-400"></i> README.md</h2>
-         <a href="/file-manager/edit-file/{{.PathParam}}/README.md" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Edit"}}" title="{{.T.Get "Edit"}}"><i class="ri-pencil-line"></i></a>
+         <a href="/file-manager/edit-file/{{.PathParam}}/README.md" target="_blank" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Edit"}}" title="{{.T.Get "Edit"}}"><i class="ri-pencil-line"></i></a>
       </div>
       <pre class="overflow-x-auto bg-gray-50 p-4 font-mono text-xs whitespace-pre-wrap text-gray-900 dark:bg-gray-900 dark:text-gray-50">{{.ReadmeContent}}</pre>
    </div>

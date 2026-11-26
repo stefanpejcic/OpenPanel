@@ -72,11 +72,20 @@ def block(title, rows):
     hdr = "| Version| Release date | \n|---|---|"
     return f"### {title}\n\n{hdr}\n" + "\n".join(rows) + "\n"
 
-md = "# Changelog\n"
-md += "\n" + block("Upcoming version", upcoming_rows)
-md += "\n" + block("Latest", [latest_row] if latest_row else [])
-md += "\n" + block("Previous versions", previous_rows)
+INTRO = "website/docs/changelog/intro.md"
+MARKER = "### Upcoming version"
+
+tables = block("Upcoming version", upcoming_rows)
+tables += "\n" + block("Latest", [latest_row] if latest_row else [])
+tables += "\n" + block("Previous versions", previous_rows)
+
+# only the version tables are generated, everything above them in intro.md is hand written and stays
+head = "# Changelog\n\n"
+if os.path.exists(INTRO):
+    current = open(INTRO).read()
+    if MARKER in current:
+        head = current[: current.index(MARKER)]
 
 os.makedirs("website/docs/changelog", exist_ok=True)
-with open("website/docs/changelog/intro.md", "w") as f:
-    f.write(md.strip() + "\n")
+with open(INTRO, "w") as f:
+    f.write(head + tables.strip() + "\n")

@@ -944,7 +944,7 @@ export const SolutionBillingStrip = () => (
         <div
             className={clsx(
                 "mt-8 landing-md:mt-12",
-                "grid grid-cols-2 landing-sm:grid-cols-5",
+                "grid grid-cols-2 landing-sm:grid-cols-6",
                 "gap-4",
             )}
         >
@@ -954,6 +954,7 @@ export const SolutionBillingStrip = () => (
                 { label: "FOSSBilling", to: "/billing/fossbilling-module/" },
                 { label: "ClientExec", to: "/billing/clientexec-module/" },
                 { label: "WiseCP", to: "/billing/wisecp-module/" },
+                { label: "ClientFence", to: "https://clientfence.com/" },
             ].map((item) => (
                 <Link
                     key={item.to}

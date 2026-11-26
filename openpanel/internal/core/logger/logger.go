@@ -98,3 +98,19 @@ func atoiDefault(s string, def int) int {
 	}
 	return n
 }
+
+// maxActionNames caps how many names a combined activity line lists
+const maxActionNames = 10
+
+// JoinNames lists names for a combined activity line, past the cap it ends with "and N more"
+func JoinNames(names []string) string {
+	list := names
+	if len(list) > maxActionNames {
+		list = list[:maxActionNames]
+	}
+	joined := strings.Join(list, ", ")
+	if extra := len(names) - len(list); extra > 0 {
+		joined += " and " + strconv.Itoa(extra) + " more"
+	}
+	return joined
+}

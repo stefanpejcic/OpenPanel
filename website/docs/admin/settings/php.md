@@ -8,7 +8,7 @@ Manage the default PHP version and configuration files for new user accounts.
 
 ### Default version
 
-The default PHP version used for new user accounts is not set on this page — it is configurable from the [Edit User Defaults](/docs/admin/settings/defaults/) page.
+The default PHP version used for new user accounts is not set on this page, it is configurable from the [Edit User Defaults](/docs/admin/settings/defaults/) page.
 
 ![Default version section linking to the User Defaults page](/img/openadmin-screenshots/settings/php-default.png#gh-light-mode-only)
 ![Default version section linking to the User Defaults page](/img/openadmin-screenshots/settings/php-default_dark.png#gh-dark-mode-only)
@@ -46,7 +46,7 @@ zlib.output_compression
 
 Here you can edit the PHP.INI configuration files that will be applied to new user accounts.
 
-If a PHP version that is released and still supported has no PHP.INI file on the server, a recommendation lists it with a link to install it with [`opencli update --php`](/docs/articles/opencli/update/#php). The supported versions come from the same list the [Edit User Defaults](/docs/admin/settings/defaults/) page uses. Unreleased and end-of-life versions aren't recommended. If you [removed PHP versions](/docs/articles/user-experience/how-to-remove-old-php-versions/) on purpose, ignore the recommendation for them and don't run `opencli update --php`, because it adds them back.
+If a PHP version that is released and still supported has no PHP.INI file on the server, a recommendation lists it with a link to install it with [`opencli update --php`](/docs/opencli/update/#php). The supported versions come from the same list the [Edit User Defaults](/docs/admin/settings/defaults/) page uses. Unreleased and end-of-life versions aren't recommended. If you [removed PHP versions](/docs/articles/user-experience/how-to-remove-old-php-versions/) on purpose, ignore the recommendation for them and don't run `opencli update --php`, because it adds them back.
 
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini.png#gh-light-mode-only)
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini_dark.png#gh-dark-mode-only)

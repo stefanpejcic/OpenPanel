@@ -166,7 +166,7 @@ Despite the difference in limits, all users under these plans will see **only My
 Create two separate feature sets:
 
 * **Advanced Users Set**:
-  Enable features like **Docker** and **php.ini editor** to give experienced users full control—such as setting custom resource limits, restarting services, etc.
+  Enable features like **Docker** and **php.ini editor** to give experienced users full control, such as setting custom resource limits, restarting services, etc.
 
 * **Beginner Users Set**:
   Do **not** enable advanced features. Instead, allow access to a **PHP selector** with limited options. This keeps the UI simple and safe for users with minimal technical experience.
