@@ -66,8 +66,8 @@ When disabled:
 * Users can not access the *Security > Active Sessions* page.
 
 Customize sessions duration:
-* To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
-* To **control session lifetime** edit 'Session lifetime' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
+* To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#login-sessions).
+* To **control session lifetime** edit 'Session lifetime' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#login-sessions).
 
 ## Locale
 
@@ -608,7 +608,7 @@ When disabled:
 * Users can not access the *Security > Login History* page.
 
 Customize options:
-* To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
+* To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#history).
 
 
 ## 2FA
@@ -1517,7 +1517,7 @@ When disabled:
 * Users can not access the *Statistics > Resource Usage* page.
 
 Customize options:
-* To **edit page settings** refer to: [**OpenAdmin > Settings > OpenPanel > Statistics** page](/docs/admin/settings/openpanel/#statistics).
+* To **edit page settings** refer to: [**OpenAdmin > Settings > OpenPanel > History & logs** page](/docs/admin/settings/openpanel/#history).
 * To **change how often the stats are collected (default = @hourly)** edit the schedule for `docker-collect_stats --all` cron.
 * To **display one combined or separate charts for cpu/ram** edit [`resource_usage_charts_mode` value](https://dev.openpanel.com/cli/config.html#resource-usage-charts-mode).
 * To **change the number of items per page** edit [`resource_usage_items_per_page` value](https://dev.openpanel.com/cli/config.html#resource-usage-items-per-page).

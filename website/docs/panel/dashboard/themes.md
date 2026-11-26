@@ -30,7 +30,7 @@ The redesigned panel: a sidebar layout, Overview and Tools views on the dashboar
 
 ## Who picks the theme
 
-The administrator sets the theme everyone gets in [OpenAdmin > Settings > OpenPanel > Display](/docs/admin/settings/openpanel/#display): **Default**, one of the installed themes, or one of the official themes, which can be installed from the same page. Custom themes can be added too, see [How to create and install themes](/docs/articles/dev-experience/openpanel-themes/).
+The administrator sets the theme everyone gets in [OpenAdmin > Settings > OpenPanel > Theme & layout](/docs/admin/settings/openpanel/#display): **Default**, one of the installed themes, or one of the official themes, which can be installed from the same page. Custom themes can be added too, see [How to create and install themes](/docs/articles/dev-experience/openpanel-themes/).
 
 The administrator can also turn on [Users can switch theme](/docs/admin/settings/openpanel/#users-can-switch-theme). Then every user can pick any installed theme for their own account, and the theme selected by the administrator stays the default for everyone who doesn't.
 
