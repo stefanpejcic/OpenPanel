@@ -63,14 +63,16 @@ func handleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	appkit.ProtectBackupsDir("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data")
-	backupsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + selectedDomain
+	htmlVol := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data"
+	appkit.ProtectBackupsDir(htmlVol)
+	backupsPath := htmlVol + "/backups/" + selectedDomain
 	if _, statErr := tenantfs.Stat(backupsPath); statErr != nil {
 		if mkErr := tenantfs.MkdirAll(backupsPath, 0o755); mkErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 			return
 		}
 	}
+	appkit.OwnUnder(htmlVol, backupsPath)
 
 	entries, readErr := tenantfs.ReadDir(backupsPath)
 	if readErr != nil {
@@ -411,6 +413,8 @@ func runWPBackup(ctx context.Context, a *appctx.App, userContext, site, docroot 
 	if uidErr == nil {
 		_ = tenantfs.Lchown(backupDirectory, uid, uid)
 	}
+	// backups/ and backups/<site>/ too, MkdirAll made them as root
+	appkit.OwnUnder(htmlVolume, backupDirectory)
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")

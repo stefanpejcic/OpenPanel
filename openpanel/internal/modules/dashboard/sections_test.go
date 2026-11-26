@@ -125,3 +125,27 @@ func TestBuildDashboardSectionsSitesNeedsAnApp(t *testing.T) {
 		}
 	}
 }
+
+// the built-in templates load Remix Icon only, so pinned apps need ri- icons there and keep their bi- icons on theme folders
+func TestWebsitesItemsIconsPerKit(t *testing.T) {
+	defaults := []SectionItem{{"git", "/git", "ri-git-branch-line", "Git", "", false}}
+	keys := []string{"joomla", "git", "docker"}
+	classic := websitesItems(defaults, keys, web.ThemeClassic)
+	modern := websitesItems(defaults, keys, web.ThemeModern)
+	if len(classic) != 3 || len(modern) != 3 {
+		t.Fatalf("want 3 items, got classic=%d modern=%d", len(classic), len(modern))
+	}
+	for _, item := range classic {
+		if !strings.HasPrefix(item.Icon, "ri-") {
+			t.Errorf("classic %s icon = %q, want a Remix icon", item.Key, item.Icon)
+		}
+	}
+	if modern[0].Icon != appItems["joomla"].Icon || modern[2].Icon != appItems["docker"].Icon {
+		t.Errorf("modern kit should keep the bi- icons, got %q and %q", modern[0].Icon, modern[2].Icon)
+	}
+	for key := range appItems {
+		if appItemsClassicIcons[key] == "" {
+			t.Errorf("appItems %q has no classic icon", key)
+		}
+	}
+}

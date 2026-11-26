@@ -9,6 +9,7 @@
       <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
       <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
       <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
+      <script src="{{static "js/editor-draft.js"}}"></script>
       <style>
          .CodeMirror {min-height: 50vh;height: auto;}
       </style>
@@ -533,6 +534,7 @@ div.CodeMirror-sizer {min-height: 500px!important;}
             <i class="ri-error-warning-line text-lg leading-5" aria-hidden="true"></i>
             <p>{{.T.Get "Meant for advanced users. A typo here isn't caught the way it is when you add or edit a job in the table, so check each block before saving."}}</p>
         </div>
+        {{template "editor_draft" (dict "T" .T "Class" "mt-4")}}
         <div class="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
             <div id="editor-container" class="min-w-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
                 <div class="flex items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
@@ -575,6 +577,15 @@ no-overlap</pre>
         cm.save();
         if (editor.form) editor.form.requestSubmit();
     }
+
+    opEditorDraft({
+        key: 'cron:' + {{toJSON .CurrentUsername}},
+        initial: editor.defaultValue,
+        get: () => codeMirror.getValue(),
+        set: (v) => { codeMirror.setValue(v); codeMirror.focus(); },
+        onChange: (cb) => codeMirror.on('change', cb),
+        form: editor.form,
+    });
 </script>
 
 <!-- END crons file editor -->

@@ -3,6 +3,7 @@ package summary
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"sort"
@@ -150,7 +151,7 @@ func (b *builder) website(name string) *Website {
 	return w
 }
 
-// Allowed reports whether the account can use the summary module, same rule as the sidebar
+// Allowed returns the account's features whose module is on, and whether the account may see its own summary (Summary module on and in its plan), same rule as the sidebar
 func Allowed(ctx context.Context, a *appctx.App, username, userContext string) (map[string]bool, bool) {
 	features, _ := a.LoadUserFeatures(ctx, username, userContext)
 	allowed := map[string]bool{}
@@ -162,8 +163,15 @@ func Allowed(ctx context.Context, a *appctx.App, username, userContext string) (
 	return allowed, a.ModuleEnabled("summary") && slices.Contains(features, "summary")
 }
 
-// Build collects the account's summary for the local day that starts at day
+// ErrModuleOff is returned by Build when the Summary module is off server-wide
+var ErrModuleOff = errors.New("the Summary module is not enabled")
+
+// Build collects the account's summary for the local day that starts at day, for every account while the module is on
+// (OpenAdmin's daily summary adds them all up), visible reports whether the account may see it in the panel and by email
 func Build(ctx context.Context, a *appctx.App, username string, day time.Time) (Summary, bool, error) {
+	if !a.ModuleEnabled("summary") {
+		return Summary{}, false, ErrModuleOff
+	}
 	var userID int
 	if err := a.DB.QueryRowContext(ctx, "SELECT id FROM users WHERE username = ?", username).Scan(&userID); err != nil {
 		return Summary{}, false, fmt.Errorf("user %s not found", username)
@@ -172,10 +180,7 @@ func Build(ctx context.Context, a *appctx.App, username string, day time.Time) (
 	if err != nil || userContext == "" {
 		return Summary{}, false, fmt.Errorf("no context for user %s", username)
 	}
-	allowed, ok := Allowed(ctx, a, username, userContext)
-	if !ok {
-		return Summary{}, false, nil
-	}
+	allowed, visible := Allowed(ctx, a, username, userContext)
 
 	from := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
 	s := &Summary{
@@ -206,7 +211,7 @@ func Build(ctx context.Context, a *appctx.App, username string, day time.Time) (
 	s.PrevRequests = b.prevTotal
 	b.busiestPage()
 	s.Headline = b.headline()
-	return *s, true, nil
+	return *s, visible, nil
 }
 
 // finishWebsites turns the traffic buckets into the sorted table, busiest first

@@ -43,7 +43,7 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 	if len(appKeys) > 0 {
 		for i := range all {
 			if all[i].Key == "websites" {
-				all[i].Items = websitesItems(all[i].Items, appKeys)
+				all[i].Items = websitesItems(all[i].Items, appKeys, kit)
 			}
 		}
 	}
@@ -367,8 +367,34 @@ var appItems = map[string]SectionItem{
 	"docker":           {"docker", "/containers/new", "bi-box-seam", "Docker", "", false},
 }
 
-// websitesItems swaps the Websites section items for the admin's list, reusing the section's own sites/wordpress/autoinstaller entries so their labels match the menu style
-func websitesItems(defaults []SectionItem, appKeys []string) []SectionItem {
+// appItemsClassicIcons are the Remix icons for appItems on the built-in templates, which load Remix Icon but not Bootstrap Icons
+var appItemsClassicIcons = map[string]string{
+	"joomla":           "ri-layout-grid-line",
+	"drupal":           "ri-drop-line",
+	"website_builder":  "ri-brush-line",
+	"prestashop":       "ri-shopping-cart-line",
+	"opencart":         "ri-shopping-cart-2-line",
+	"phpbb":            "ri-chat-3-line",
+	"flarum":           "ri-discuss-line",
+	"mediawiki":        "ri-book-2-line",
+	"dokuwiki":         "ri-booklet-line",
+	"sofawiki":         "ri-book-open-line",
+	"matomo":           "ri-bar-chart-2-line",
+	"nextcloud":        "ri-cloud-line",
+	"tinyphotogallery": "ri-image-line",
+	"tinyfilemanager":  "ri-folder-open-line",
+	"moodle":           "ri-graduation-cap-line",
+	"ojs":              "ri-book-marked-line",
+	"nodejs":           "ri-nodejs-line",
+	"python":           "ri-code-s-slash-line",
+	"ruby":             "ri-copper-diamond-line",
+	"java":             "ri-java-line",
+	"php":              "ri-php-line",
+	"docker":           "ri-box-3-line",
+}
+
+// websitesItems swaps the Websites section items for the admin's list, reusing the section's own sites/wordpress/autoinstaller/git entries so their labels and icons match the menu style and theme
+func websitesItems(defaults []SectionItem, appKeys []string, kit string) []SectionItem {
 	byKey := map[string]SectionItem{}
 	for _, item := range defaults {
 		byKey[item.Key] = item
@@ -378,6 +404,9 @@ func websitesItems(defaults []SectionItem, appKeys []string) []SectionItem {
 		if item, ok := byKey[key]; ok {
 			items = append(items, item)
 		} else if item, ok := appItems[key]; ok {
+			if icon := appItemsClassicIcons[key]; icon != "" && kit == web.ThemeClassic {
+				item.Icon = icon
+			}
 			items = append(items, item)
 		}
 	}

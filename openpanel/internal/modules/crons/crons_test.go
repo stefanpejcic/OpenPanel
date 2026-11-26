@@ -276,3 +276,40 @@ command = php /var/www/html/a.com/x.php
 		}
 	}
 }
+
+// ofelia reads crons.ini with gcfg, so these are all valid there and must be here too
+func TestNoOverlapForms(t *testing.T) {
+	cases := []struct {
+		line    string
+		want    bool
+		invalid bool
+	}{
+		{"no-overlap", true, false},
+		{"no-overlap = true", true, false},
+		{"no-overlap=true", true, false},
+		{"no-overlap = TRUE", true, false},
+		{"no-overlap = yes", true, false},
+		{"no-overlap = 1", true, false},
+		{"no-overlap = false", false, false},
+		{"no-overlap = off", false, false},
+		{"no-overlap = maybe", false, true},
+		{"overlap = true", false, true},
+	}
+	for _, c := range cases {
+		content := "[job-exec \"t\"]\nschedule = @every 5m\ncontainer = php-fpm-8.4\ncommand = echo hi\n" + c.line + "\n"
+		msg := ValidateCronFileFormat(content)
+		if c.invalid {
+			if msg == "" {
+				t.Errorf("%q: expected a validation error", c.line)
+			}
+			continue
+		}
+		if msg != "" {
+			t.Errorf("%q: unexpected error %q", c.line, msg)
+		}
+		jobs := ParseCronFile(content)
+		if len(jobs) != 1 || jobs[0].NoOverlap != c.want {
+			t.Errorf("%q: NoOverlap = %v, want %v", c.line, len(jobs) == 1 && jobs[0].NoOverlap, c.want)
+		}
+	}
+}

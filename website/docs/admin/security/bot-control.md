@@ -47,7 +47,7 @@ The value is saved as `events` in the `botcontrol_ratelimit` snippet in `/etc/op
 
 The **Who's hitting the server** section reads the Caddy access logs of all domains, or of the domain picked in the dropdown, for the last hour, 24 hours or 7 days:
 
-- **Domains**, **Total requests**, **AI crawler hits** and **Blocked / throttled** (HTTP `403` and `429` responses) at the top.
+- **Domains**, **Total requests**, **AI crawler hits** and **AI crawlers blocked / throttled** (HTTP `403` and `429` sent to AI crawlers) at the top. Under it, **Other visitors** counts the `403` and `429` responses everyone else got: those come from the site's per-IP rate limit or the WAF, not from bot control.
 - **Top bots & user-agents** with the operator, category (AI Training, AI Search, Scraper, Search Engine, Browser / Other), hits and blocked hits.
 - **Top networks & ASNs** with the number of IPs and hits from each network. ASN names come from `/etc/openpanel/asn_prefixes.tsv` when that file exists.
 - **Top hit URLs** with total, bot and blocked hits.

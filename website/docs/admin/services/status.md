@@ -35,6 +35,8 @@ Tick the checkbox of one or more services, or the checkbox in the table header t
 
 OpenAdmin itself (`admin`) can only be started from here, stopping or restarting it would end the request that runs the bulk action.
 
+Restarting a container from `/root/docker-compose.yml` recreates it, so it picks up any change in `/root/.env`, together with the containers that depend on it. Restarting redis or mysql also recreates openpanel.
+
 Click an action, confirm it, and it runs on the selected services one after another. When it's done the page reloads with a notice listing the services it worked for, or which ones failed and why.
 
 ## Edit services

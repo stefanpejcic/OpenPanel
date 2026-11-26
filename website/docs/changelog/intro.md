@@ -15,22 +15,22 @@ OpenPanel ships small, frequent releases. Here's the latest, what's coming next 
 ## All releases
 
 ### Upcoming version
-
-| Version| Release date | 
+| Version| Release date |
 |---|---|
-|__[2.0.29](/docs/changelog/2.0.29)__| December 05, 2026 |
-|__[1.7.67](/docs/changelog/1.7.67)__|  |
-
+| __[2.0.30](/docs/changelog/2.0.30)__| December 16, 2026 |
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[2.0.28](/docs/changelog/2.0.28)__| November 22, 2026 |
+|__[2.0.29](/docs/changelog/2.0.29)__| November 25, 2026 |
 
+| Version| Release date |
+|---|---|
 ### Previous versions
 
 | Version| Release date | 
 |---|---|
+|__[2.0.28](/docs/changelog/2.0.28)__| November 22, 2026 |
 |__[2.0.27](/docs/changelog/2.0.27)__| November 20, 2026 |
 |__[2.0.26](/docs/changelog/2.0.26)__| November 18, 2026 |
 |__[2.0.25](/docs/changelog/2.0.25)__| November 17, 2026 |

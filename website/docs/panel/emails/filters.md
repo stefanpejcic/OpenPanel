@@ -57,3 +57,16 @@ When conditions are met, one or more actions are executed:
 | **Auto-responder (vacation)** | Send an automatic reply with a custom subject and message, limited to once every N days per sender |
 | **Stop processing** | Skip any remaining filters |
 
+## Edit the Sieve file
+
+To write the Sieve rules by hand, switch to **File editor** at the top of the page. It shows the account's Sieve file, edit it and click **Save file**.
+
+:::tip Unsaved changes
+Unsaved edits in this editor are kept as a copy in your browser. If you leave the page, close the tab or the save fails, the next time you open the File editor for that email address a notice shows when that copy was made, with three options:
+
+- **View changes** shows what's different from the saved file, line by line.
+- **Restore** puts the copy back in the editor, then you can save it.
+- **Discard** deletes the copy.
+
+The copy stays only in that browser and is removed once the file is saved. Leaving the page with unsaved edits also asks you to confirm first.
+:::

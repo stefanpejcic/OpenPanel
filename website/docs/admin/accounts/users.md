@@ -187,23 +187,25 @@ Example response:
 
 ## Single user
 
-To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has tabs for Overview, Services, Storage, Volumes, Resource usage, Activity and Login log, and a menu with Edit, Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended) and Delete.
+To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has tabs for Overview, Services, Storage, Volumes, Resource usage, Activity and Login log, and a menu with Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended) and Delete. Every account setting is edited in place on the [Overview](#overview) tab. On a tablet the menu shows only icons, hover one to see its name.
+
+Next to **Log in as user** at the top of the page is the account's private note. Only admins and resellers see it, never the user. Click the dashed field to write one, it's saved as soon as you leave the field. A saved note shows in yellow, hover it and click the pencil to change or clear it.
 
 
 ### Statistics
 
-Overview is the default tab. Its top part displays current usage statistics:
+Overview is the default tab. Its top part shows the account's usage against its limits, each as a ring with the percentage:
 
-- Storage used
-- Inodes used
-- CPU usage
-- Memory usage
-- Number of running containers
-- Disk I/O
-- Network I/O
-- Number of PIDs
-- Time statistics usage was last update
-- Historical usage
+- **Storage** and **Inodes** from the disk quota. Click Storage to open the [Storage](#storage) tab.
+- **CPU**, **Memory** and **Processes** for the whole account, read live from the account's cgroup. When that can't be read they come from the last hourly usage snapshot.
+- **Domains**, **Websites**, **Databases**, **Emails** and **FTP** accounts against the plan's limits.
+
+Hover CPU, Memory or Processes and click the pencil to change that limit for this account only, the field starts with the current value:
+
+- **CPU** in cores and **Memory** in GB apply to the running account right away. They are outside the plan, so changing the user's plan later puts the plan's values back. The limits of the user's own services aren't changed, raise them on the [Services](#services) tab if they need more. `0` or an empty field puts the plan's value back.
+- **Processes** is the most processes all the account's containers can run together. By default it follows the plan's RAM, 1000 processes per GB and at least 1000. A number set here overrides that and is kept in `/home/<user>/TasksMax`, `0` or an empty field removes it and the plan's value applies again.
+
+Domains, Websites, Databases, Emails and FTP limits come only from the plan, change them by [editing the plan](/docs/admin/plans/hosting_plans) or moving the user to another one.
 
 ![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link](/img/openadmin-screenshots/accounts/users-stats.png#gh-light-mode-only)
 ![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link](/img/openadmin-screenshots/accounts/users-stats_dark.png#gh-dark-mode-only)
@@ -224,11 +226,16 @@ Services tab displays all user services (docker containers). Columns can be togg
 - Docker Image name and tag
 - Published ports
 - Environment variables (sensitive values such as passwords are masked and can be revealed on click)
-- Current CPU usage
-- Current Memory usage
+- CPU, memory and processes (PIDs), each with the current usage and the limit
 - Actions, including a terminal link to run podman exec commands in that service.
 
-An 'Edit Services' button also lets Administrators edit the raw service configuration.
+Click the arrows next to Name, Image, CPU, Memory or PIDs to sort the services.
+
+Click the pencil next to a service's CPU, Memory or PIDs to change its limit, it's saved without reloading the page and applied to the running container right away. `0` removes a process limit right away. For CPU or memory, `0` is saved and the page offers to restart the service, since a running container can't drop those limits. Restarting it recreates the container with the new limits.
+
+Click a service name to see its details: status (green running, orange starting or paused, red stopped or not created), when it started, restarts, image, restart policy, what it depends on, networks with their IPs, ports, volumes, command and healthcheck. **Edit service** in the details opens just that service's part of `docker-compose.yml` and the `.env` variables it uses, one field each. Variables that pick an image tag are a select of the tags on Docker Hub, and ports are read only since OpenPanel sets them. The changes are checked before they're saved, then the page offers to restart the service so they apply.
+
+An 'Edit Services' button also lets Administrators edit the raw service configuration of the whole account.
 
 ![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services.png#gh-light-mode-only)
 ![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services_dark.png#gh-dark-mode-only)
@@ -276,23 +283,26 @@ Click a volume to see its mountpoint on the server, driver and scope, compose pr
 
 ### Overview
 
-Below the usage statistics, the Overview tab displays detailed user information.
+Below the usage statistics, the Overview tab displays the account's details. Hover a field to see what it is from its info icon, and click the pencil to change it in place, **Cancel** closes it without saving.
 
 ![User details on the Overview tab: username, email, plan, locale, 2FA status, IP address, location, server, docker context and setup time](/img/openadmin-screenshots/accounts/users-info.png#gh-light-mode-only)
 ![User details on the Overview tab: username, email, plan, locale, 2FA status, IP address, location, server, docker context and setup time](/img/openadmin-screenshots/accounts/users-info_dark.png#gh-dark-mode-only)
 
-Displayed information:
-
-- Username
-- Email Address
-- User ID
-- IP Address
-- Geo Location for the IP
-- Server Name
-- Docker Context
-- 2FA status
-- Reseller (if the user is owned by a reseller)
-- Setup Time
+| Field | What you can do |
+|---|---|
+| **Username** | The name the user logs in with and sees in the user panel. Click the pencil to rename the account. On the server the account goes by its Docker context. |
+| **Password** | Never shown. Click the pencil to set a new one or **Generate** one. |
+| **Email address** | Where password resets and notifications go, change it with the pencil. |
+| **2FA status** | Whether the user signs in with a second factor, the pencil turns it off. |
+| **Plan** | Pick another plan from the select. Changing it puts the plan's CPU, memory and process limits back on the account. |
+| **Reseller** | The reseller that owns the account, or None. Only Administrators can change it. |
+| **Locale** | Language of the user panel. |
+| **Setup time** | When the account was created. |
+| **IP address** | The shared server IP or a dedicated one, pick it from the select. |
+| **Web server** | Can only be changed while the account has no domains. |
+| **Default PHP version**, **Database type**, **Varnish caching** | Change them with their pencil. |
+| **Docker context**, **User ID (UID)**, **Home dir**, **Server** | Where the account lives on the server, read only. |
+| **Custom message** | Shown to the user at the top of their OpenPanel dashboard. The field shows the start of it, the pencil opens the editor with a preview of how it looks on the user's dashboard. |
 
 
 ### Permissions
@@ -323,23 +333,6 @@ Displays a log of successful logins for the user, separate from the general Acti
 
 ![Login Log tab with the date, country and IP address of each login](/img/openadmin-screenshots/accounts/users-logins.png#gh-light-mode-only)
 ![Login Log tab with the date, country and IP address of each login](/img/openadmin-screenshots/accounts/users-logins_dark.png#gh-dark-mode-only)
-
-### Edit
-From the Edit tab, Administrators can edit user information:
-
-- Username
-- Email address
-- Password (leave empty to keep the current password)
-- IP address
-- Reseller (change the account's owner/reseller)
-- Hosting Package
-
-Click **Save** to apply the changes.
-
-![Edit tab with the username, email, password, IP address, reseller and hosting package fields](/img/openadmin-screenshots/accounts/users-edit.png#gh-light-mode-only)
-![Edit tab with the username, email, password, IP address, reseller and hosting package fields](/img/openadmin-screenshots/accounts/users-edit_dark.png#gh-dark-mode-only)
-
-Below the form, the Edit tab also lets Administrators set a custom message that is shown to this user in OpenPanel.
 
 ### Export
 
@@ -415,10 +408,7 @@ opencli user-unsuspend filip
 <Tabs>
   <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
 
-To reset password for a user, click on the "Edit" tab and set the new password in the Password field (leave it empty to keep the current password) then click **Save**.
-
-![Edit tab with the password field and the Generate button](/img/openadmin-screenshots/accounts/users-edit.png#gh-light-mode-only)
-![Edit tab with the password field and the Generate button](/img/openadmin-screenshots/accounts/users-edit_dark.png#gh-dark-mode-only)
+To reset password for a user, open the user, hover **Password** on the Overview tab and click the pencil. Type the new password or click **Generate**, then **Save**.
 
 
   </TabItem>
@@ -456,7 +446,7 @@ curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: applic
 <Tabs>
   <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
 
-To rename a user, click on the "Edit" tab for the user, then change the 'Username' field and click **Save**.
+To rename a user, open the user, hover **Username** on the Overview tab, click the pencil, type the new name and click **Save**.
 
 
   </TabItem>
@@ -483,7 +473,7 @@ User 'stefan' successfully renamed to 'pejcic'.
 <Tabs>
   <TabItem value="openadmin-user-plan" label="With OpenAdmin" default>
 
-To change a package for a user, click on the "Edit" tab for the user, then select the new hosting plan and click **Save**.
+To change a package for a user, open the user, hover **Plan** on the Overview tab, click the pencil, pick the new hosting plan and click **Save**.
 
   </TabItem>
   <TabItem value="CLI-user-plan" label="With OpenCLI">
@@ -502,7 +492,7 @@ opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 <Tabs>
   <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
 
-To change email address for a user, click on the "Edit" tab for the user, then change the 'Email' field and click **Save**.
+To change email address for a user, open the user, hover **Email address** on the Overview tab, click the pencil, type the new address and click **Save**.
 
   </TabItem>
   <TabItem value="CLI-user-email" label="With OpenCLI">

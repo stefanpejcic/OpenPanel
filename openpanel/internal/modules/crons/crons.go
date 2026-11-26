@@ -163,6 +163,24 @@ func splitKV(line string) (key, val string, ok bool) {
 	return strings.TrimSpace(line[:idx]), strings.TrimSpace(line[idx+1:]), true
 }
 
+// parseNoOverlap reads a no-overlap line the way ofelia's gcfg does: bare means true, or no-overlap = true/false (yes/no, on/off, 1/0)
+func parseNoOverlap(line string) (value, ok bool) {
+	if line == "no-overlap" {
+		return true, true
+	}
+	key, val, kv := splitKV(line)
+	if !kv || key != "no-overlap" {
+		return false, false
+	}
+	switch strings.ToLower(val) {
+	case "true", "yes", "on", "1":
+		return true, true
+	case "false", "no", "off", "0":
+		return false, true
+	}
+	return false, false
+}
+
 // ParseCronFile mirrors parse_cron_file(). Intentionally tolerant of key order and extra whitespace so existing/legacy crons.ini files keep rendering even if they don't match the stricter format ValidateCronFileFormat enforces for new saves.
 func ParseCronFile(content string) []CronJob {
 	var jobs []CronJob
@@ -178,8 +196,8 @@ func ParseCronFile(content string) []CronJob {
 		job := CronJob{Comment: strings.TrimSpace(headerMatch[1]), Disabled: disabled}
 		for _, rawLine := range strings.Split(block, "\n") {
 			line := strings.TrimSpace(rawLine)
-			if line == "no-overlap" {
-				job.NoOverlap = true
+			if v, ok := parseNoOverlap(line); ok {
+				job.NoOverlap = v
 				continue
 			}
 			key, val, ok := splitKV(line)
@@ -278,7 +296,7 @@ func uniqueCronComment(existing []CronJob, base string) string {
 //	schedule = ...
 //	container = ...
 //	command = ...
-//	no-overlap   (optional)
+//	no-overlap   (optional, or no-overlap = true/false like ofelia accepts)
 //
 // with exactly one blank line separating each block. Returns "" if well-formed (or empty), otherwise a message describing the first problem found.
 func ValidateCronFileFormat(content string) string {
@@ -319,8 +337,10 @@ func ValidateCronFileFormat(content string) string {
 		}
 
 		switch {
-		case len(lines) == 5 && lines[4] != "no-overlap":
-			return fmt.Sprintf(`%s: unexpected line %q — only "no-overlap" is allowed after command.`, jobLabel, lines[4])
+		case len(lines) == 5:
+			if _, ok := parseNoOverlap(lines[4]); !ok {
+				return fmt.Sprintf(`%s: unexpected line %q — only "no-overlap" or "no-overlap = true/false" is allowed after command.`, jobLabel, lines[4])
+			}
 		case len(lines) > 5:
 			return fmt.Sprintf(`%s: too many lines in this block — make sure exactly one empty line separates each [job-exec] block.`, jobLabel)
 		}

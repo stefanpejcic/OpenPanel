@@ -3311,13 +3311,19 @@ paths:
                         example: 312
                       blocked_count:
                         type: integer
+                        description: AI crawlers that got 403 or 429
                         example: 40
+                      other_blocked:
+                        type: integer
+                        description: 403s and 429s other visitors got from the site's per-IP rate limit or the WAF
+                        example: 3
                     example:
                       window: 24h
                       scope: All domains
                       total_requests: 1520
                       ai_requests: 312
                       blocked_count: 40
+                      other_blocked: 3
                 example:
                   module_enabled: true
                   rate_limit: 10
@@ -3338,6 +3344,7 @@ paths:
                     total_requests: 1520
                     ai_requests: 312
                     blocked_count: 40
+                    other_blocked: 3
         default:
           $ref: '#/components/responses/Error'
       security:

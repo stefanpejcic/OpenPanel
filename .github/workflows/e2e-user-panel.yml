@@ -45,7 +45,17 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.TEST_SSH_KEY }}" > ~/.ssh/id
           chmod 600 ~/.ssh/id
-          ssh-keyscan -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          if [ -z "${{ secrets.TEST_SSH_HOST }}" ]; then
+            echo "::error::TEST_SSH_HOST secret is empty"; exit 1
+          fi
+          if ! timeout 20 bash -c '</dev/tcp/${{ secrets.TEST_SSH_HOST }}/22' 2>/dev/null; then
+            echo "::error title=Test box unreachable::cannot reach the test box on port 22 (connection timed out or refused), the box or its network is down, no tests were run"
+            exit 1
+          fi
+          if ! ssh-keyscan -T 15 -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts; then
+            echo "::error title=ssh-keyscan failed::port 22 is open but ssh-keyscan got no host key from the test box"
+            exit 1
+          fi
 
       - name: Acquire exclusive box lock
         # user-panel (this repo) and the admin suite (openadmin repo) share one
