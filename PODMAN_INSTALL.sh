@@ -790,6 +790,11 @@ setup_compose() {
         done
     fi
 
+    # load alert at 2x the cores like OpenAdmin > Notifications recommends, sentinel accepts 1-100
+    local load_alert=$(( total_cpus * 2 ))
+    (( load_alert > 100 )) && load_alert=100
+    sed -i "s/^load=.*/load=${load_alert}/" "${ETC_DIR}openadmin/config/notifications.ini"
+
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/container_my.cnf"
