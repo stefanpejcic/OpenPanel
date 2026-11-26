@@ -792,6 +792,8 @@ setup_compose() {
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/container_my.cnf"
+    # these hold the MySQL root password, only root reads them
+    chmod 600 "${ETC_DIR}mysql/host_my.cnf" "${ETC_DIR}mysql/container_my.cnf"
 
     [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
     if [[ "$OS_ID" == "debian" ]]; then
@@ -1287,6 +1289,8 @@ create_admin_account() {
     fi
 
     sqlite3 "${ETC_DIR}openadmin/users.db" "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);" 2>/dev/null || true
+    # admin password hashes and 2FA secrets live here, and the panel config holds API keys
+    chmod 600 "${ETC_DIR}openadmin/users.db" "$CONFIG_FILE" 2>/dev/null || true
     /usr/local/bin/opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
 
     local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
