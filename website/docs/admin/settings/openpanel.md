@@ -43,6 +43,9 @@ Each logo is either uploaded or set as a URL. When no logo is set, the field off
 - **Applications shown on the dashboard:** Which applications are listed on the users' dashboard.
 - **Display link to report bugs:** Show a "Found a bug? Let us know" link at the bottom of all user pages.
 
+![Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications and the report bugs link](/img/openadmin-screenshots/settings/openpanel-dashboard.png#gh-light-mode-only)
+![Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications and the report bugs link](/img/openadmin-screenshots/settings/openpanel-dashboard_dark.png#gh-dark-mode-only)
+
 ### Onboarding wizard {#onboarding}
 
 When enabled, new users get a short guided setup wizard on their first login. Steps the user has already set up are skipped (Webserver once they have a domain, Database once they have a database, Backups once a destination is configured, 2FA once it's enabled). See the [Onboarding page](/docs/panel/dashboard/onboarding) for what users see.
@@ -86,6 +89,9 @@ A warning is shown when Validate IP address on session cookie is off (a cookie s
 - **Enforce 2FA:** After login, users are sent to the 2FA setup page and can't open other pages until 2FA is configured.
 
 A warning is shown when Minimum password strength is below 50 (weak passwords are accepted) and when the Weakpass.com check is off (passwords found in data breaches can be used).
+
+![Passwords and 2FA section with the minimum password strength, Weakpass check and Enforce 2FA](/img/openadmin-screenshots/settings/openpanel-passwords.png#gh-light-mode-only)
+![Passwords and 2FA section with the minimum password strength, Weakpass check and Enforce 2FA](/img/openadmin-screenshots/settings/openpanel-passwords_dark.png#gh-dark-mode-only)
 
 ## Accounts
 
@@ -186,8 +192,8 @@ A warning is shown when:
 - **Resource usage items to log per user:** Resource usage entries stored per user.
 - **Resource usage items per page:** Resource usage entries shown per page.
 
-![History and logs section with the login, activity and resource usage history options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
-![History and logs section with the login, activity and resource usage history options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)
+![History and logs section with the login, activity and resource usage history options](/img/openadmin-screenshots/settings/openpanel-history.png#gh-light-mode-only)
+![History and logs section with the login, activity and resource usage history options](/img/openadmin-screenshots/settings/openpanel-history_dark.png#gh-dark-mode-only)
 
 ## WordPress
 
