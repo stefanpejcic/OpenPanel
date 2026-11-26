@@ -125,8 +125,57 @@ func checkHostPaths(composeData map[string]any, names []string, userContext, ser
 		if bindSourceEscapes(home, strings.TrimPrefix(n, "./")) {
 			return fmt.Errorf("Volume %q resolves outside your account through a symlink. Use a real folder inside your account.", n)
 		}
+		if other := nestedBindSource(composeData, names, n, service); other != "" {
+			return fmt.Errorf("Volume %q can't sit inside or contain %q, which another container mounts. Use a separate folder.", n, other)
+		}
 	}
 	return nil
+}
+
+// nestedBindSource finds another mount that n sits inside or contains, since whoever writes the outer folder can swap the inner one for a symlink
+func nestedBindSource(composeData map[string]any, names []string, n, service string) string {
+	mine := relBindPath(n)
+	if mine == "" {
+		return ""
+	}
+	others := map[string]bool{}
+	services, _ := composeData["services"].(map[string]any)
+	for name := range services {
+		if name == service {
+			continue
+		}
+		for src := range serviceVolumeSources(composeData, name) {
+			others[src] = true
+		}
+	}
+	for _, o := range names {
+		if strings.TrimSpace(o) != n {
+			others[strings.TrimSpace(o)] = true
+		}
+	}
+	for o := range others {
+		theirs := relBindPath(o)
+		if theirs == "" || theirs == mine {
+			continue
+		}
+		if strings.HasPrefix(theirs, mine+"/") || strings.HasPrefix(mine, theirs+"/") {
+			return o
+		}
+	}
+	return ""
+}
+
+// relBindPath turns a ./x bind source into its cleaned relative path, "" for named volumes and absolute paths
+func relBindPath(n string) string {
+	rest, ok := strings.CutPrefix(strings.TrimSpace(n), "./")
+	if !ok {
+		return ""
+	}
+	c := path.Clean(rest)
+	if c == "." || strings.HasPrefix(c, "..") {
+		return ""
+	}
+	return c
 }
 
 // bindSourceEscapes reports whether the relative bind source rel, resolved under the account home, leaves

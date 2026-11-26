@@ -278,7 +278,8 @@ func apiPsqlImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if mpErr := r.ParseMultipartForm(1 << 30); mpErr != nil {
+	r.Body = http.MaxBytesReader(w, r.Body, (1<<30)+(1<<20))
+	if mpErr := r.ParseMultipartForm(32 << 20); mpErr != nil {
 		writeAPIPsqlJSON(w, http.StatusBadRequest, map[string]string{"error": "SQL file required (multipart field: 'file')."})
 		return
 	}

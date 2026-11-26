@@ -46,7 +46,9 @@ func handleMongoImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	if r.Method == http.MethodPost {
-		if mpErr := r.ParseMultipartForm(1 << 30); mpErr != nil {
+		// 1 GB per upload at most, and only 32 MB of it held in memory
+		r.Body = http.MaxBytesReader(w, r.Body, (1<<30)+(1<<20))
+		if mpErr := r.ParseMultipartForm(32 << 20); mpErr != nil {
 			_ = r.ParseForm()
 		}
 		file, fileHeader, fileErr := r.FormFile("db_file")

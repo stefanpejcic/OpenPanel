@@ -116,18 +116,20 @@ func handleSmartHTTP(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "git is not installed", http.StatusInternalServerError)
 		return
 	}
+	if err := checkAccountRoot(userContext); err != nil {
+		http.Error(w, "repository not found", http.StatusNotFound)
+		return
+	}
 	h := &cgi.Handler{
 		Path: gitBin,
 		Args: []string{"http-backend"},
 		Root: httpPrefix + user,
-		Env: []string{
+		Env: append([]string{
 			"GIT_PROJECT_ROOT=" + accountRoot(userContext),
 			"GIT_HTTP_EXPORT_ALL=1",
-			"GIT_CONFIG_NOSYSTEM=1",
 			"REMOTE_USER=" + user,
-			"HOME=" + accountRoot(userContext),
 			"PATH=" + os.Getenv("PATH"),
-		},
+		}, gitSafeEnv...),
 	}
 
 	if service != "git-receive-pack" || rest != "git-receive-pack" {

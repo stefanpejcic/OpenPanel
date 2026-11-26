@@ -35,7 +35,8 @@ func apiMySQLImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	maxBytes := int64(web.AtoiDefault(mysqlImportMaxSizeGB, 1))*1024*1024*1024 + (1 << 20)
-	if mpErr := r.ParseMultipartForm(maxBytes); mpErr != nil {
+	r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+	if mpErr := r.ParseMultipartForm(32 << 20); mpErr != nil {
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "SQL file required (multipart field: 'file')."})
 		return
 	}

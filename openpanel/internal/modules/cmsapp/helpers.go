@@ -10,6 +10,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -114,6 +115,10 @@ func RequestParams(ctx context.Context, a *appctx.App, r *http.Request, userID i
 	domain = r.URL.Query().Get("domain")
 	docroot = r.URL.Query().Get("docroot")
 	if domain == "" || docroot == "" {
+		return "", "", "", false
+	}
+	// docroot ends up in crons.ini and container commands, so a newline here could write whole cron jobs
+	if !appkit.SafeDocroot(docroot) {
 		return "", "", "", false
 	}
 

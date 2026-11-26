@@ -792,6 +792,8 @@ setup_compose() {
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/container_my.cnf"
+    # these hold the MySQL root password, only root reads them
+    chmod 600 "${ETC_DIR}mysql/host_my.cnf" "${ETC_DIR}mysql/container_my.cnf"
 
     [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
     if [[ "$OS_ID" == "debian" ]]; then
@@ -1275,8 +1277,10 @@ create_admin_account() {
     if [[ "$SET_ADMIN_USERNAME" == true ]]; then
         new_username="$custom_username"
     else
-        # shellcheck disable=SC1091,SC2154
-        wget --inet4-only --timeout=3 --tries=2 -q -O /tmp/generate.sh https://raw.githubusercontent.com/stefanpejcic/random-username-generator/refs/heads/main/generator.sh 2>/dev/null && source /tmp/generate.sh && new_username="$random_name" || new_username="admin"
+        # picked locally, sourcing a script from github as root just for a name isn't worth it
+        local left=(brave calm clever eager gentle happy jolly keen lucky mighty nimble proud quick sharp steady swift witty bold bright cool)
+        local right=(falcon otter tiger panda raven fox lynx heron wolf badger eagle bison koala gecko orca puma yak cobra moose crane)
+        new_username="${left[RANDOM % ${#left[@]}]}_${right[RANDOM % ${#right[@]}]}$(( RANDOM % 10 ))"
     fi
 
     if [[ "$SET_ADMIN_PASSWORD" == true && "$custom_password" =~ ^[A-Za-z0-9]{5,30}$ ]]; then
@@ -1287,6 +1291,8 @@ create_admin_account() {
     fi
 
     sqlite3 "${ETC_DIR}openadmin/users.db" "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);" 2>/dev/null || true
+    # admin password hashes and 2FA secrets live here, and the panel config holds API keys
+    chmod 600 "${ETC_DIR}openadmin/users.db" "$CONFIG_FILE" 2>/dev/null || true
     /usr/local/bin/opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
 
     local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
@@ -1367,18 +1373,38 @@ clean_notifications() {
     echo > /var/log/openpanel/admin/notifications.log
 }
 
+# small built-in progress bar on the last terminal line, used to be sourced as root from a third-party repo
 setup_progress_bar() {
-    local url="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
-    if command -v curl &>/dev/null; then
-        curl -4 --max-time 5 -s "$url" -o progress_bar.sh >/dev/null 2>&1
-    elif command -v wget &>/dev/null; then
-        wget --timeout=5 --tries=3 --inet4-only "$url" -O progress_bar.sh >/dev/null 2>&1
-    else
-        echo "Neither wget nor curl found."; exit 1
-    fi
-    [[ -f progress_bar.sh ]] || { echo "Failed to download progress_bar.sh"; exit 1; }
-    # shellcheck disable=SC1091
-    source progress_bar.sh
+    _pb_tty=false
+    [[ -t 1 ]] && command -v tput &>/dev/null && _pb_tty=true
+}
+
+enable_trapping() {
+    trap 'destroy_scroll_area; exit 130' INT
+}
+
+setup_scroll_area() {
+    $_pb_tty || return 0
+    local lines; lines=$(tput lines)
+    printf '\n\0337\033[0;%sr\0338\033[1A' "$((lines - 1))"
+}
+
+draw_progress_bar() {
+    $_pb_tty || return 0
+    local pct=$1 lines cols width filled
+    lines=$(tput lines); cols=$(tput cols)
+    width=$(( cols - 17 )); (( width < 10 )) && width=10
+    filled=$(( width * pct / 100 ))
+    printf '\0337\033[%s;0f\033[0K Progress: [%3d%%] [' "$lines" "$pct"
+    printf '%*s' "$filled" '' | tr ' ' '#'
+    printf '%*s' "$(( width - filled ))" '' | tr ' ' '.'
+    printf ']\0338'
+}
+
+destroy_scroll_area() {
+    $_pb_tty || return 0
+    local lines; lines=$(tput lines)
+    printf '\0337\033[0;%sr\0338\033[%s;0f\033[0K' "$lines" "$lines"
 }
 
 STEPS=(
