@@ -37,6 +37,8 @@ const (
 	defaultListenAddr = ":" + defaultAdminPort
 	// where OpenAdmin saves custom code (custom.css/js, in_header/in_footer.html), robots.txt and security.txt can go here too
 	defaultStaticOverrideDir = "/etc/openpanel/openpanel/custom_code"
+	// logos uploaded in OpenAdmin, served at /brand/
+	defaultBrandDir = "/etc/openpanel/openpanel/brand"
 	// soft limit so the GC hands memory back after heavy pages, GOMEMLIMIT overrides it
 	defaultMemoryLimit = 128 << 20
 )
@@ -137,6 +139,7 @@ func main() {
 	// only these two root-level files are served this way, anything else 404s
 	root.HandleFunc("GET /robots.txt", staticAssets.ServeRootFile("robots.txt"))
 	root.HandleFunc("GET /security.txt", staticAssets.ServeRootFile("security.txt"))
+	root.HandleFunc("GET /brand/{file}", web.ServeBrandFile(envOrDefault("BRAND_DIR", defaultBrandDir)))
 	root.Handle("/", handler)
 	handler = web.Gzip(root)
 	handler = frameGuard(handler)
