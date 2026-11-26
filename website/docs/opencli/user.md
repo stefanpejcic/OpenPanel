@@ -582,7 +582,7 @@ opencli user-mcp <USERNAME> [--name=NAME] [--readonly|--no-deletes] [--features=
 
 ```bash
 # opencli user-mcp stefan --client=claude-code
-Created MCP token "opencli 2026-11-23" for user stefan.
+Created MCP token "opencli 2026-11-23" for user stefan, all features except account, 2FA, passkeys and phpMyAdmin.
 It is shown only once. Revoke it with: opencli user-mcp stefan --revoke=<ID from --list>
 
 MCP URL: https://server.example.com:2083/mcp
@@ -601,7 +601,7 @@ Claude Code (run in a terminal):
 | `--name=NAME` | Token name, shown on the user's token page. Default `opencli YYYY-MM-DD`. |
 | `--readonly` | The token can only look things up. |
 | `--no-deletes` | The token can create and change things, but not delete, restore, change passwords or overwrite config. |
-| `--features=a,b` | Limit the token to these features, for example `dns,domains`. The user must have each of them. |
+| `--features=a,b` | Limit the token to these features, for example `dns,domains`. The user must have each of them. Without it the token gets every feature the user has except `account`, `twofa`, `passkeys` and `phpmyadmin`, which have to be named. The list is kept as it is, features the user gets later aren't added. |
 | `--expires=DAYS` | The token stops working after this many days. Default: never. |
 | `--client=NAME` | Print setup for one client only: `claude-code`, `claude-desktop`, `codex`, `cursor`, `vscode` or `gemini`. Without it, all six are printed. |
 | `--json` | Print the token and MCP URL as JSON instead of setup instructions. |

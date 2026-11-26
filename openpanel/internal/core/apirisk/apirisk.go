@@ -59,11 +59,15 @@ var muxParamRE = regexp.MustCompile(`\{[^{}]+\}`)
 
 // ExposesSecrets is true for reads that hand back credentials: a site's database password or a phpMyAdmin autologin link
 func ExposesSecrets(r *http.Request) bool {
-	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+	return SecretRoute(r.Method, r.URL.Path)
+}
+
+// SecretRoute is ExposesSecrets for a method and path, works on documented paths with <param> placeholders too
+func SecretRoute(method, path string) bool {
+	if method != http.MethodGet && method != http.MethodHead {
 		return false
 	}
-	p := r.URL.Path
-	return p == "/api/phpmyadmin" || (strings.HasPrefix(p, "/api/sites/") && strings.HasSuffix(p, "/wp-info"))
+	return path == "/api/phpmyadmin" || (strings.HasPrefix(path, "/api/sites/") && strings.HasSuffix(path, "/wp-info"))
 }
 
 // docKey makes "GET /api/x/<int:id>" and the mux pattern "GET /api/x/{id}" compare equal

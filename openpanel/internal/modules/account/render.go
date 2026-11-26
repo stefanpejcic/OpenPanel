@@ -307,7 +307,11 @@ type MCPPageData struct {
 	MCPURL         string
 	NewToken       string
 	FeatureOptions []mcpFeatureOption
-	FeatureLabels  map[string]string
+	// SensitiveOptions are the opt-in features the user has, shown apart with a warning
+	SensitiveOptions []mcpFeatureOption
+	FeatureLabels    map[string]string
+	// FeatureSummaries replaces a long list with "All features" when a token holds one of the presets
+	FeatureSummaries map[int]string
 }
 
 func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens []mcptokens.Token, mcpURL, newToken string) {
@@ -320,6 +324,28 @@ func renderMCPPage(a *appctx.App, w http.ResponseWriter, r *http.Request, tokens
 	data := MCPPageData{
 		LayoutData: layout, Tokens: tokens, MCPURL: mcpURL, NewToken: newToken,
 		FeatureOptions: mcpFeatureOptions(layout.UserAllowed), FeatureLabels: mcpFeatureLabels(),
+		FeatureSummaries: map[int]string{},
+	}
+	for _, o := range data.FeatureOptions {
+		if o.Sensitive {
+			data.SensitiveOptions = append(data.SensitiveOptions, o)
+		}
+	}
+	var userFeatures []string
+	for f, ok := range layout.UserAllowed {
+		if ok {
+			userFeatures = append(userFeatures, f)
+		}
+	}
+	for _, t := range tokens {
+		switch featuresSummary(mcptokens.Scope{Features: t.Features, AllFeatures: t.AllFeatures}, userFeatures) {
+		case "":
+			data.FeatureSummaries[t.ID] = "All features, including ones added later"
+		case "all":
+			data.FeatureSummaries[t.ID] = "All features"
+		case "default":
+			data.FeatureSummaries[t.ID] = "All features except account, 2FA, passkeys and phpMyAdmin"
+		}
 	}
 	if err := mcpPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - mcp template render error: %v", err)

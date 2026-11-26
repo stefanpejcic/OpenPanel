@@ -30,15 +30,20 @@ When generating a token you can also set:
 - **Expiry**: never, 30 days, 90 days, or 1 year. By default tokens don't expire, so set one of the time limits if you'd rather it stop working on its own after a while.
 - **Read-only**: restricts the token to GET/HEAD requests only, so Claude can look things up (list sites, check disk usage, read DNS records, etc.) but can't create, change, or delete anything. Recommended for anything other than your own trusted assistant.
 - **Allow deletes and other destructive actions**: on by default. Untick it to let the assistant create and change things but not remove them. It also blocks restores, password changes, suspends and overwriting config files. The token list shows these tokens as **No deletes**.
-- **Limit to some features**: tick the features the token may use, for example only **DNS Zone Editor** and **Domains**. Leave them all unticked to allow every feature on your plan.
+- **Features**: **All features your account has today** is ticked by default. Untick it to pick only some, for example **DNS Zone Editor** and **Domains**.
+- **Sensitive features**: **Account** (password and email changes, sessions), **2FA**, **Passkeys** and **phpMyAdmin** are never included by default, not even with **All features**. Tick them only if the assistant really needs them: together they're close to full control of your account.
 
-A read-only token, a no-deletes token or a token limited to some features can't create or revoke other tokens, so it can't hand itself more access.
+A token keeps the feature list it was made with. Features added to your account later aren't added to existing tokens, so make a new token when you need one of them. Tokens made before OpenPanel 2.0.29 had no list. They were pinned once to the features the account had when the panel was updated, sensitive ones included, so nothing they did before stops working.
+
+No token can create or revoke tokens, not even a full-access one, so a token can never hand itself more access. Manage tokens on this page, or through the API with your login.
+
+phpMyAdmin login links and WordPress database passwords (`GET /api/sites/<domain>/wp-info`) need a full-access token that includes the feature. Read-only and no-deletes tokens never get them, because a database login would get around those limits.
 
 These settings are shown next to each token afterwards, and revoking a token any time from the same page takes effect immediately if it's no longer needed or you think it leaked.
 
 The limits are checked on every API request, so they also apply when the token is used against `/api/` directly instead of through `/mcp`. Every change a token makes is written to the account's activity log with the token's name.
 
-Through the API, `POST /api/account/mcp` takes `"mode": "readonly" | "modify" | "full"` and `"features": ["dns", "domains"]`. The old `"read_only": true` still works.
+Through the API, `POST /api/account/mcp` takes `"mode": "readonly" | "modify" | "full"` and `"features": ["dns", "domains"]`. The account must have every feature in the list, otherwise it answers 400 with the missing ones. Without `features` the token gets every feature the account has except the sensitive ones above. The old `"read_only": true` still works.
 
 ## 2. Connect
 
@@ -174,11 +179,13 @@ Click an action, confirm it, and it runs on the selected tokens one after anothe
 |---|---|
 | `/account/mcp` not visible | The `mcp` (or `api`) feature isn't enabled on your plan. |
 | Client can't connect / 401 | Token is wrong, was revoked, expired, or the header isn't set correctly. |
-| Tool call returns "Access denied" | The specific feature it needs (e.g. `mysql`, `dns`) isn't enabled on your plan, even though MCP itself is. |
+| Tool call returns "Access denied" | The specific feature it needs isn't enabled on your plan, even though MCP itself is. The `hint` says which one, e.g. "This account doesn't have the 'mysql' feature". |
 | Tool call returns "This token is read-only" | The token was created with the read-only option and the action needs to create, change, or delete something. Generate a new, non-read-only token instead. |
 | Tool call returns "This token can't delete or overwrite things" | The token was created with **Allow deletes** unticked. Do that step yourself in the panel, or use a full-access token. |
-| Tool call returns "This token isn't allowed to use the '…' feature" | The token is limited to some features and this isn't one of them. |
-| "Could not create a limited token" | The panel couldn't add the `mode` and `allowed_features` columns to its `mcp_tokens` table. Ask your host to restart OpenPanel; read-only and full-access tokens still work meanwhile. |
+| Tool call returns "This token isn't allowed to use the '…' feature" | The feature isn't in the token's list, either because it was left out or because it was added to your account after the token was made. Make a new token that includes it. |
+| Tool call returns "This token can't read database passwords or log in to phpMyAdmin" | phpMyAdmin and `wp-info` need a full-access token. |
+| Tool call returns "Tokens can't create or revoke tokens" | Tokens never manage tokens. Create or revoke it on **Account > AI Assistant (MCP)**. |
+| "Could not create token: the panel database is missing the columns tokens need" | The panel couldn't add the `mode` and `allowed_features` columns to its `mcp_tokens` table. Ask your host to restart OpenPanel. |
 | Tool list is empty or very short | The panel admin hasn't enabled the `api` module panel-wide, so most `/api/*` routes don't exist yet. |
 
 ## Security notes

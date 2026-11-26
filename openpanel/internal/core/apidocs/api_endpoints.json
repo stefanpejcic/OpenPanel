@@ -2866,10 +2866,11 @@
       {
         "method": "POST",
         "path": "/api/account/mcp",
-        "description": "Create an MCP token.",
+        "description": "Create an MCP token. mode is readonly, modify or full. features lists what the token may use, the account must have each one. Leave features out for every feature the account has except account, twofa, passkeys and phpmyadmin. MCP tokens can't call this, use your login.",
         "body": {
           "name": "my token",
-          "read_only": true,
+          "mode": "modify",
+          "features": ["dns", "domains"],
           "expires_in_days": 30
         }
       },

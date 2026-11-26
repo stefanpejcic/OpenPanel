@@ -78,7 +78,7 @@ func mcpTokenEmail(a *appctx.App, r *http.Request, username, name, scope string,
 }
 
 // tokenScope describes a new token's access for the email, like " with read-only access that expires in 30 days"
-func tokenScope(scope mcptokens.Scope, expiresInDays int) string {
+func tokenScope(scope mcptokens.Scope, userFeatures []string, expiresInDays int) string {
 	text := " with full access"
 	switch scope.Mode {
 	case mcptokens.ModeReadOnly:
@@ -86,7 +86,13 @@ func tokenScope(scope mcptokens.Scope, expiresInDays int) string {
 	case mcptokens.ModeModify:
 		text = " with access to make changes but not delete"
 	}
-	if len(scope.Features) > 0 {
+	switch featuresSummary(scope, userFeatures) {
+	case "":
+	case "all":
+		text += ", for all your current features,"
+	case "default":
+		text += ", for all your current features except account, 2FA, passkeys and phpMyAdmin,"
+	default:
 		text += ", limited to " + strings.Join(featureLabelList(scope.Features), "; ") + ","
 	}
 	if expiresInDays > 0 {
@@ -109,8 +115,35 @@ func featureLabelList(features []string) []string {
 	return out
 }
 
+// featuresSummary is "all" or "default" when the list is one of the two presets, "list" for a hand-picked one and "" for no list
+func featuresSummary(scope mcptokens.Scope, userFeatures []string) string {
+	if scope.AllFeatures {
+		return ""
+	}
+	if sameFeatures(scope.Features, mcptokens.FreezableFeatures(userFeatures)) {
+		return "all"
+	}
+	if sameFeatures(scope.Features, mcptokens.DefaultFeatures(userFeatures)) {
+		return "default"
+	}
+	return "list"
+}
+
+func sameFeatures(a, b []string) bool {
+	a, b = mcptokens.CleanFeatures(a), mcptokens.CleanFeatures(b)
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 // tokenScopeNote is the short form for the activity log, like ", no deletes, features: dns, domains"
-func tokenScopeNote(scope mcptokens.Scope) string {
+func tokenScopeNote(scope mcptokens.Scope, userFeatures []string) string {
 	note := ""
 	switch scope.Mode {
 	case mcptokens.ModeReadOnly:
@@ -118,7 +151,12 @@ func tokenScopeNote(scope mcptokens.Scope) string {
 	case mcptokens.ModeModify:
 		note = ", no deletes"
 	}
-	if len(scope.Features) > 0 {
+	switch featuresSummary(scope, userFeatures) {
+	case "all":
+		note += ", all features"
+	case "default":
+		note += ", all features except account, 2FA, passkeys and phpMyAdmin"
+	case "list":
 		note += ", features: " + strings.Join(scope.Features, " ")
 	}
 	return note

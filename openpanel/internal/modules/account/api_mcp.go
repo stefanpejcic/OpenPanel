@@ -1,11 +1,14 @@
 package account
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -20,6 +23,33 @@ func RegisterMCPAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "mcp", "GET /api/account/mcp", func(w http.ResponseWriter, r *http.Request) { apiMCPList(a, w, r) })
 	apiregistry.Handle(mux, a, "mcp", "POST /api/account/mcp", func(w http.ResponseWriter, r *http.Request) { apiMCPCreate(a, w, r) })
 	apiregistry.Handle(mux, a, "mcp", "DELETE /api/account/mcp/{id}", func(w http.ResponseWriter, r *http.Request) { apiMCPRevoke(a, w, r) })
+	if a.DB != nil {
+		// give the database a moment after boot, tokens used before then are pinned on first use anyway
+		time.AfterFunc(20*time.Second, func() { freezeLegacyTokens(a) })
+	}
+}
+
+// freezeLegacyTokens pins every old no-list token to its account's current features, once, right after an update
+func freezeLegacyTokens(a *appctx.App) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	owners, err := mcptokens.LegacyOwners(ctx, a.DB)
+	if err != nil || len(owners) == 0 {
+		return
+	}
+	total := int64(0)
+	for _, o := range owners {
+		features, err := a.LoadUserFeatures(ctx, o.Username, o.Context)
+		if err != nil {
+			log.Printf("MCP - could not load features for %s, its older tokens get pinned on first use instead: %v", o.Username, err)
+			continue
+		}
+		n, err := mcptokens.FreezeLegacy(ctx, a.DB, o.UserID, features)
+		if err == nil {
+			total += n
+		}
+	}
+	log.Printf("MCP - pinned %d older token(s) to their account's current features", total)
 }
 
 type apiMCPTokenEntry struct {
@@ -37,6 +67,9 @@ type apiMCPTokenEntry struct {
 // apiMCPList returns the caller's MCP tokens, never the raw secret (only ever known at creation time)
 func apiMCPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
+	if _, features, err := mcpUserFeatures(a, r.Context(), userID); err == nil {
+		_, _ = mcptokens.FreezeLegacy(r.Context(), a.DB, userID, features)
+	}
 	tokens, err := mcptokens.GetTokensForUser(r.Context(), a.DB, userID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -78,9 +111,18 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "mode must be readonly, modify or full"})
 		return
 	}
-	scope := mcptokens.Scope{Mode: mcptokens.ParseMode(body.Mode, body.ReadOnly), Features: mcptokens.CleanFeatures(body.Features)}
-	if bad := unknownMCPFeatures(scope.Features); len(bad) > 0 {
-		writeAPIAccountJSON(w, http.StatusBadRequest, map[string]any{"error": "Unknown features", "features": bad})
+	scope := mcptokens.Scope{Mode: mcptokens.ParseMode(body.Mode, body.ReadOnly), Features: mcptokens.FreezableFeatures(body.Features)}
+	username, userFeatures, err := mcpUserFeatures(a, ctx, userID)
+	if err != nil {
+		writeAPIAccountJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not load the account's features"})
+		return
+	}
+	// no list is "all features", minus the ones that can take over the account
+	if len(scope.Features) == 0 {
+		scope.Features = mcptokens.DefaultFeatures(userFeatures)
+	}
+	if missing := mcptokens.Missing(scope.Features, userFeatures); len(missing) > 0 {
+		writeAPIAccountJSON(w, http.StatusBadRequest, map[string]any{"error": "This account doesn't have these features", "features": missing})
 		return
 	}
 	name := strings.TrimSpace(body.Name)
@@ -93,7 +135,7 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	rawToken, err := mcptokens.CreateTokenForUser(ctx, a.DB, userID, name, scope, body.ExpiresInDays)
 	if errors.Is(err, mcptokens.ErrScopesUnavailable) {
-		writeAPIAccountJSON(w, http.StatusConflict, map[string]string{"error": "Limited tokens need the mode and allowed_features columns on mcp_tokens, which couldn't be added"})
+		writeAPIAccountJSON(w, http.StatusConflict, map[string]string{"error": "Tokens need the mode and allowed_features columns on mcp_tokens, which couldn't be added"})
 		return
 	}
 	if err != nil {
@@ -101,16 +143,12 @@ func apiMCPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, injectErr := a.InjectData(ctx, userID)
-	if injectErr == nil {
-		username, _ := data["current_username"].(string)
-		expiryNote := ""
-		if body.ExpiresInDays > 0 {
-			expiryNote = ", expires in " + strconv.Itoa(body.ExpiresInDays) + "d"
-		}
-		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+tokenScopeNote(scope)+expiryNote+") via API", reqip.ClientIP(r))
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(scope, body.ExpiresInDays)+" through the OpenPanel API", true))
+	expiryNote := ""
+	if body.ExpiresInDays > 0 {
+		expiryNote = ", expires in " + strconv.Itoa(body.ExpiresInDays) + "d"
 	}
+	_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+tokenScopeNote(scope, userFeatures)+expiryNote+") via API", reqip.ClientIP(r))
+	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(scope, userFeatures, body.ExpiresInDays)+" through the OpenPanel API", true))
 
 	writeAPIAccountJSON(w, http.StatusCreated, map[string]any{
 		"token": rawToken, "name": name, "read_only": scope.Mode == mcptokens.ModeReadOnly, "mode": scope.Mode, "features": scope.Features, "expires_in_days": body.ExpiresInDays,

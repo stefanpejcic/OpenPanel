@@ -48,9 +48,6 @@ const mcpInstructions = "This server manages one OpenPanel hosting account: webs
 var mcpExcludedToolPaths = map[string]bool{
 	"/api/login":     true,
 	"/api/endpoints": true,
-	// these hand back database passwords or a login link, which an agent never needs and shouldn't end up in a chat log
-	"/api/sites/<domain>/wp-info": true,
-	"/api/phpmyadmin":             true,
 }
 
 // mcpDirectTools stay listed in search mode so an agent can look around without searching first
@@ -385,11 +382,18 @@ func (t *mcpTool) blockReason(acc mcpAccess) string {
 			return "This token can't delete or overwrite things"
 		}
 	}
-	if len(acc.scope.Features) > 0 && !t.hasFeature(func(f string) bool { return containsString(acc.scope.Features, f) }) {
+	// checked after the mode so a read-only token still says read-only here
+	if auth.TokenManagementWrite(t.Method, t.Path) {
+		return "Tokens can't create or revoke tokens"
+	}
+	if !t.hasFeature(acc.scope.Allows) {
 		return "This token isn't allowed to use the '" + featureField(t.Features).String() + "' feature"
 	}
 	if acc.features != nil && !t.hasFeature(func(f string) bool { return acc.features[f] }) {
 		return "The '" + featureField(t.Features).String() + "' feature is not enabled on this account"
+	}
+	if acc.scope.Mode != mcptokens.ModeFull && apirisk.SecretRoute(t.Method, t.Path) {
+		return "This token can't read database passwords or log in to phpMyAdmin"
 	}
 	return ""
 }
@@ -405,19 +409,11 @@ func (t *mcpTool) hasFeature(ok func(string) bool) bool {
 
 func (t *mcpTool) allowedFor(acc mcpAccess) bool { return t.blockReason(acc) == "" }
 
-func containsString(list []string, v string) bool {
-	for _, x := range list {
-		if x == v {
-			return true
-		}
-	}
-	return false
-}
-
 // mcpFeatureOption is one feature a token can be limited to, labelled with the API groups it covers
 type mcpFeatureOption struct {
-	Feature string
-	Label   string
+	Feature   string
+	Label     string
+	Sensitive bool
 }
 
 var (
@@ -444,7 +440,7 @@ func mcpFeatureOptions(allowed map[string]bool) []mcpFeatureOption {
 					continue
 				}
 				index[f] = len(mcpFeatureList)
-				mcpFeatureList = append(mcpFeatureList, mcpFeatureOption{Feature: f, Label: g.Group})
+				mcpFeatureList = append(mcpFeatureList, mcpFeatureOption{Feature: f, Label: g.Group, Sensitive: mcptokens.IsSensitive(f)})
 			}
 		}
 	})
@@ -464,18 +460,6 @@ func mcpFeatureLabels() map[string]string {
 		labels[o.Feature] = o.Label
 	}
 	return labels
-}
-
-// unknownMCPFeatures returns requested features no tool uses, so a typo doesn't make a token that can do nothing
-func unknownMCPFeatures(features []string) []string {
-	labels := mcpFeatureLabels()
-	var bad []string
-	for _, f := range features {
-		if _, ok := labels[f]; !ok {
-			bad = append(bad, f)
-		}
-	}
-	return bad
 }
 
 // mcpMetaTools are the two tools that stand in for the full list in search mode
@@ -750,7 +734,7 @@ func mcpRequestScope(r *http.Request) mcptokens.Scope {
 	if tok, ok := auth.MCPTokenInfo(r); ok {
 		return tok.Scope
 	}
-	return mcptokens.Scope{Mode: mcptokens.ModeFull}
+	return mcptokens.Scope{Mode: mcptokens.ModeFull, AllFeatures: true}
 }
 
 // mcpNegotiateVersion echoes the client's protocol version when we speak it, else offers our newest

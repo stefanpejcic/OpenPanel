@@ -67,9 +67,9 @@ func TestReadOnlyMCPTokenCantManageTokens(t *testing.T) {
 	if rec := bearer(h, "POST", "/mcp", roToken, `{"jsonrpc":"2.0","id":2,"method":"tools/list"}`); rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "tools") {
 		t.Fatalf("read-only tools/list: got %d %s", rec.Code, rec.Body)
 	}
-	// a writable token can still manage tokens
-	if rec := bearer(h, "POST", "/api/account/mcp", rwToken, `{"name":"y","read_only":true}`); rec.Code != http.StatusCreated {
-		t.Fatalf("writable token minting: got %d %s, want 201", rec.Code, rec.Body)
+	// a writable token can't manage tokens either, only the user's own login can
+	if rec := bearer(h, "POST", "/api/account/mcp", rwToken, `{"name":"y","read_only":true}`); rec.Code != http.StatusForbidden {
+		t.Fatalf("writable token minting: got %d %s, want 403", rec.Code, rec.Body)
 	}
 }
 

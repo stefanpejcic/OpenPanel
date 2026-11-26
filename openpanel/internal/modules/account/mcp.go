@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/url"
@@ -23,6 +24,10 @@ func handleMCPSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	ctx := r.Context()
 
+	// older no-list tokens get pinned here too, so the list never shows one that still grows with the plan
+	if _, features, err := mcpUserFeatures(a, ctx, userID); err == nil {
+		_, _ = mcptokens.FreezeLegacy(ctx, a.DB, userID, features)
+	}
 	tokens, err := mcptokens.GetTokensForUser(ctx, a.DB, userID)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -56,7 +61,7 @@ func handleMCPCreateToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		name = name[:100]
 	}
 	expiresInDays, _ := strconv.Atoi(r.Form.Get("expires_in_days"))
-	scope := mcptokens.Scope{Mode: mcptokens.ModeFull, Features: mcptokens.CleanFeatures(r.Form["features"])}
+	scope := mcptokens.Scope{Mode: mcptokens.ModeFull, Features: mcptokens.FreezableFeatures(r.Form["features"])}
 	switch {
 	case r.Form.Get("read_only") == "on":
 		scope.Mode = mcptokens.ModeReadOnly
@@ -71,14 +76,24 @@ func handleMCPCreateToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		_ = a.Sessions.Save(r, w, sess)
 		http.Redirect(w, r, "/account/mcp", http.StatusFound)
 	}
-	if bad := unknownMCPFeatures(scope.Features); len(bad) > 0 {
-		fail("Could not create token: unknown feature " + strings.Join(bad, ", ") + ".")
+	username, userFeatures, err := mcpUserFeatures(a, ctx, userID)
+	if err != nil {
+		fail("Could not create token: your account's features couldn't be loaded. Please try again.")
+		return
+	}
+	scope.Features = formFeatures(r.Form, userFeatures)
+	if len(scope.Features) == 0 {
+		fail("Could not create token: pick at least one feature it can use.")
+		return
+	}
+	if missing := mcptokens.Missing(scope.Features, userFeatures); len(missing) > 0 {
+		fail("Could not create token: your account doesn't have " + strings.Join(featureLabelList(missing), ", ") + ".")
 		return
 	}
 
 	rawToken, err := mcptokens.CreateTokenForUser(ctx, a.DB, userID, name, scope, expiresInDays)
 	if errors.Is(err, mcptokens.ErrScopesUnavailable) {
-		fail("Could not create a limited token: the panel database is missing the columns for it. Ask your hosting provider to restart OpenPanel, or create a read-only or full-access token.")
+		fail("Could not create token: the panel database is missing the columns tokens need. Ask your hosting provider to restart OpenPanel.")
 		return
 	}
 	if err != nil {
@@ -86,22 +101,53 @@ func handleMCPCreateToken(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	data, injectErr := a.InjectData(ctx, userID)
-	if injectErr == nil {
-		username, _ := data["current_username"].(string)
-		expiryNote := ""
-		if expiresInDays > 0 {
-			expiryNote = ", expires in " + strconv.Itoa(expiresInDays) + "d"
-		}
-		_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+tokenScopeNote(scope)+expiryNote+")", reqip.ClientIP(r))
-		checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(scope, expiresInDays), true))
+	expiryNote := ""
+	if expiresInDays > 0 {
+		expiryNote = ", expires in " + strconv.Itoa(expiresInDays) + "d"
 	}
+	_ = logger.RecordUserAction(a.Config, username, "created a new MCP token ("+name+tokenScopeNote(scope, userFeatures)+expiryNote+")", reqip.ClientIP(r))
+	checkIfUserShouldBeNotified(a, ctx, userID, username, "notify_api_token_change", mcpTokenEmail(a, r, username, name, tokenScope(scope, userFeatures, expiresInDays), true))
 
 	sess.Values["mcp_new_token"] = rawToken
 	flash.Add(sess, "success", web.Tr(a, r, "Token \"%(name)s\" created. Copy it below - it will not be shown again.", "name", name))
 	_ = a.Sessions.Save(r, w, sess)
 
 	http.Redirect(w, r, "/account/mcp", http.StatusFound)
+}
+
+// formFeatures turns the token form into a feature list, "all features" is the default list plus any sensitive ones ticked
+func formFeatures(form url.Values, userFeatures []string) []string {
+	picked := mcptokens.FreezableFeatures(form["features"])
+	// older templates and themes have no all-features box: ticked boxes are the limit, none ticked meant everything
+	if form.Get("features_form") == "" {
+		if len(picked) == 0 {
+			return mcptokens.DefaultFeatures(userFeatures)
+		}
+		return picked
+	}
+	if form.Get("all_features") != "on" {
+		return picked
+	}
+	out := mcptokens.DefaultFeatures(userFeatures)
+	for _, f := range picked {
+		if mcptokens.IsSensitive(f) {
+			out = append(out, f)
+		}
+	}
+	return mcptokens.CleanFeatures(out)
+}
+
+// mcpUserFeatures is the caller's username and the features their account has right now
+func mcpUserFeatures(a *appctx.App, ctx context.Context, userID int) (string, []string, error) {
+	details, err := a.GetUserDetailsWithPlan(ctx, userID)
+	if err != nil {
+		return "", nil, err
+	}
+	if details.Username == "" {
+		return "", nil, errors.New("no username for user")
+	}
+	features, err := a.LoadUserFeatures(ctx, details.Username, details.Context)
+	return details.Username, features, err
 }
 
 // handleMCPRevokeToken revokes one of this account's MCP tokens.

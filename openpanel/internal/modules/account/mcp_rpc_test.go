@@ -22,7 +22,9 @@ func newTestMCPServer(dispatcher http.Handler, search bool, features ...string) 
 		search:     search,
 		version:    func(*http.Request) string { return "9.9.9" },
 		features:   func(*http.Request) map[string]bool { return set },
-		scope:      func(*http.Request) mcptokens.Scope { return mcptokens.Scope{Mode: mcptokens.ModeFull} },
+		scope: func(*http.Request) mcptokens.Scope {
+			return mcptokens.Scope{Mode: mcptokens.ModeFull, AllFeatures: true}
+		},
 	}
 }
 
@@ -145,8 +147,8 @@ func TestMCPToolAllowedFor(t *testing.T) {
 		t.Fatal("mysql tools missing")
 	}
 	mysql := map[string]bool{"mysql": true}
-	ro := mcptokens.Scope{Mode: mcptokens.ModeReadOnly}
-	full := mcptokens.Scope{Mode: mcptokens.ModeFull}
+	ro := mcptokens.Scope{Mode: mcptokens.ModeReadOnly, AllFeatures: true}
+	full := mcptokens.Scope{Mode: mcptokens.ModeFull, AllFeatures: true}
 	if write.allowedFor(mcpAccess{mysql, ro}) || !read.allowedFor(mcpAccess{mysql, ro}) {
 		t.Error("read-only token should keep GET tools and drop the rest")
 	}
@@ -338,16 +340,62 @@ func TestMCPRealTypedTools(t *testing.T) {
 	}
 }
 
-func TestMCPHidesCredentialRoutes(t *testing.T) {
+func TestMCPCredentialToolsNeedFullToken(t *testing.T) {
+	var pma, wpInfo *mcpTool
 	for _, tool := range getMCPToolRegistry() {
-		if strings.HasSuffix(tool.Path, "/wp-info") || tool.Path == "/api/phpmyadmin" {
-			t.Errorf("%s hands back credentials and should not be a tool", tool.Name)
+		switch {
+		case tool.Path == "/api/phpmyadmin":
+			pma = tool
+		case strings.HasSuffix(tool.Path, "/wp-info"):
+			wpInfo = tool
+		}
+	}
+	if pma == nil || wpInfo == nil {
+		t.Fatal("phpmyadmin and wp-info should be tools again, people use them through MCP")
+	}
+	for _, mode := range []string{mcptokens.ModeReadOnly, mcptokens.ModeModify} {
+		acc := mcpAccess{scope: mcptokens.Scope{Mode: mode, AllFeatures: true}}
+		for _, tool := range []*mcpTool{pma, wpInfo} {
+			if !strings.Contains(tool.blockReason(acc), "database passwords") {
+				t.Errorf("%s token can use %s: %q", mode, tool.Name, tool.blockReason(acc))
+			}
+		}
+	}
+	full := mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeFull, AllFeatures: true}}
+	if r := pma.blockReason(full); r != "" {
+		t.Errorf("full token blocked from phpmyadmin: %q", r)
+	}
+	// it still needs the feature in its list
+	if r := pma.blockReason(mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"dns"}}}); !strings.Contains(r, "phpmyadmin") {
+		t.Errorf("dns-only token on phpmyadmin: %q", r)
+	}
+}
+
+func TestMCPHidesTokenManagement(t *testing.T) {
+	full := mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeFull, AllFeatures: true}}
+	ro := mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeReadOnly, AllFeatures: true}}
+	for _, tool := range getMCPToolRegistry() {
+		if !strings.HasPrefix(tool.Path, "/api/account/mcp") {
+			continue
+		}
+		if tool.Method == "GET" {
+			if r := tool.blockReason(full); r != "" {
+				t.Errorf("%s blocked: %q", tool.Name, r)
+			}
+			continue
+		}
+		if r := tool.blockReason(full); !strings.Contains(r, "can't create or revoke tokens") {
+			t.Errorf("%s open to a full token: %q", tool.Name, r)
+		}
+		// upstream's e2e test reads "read-only" here
+		if r := tool.blockReason(ro); !strings.Contains(r, "read-only") {
+			t.Errorf("%s with a read-only token: %q", tool.Name, r)
 		}
 	}
 }
 
 func TestMCPSearchPrefersTheNamedGroup(t *testing.T) {
-	found := mcpSearchTools("wordpress plugins update", 5, mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeFull}})
+	found := mcpSearchTools("wordpress plugins update", 5, mcpAccess{scope: mcptokens.Scope{Mode: mcptokens.ModeFull, AllFeatures: true}})
 	tools, _ := found["tools"].([]any)
 	for _, raw := range tools {
 		name := fmt.Sprint(raw.(map[string]any)["name"])

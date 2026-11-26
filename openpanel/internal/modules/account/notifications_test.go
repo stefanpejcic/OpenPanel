@@ -46,15 +46,25 @@ func TestBrowserFromUserAgent(t *testing.T) {
 }
 
 func TestTokenScope(t *testing.T) {
-	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeReadOnly}, 30); got != " with read-only access that expires in 30 days" {
+	user := []string{"api", "mcp", "dns", "domains", "twofa"}
+	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeReadOnly, AllFeatures: true}, user, 30); got != " with read-only access that expires in 30 days" {
 		t.Errorf("got %q", got)
 	}
-	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeFull}, 0); got != " with full access that never expires" {
+	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"dns", "domains", "twofa"}}, user, 0); got != " with full access, for all your current features, that never expires" {
 		t.Errorf("got %q", got)
 	}
-	got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeModify, Features: []string{"dns", "domains"}}, 0)
-	if got != " with access to make changes but not delete, limited to DNS Zone Editor; Domains, that never expires" {
+	if got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"dns", "domains"}}, user, 0); got != " with full access, for all your current features except account, 2FA, passkeys and phpMyAdmin, that never expires" {
 		t.Errorf("got %q", got)
+	}
+	got := tokenScope(mcptokens.Scope{Mode: mcptokens.ModeModify, Features: []string{"dns"}}, user, 0)
+	if got != " with access to make changes but not delete, limited to DNS Zone Editor, that never expires" {
+		t.Errorf("got %q", got)
+	}
+	if got := tokenScopeNote(mcptokens.Scope{Mode: mcptokens.ModeModify, Features: []string{"dns", "domains"}}, user); got != ", no deletes, all features except account, 2FA, passkeys and phpMyAdmin" {
+		t.Errorf("note %q", got)
+	}
+	if got := tokenScopeNote(mcptokens.Scope{Mode: mcptokens.ModeFull, Features: []string{"dns"}}, user); got != ", features: dns" {
+		t.Errorf("note %q", got)
 	}
 }
 

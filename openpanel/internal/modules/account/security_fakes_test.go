@@ -146,6 +146,15 @@ func (st *fakeStmt) Exec(args []driver.Value) (driver.Result, error) {
 		}
 		s.tokens = kept
 		return driver.RowsAffected(int64(n)), nil
+	case strings.HasPrefix(st.q, "UPDATE mcp_tokens SET allowed_features = ? WHERE user_id = ? AND allowed_features IS NULL"):
+		feats, uid, n := fmt.Sprint(args[0]), argInt(args[1]), 0
+		for i, t := range s.tokens {
+			if t.uid == uid && t.feats == nil {
+				s.tokens[i].feats = feats
+				n++
+			}
+		}
+		return driver.RowsAffected(int64(n)), nil
 	case strings.HasPrefix(st.q, "DELETE FROM user_passkeys WHERE user_id = ?"):
 		uid := argInt(args[0])
 		n := s.passkeys[uid]
@@ -203,6 +212,10 @@ func (st *fakeStmt) Query(args []driver.Value) (driver.Rows, error) {
 			}
 		}
 		return &fakeRows{cols: []string{"id", "u", "e"}}, nil
+	case strings.Contains(st.q, "SELECT password FROM users WHERE id"):
+		if u := s.users[argInt(args[0])]; u != nil {
+			return &fakeRows{cols: []string{"p"}, vals: [][]driver.Value{{"$2b$12$fakehash"}}}, nil
+		}
 	case strings.Contains(st.q, "SELECT username FROM users WHERE id"):
 		if u := s.users[argInt(args[0])]; u != nil {
 			return &fakeRows{cols: []string{"u"}, vals: [][]driver.Value{{u.username}}}, nil
@@ -234,6 +247,17 @@ func (s *fakeStore) addScopedToken(uid int, raw, name, mode, feats string) int {
 	s.tokens = append(s.tokens, fakeToken{id: id, uid: uid, name: name, hash: hex.EncodeToString(sum[:]), ro: mode == "readonly", mode: mode, feats: f})
 	s.nextID++
 	return id
+}
+
+// setFeats overwrites a token's stored feature list, "" is an empty list
+func (s *fakeStore) setFeats(id int, feats string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i, t := range s.tokens {
+		if t.id == id {
+			s.tokens[i].feats = feats
+		}
+	}
 }
 
 func (s *fakeStore) tokenByName(name string) (fakeToken, bool) {

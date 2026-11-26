@@ -30,15 +30,75 @@ const (
 // ErrScopesUnavailable means the mode/allowed_features columns couldn't be added, so only plain tokens can be made
 var ErrScopesUnavailable = errors.New("token scopes need the mode and allowed_features columns on mcp_tokens")
 
-// Scope is what a token is limited to, no Features means every feature the plan has
+// Scope is what a token may do, Features is frozen when the token is made and an empty list allows nothing
 type Scope struct {
 	Mode     string
 	Features []string
+	// AllFeatures is only for tokens made before lists were saved, they get frozen on first use
+	AllFeatures bool
 }
 
-// Limited is true for anything narrower than a plain full-access token
-func (s Scope) Limited() bool {
-	return s.Mode != ModeFull || len(s.Features) > 0
+// Allows reports whether the token's own list lets it use feature, the plan check is separate
+func (s Scope) Allows(feature string) bool {
+	if s.AllFeatures {
+		return true
+	}
+	for _, f := range s.Features {
+		if f == feature {
+			return true
+		}
+	}
+	return false
+}
+
+// SensitiveFeatures can take over the account or hand out a database login, so a token only gets them when someone ticks them
+var SensitiveFeatures = []string{"account", "passkeys", "phpmyadmin", "twofa"}
+
+// IsSensitive reports whether feature is one of SensitiveFeatures
+func IsSensitive(feature string) bool {
+	for _, f := range SensitiveFeatures {
+		if f == feature {
+			return true
+		}
+	}
+	return false
+}
+
+// DefaultFeatures is what "all features" means for a new token: everything the user has except the sensitive ones
+func DefaultFeatures(userFeatures []string) []string {
+	var out []string
+	for _, f := range FreezableFeatures(userFeatures) {
+		if !IsSensitive(f) {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// FreezableFeatures drops api and mcp, every token runs on those so they never go in a list
+func FreezableFeatures(userFeatures []string) []string {
+	var out []string
+	for _, f := range CleanFeatures(userFeatures) {
+		if f != "api" && f != "mcp" {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// Missing returns the requested features the user doesn't have
+func Missing(requested, userFeatures []string) []string {
+	have := map[string]bool{}
+	for _, f := range userFeatures {
+		have[f] = true
+	}
+	var out []string
+	for _, f := range CleanFeatures(requested) {
+		if !have[f] {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // ParseMode maps a stored or submitted mode to a known one, unknown values fail closed to read-only
@@ -84,19 +144,17 @@ func CleanFeatures(features []string) []string {
 	return out
 }
 
+// joinFeatures always stores a list, even an empty one, NULL is only for old tokens
 func joinFeatures(features []string) sql.NullString {
-	features = CleanFeatures(features)
-	if len(features) == 0 {
-		return sql.NullString{}
-	}
-	return sql.NullString{String: strings.Join(features, ","), Valid: true}
+	return sql.NullString{String: strings.Join(CleanFeatures(features), ","), Valid: true}
 }
 
-func splitFeatures(raw sql.NullString) []string {
-	if !raw.Valid || raw.String == "" {
-		return nil
+// splitFeatures reads a stored list, all is true for NULL from before lists were saved
+func splitFeatures(raw sql.NullString) (features []string, all bool) {
+	if !raw.Valid {
+		return nil, true
 	}
-	return CleanFeatures(strings.Split(raw.String, ","))
+	return CleanFeatures(strings.Split(raw.String, ",")), false
 }
 
 func hashToken(raw string) string {
@@ -210,7 +268,8 @@ func Authenticate(db *sql.DB, rawToken string) (*AuthResult, error) {
 		_, _ = db.Exec("UPDATE mcp_tokens SET last_used_at = NOW() WHERE id = ?", tokenID)
 	}
 
-	scope := Scope{Mode: ParseMode(mode.String, readOnly), Features: splitFeatures(features)}
+	scope := Scope{Mode: ParseMode(mode.String, readOnly)}
+	scope.Features, scope.AllFeatures = splitFeatures(features)
 	return &AuthResult{UserID: userID, TokenID: tokenID, Name: name, ReadOnly: scope.Mode == ModeReadOnly, Scope: scope}, nil
 }
 
@@ -225,6 +284,7 @@ type Token struct {
 	ExpiresAt   sql.NullString
 	Mode        string
 	Features    []string
+	AllFeatures bool
 }
 
 // GetTokensForUser returns every token row belonging to userID.
@@ -253,7 +313,7 @@ func GetTokensForUser(ctx context.Context, db *sql.DB, userID int) ([]Token, err
 		}
 		t.Mode = ParseMode(mode.String, t.ReadOnly)
 		t.ReadOnly = t.Mode == ModeReadOnly
-		t.Features = splitFeatures(features)
+		t.Features, t.AllFeatures = splitFeatures(features)
 		tokens = append(tokens, t)
 	}
 	return tokens, rows.Err()
@@ -271,9 +331,8 @@ func randomURLSafeToken(nBytes int) (string, error) {
 // CreateTokenForUser generates and persists a new token, returning the raw token (shown to the caller exactly once)
 func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string, scope Scope, expiresInDays int) (string, error) {
 	scope.Mode = ParseMode(scope.Mode, false)
-	scoped := ScopesReady(ctx, db)
-	// a plain read-only or full token still fits in read_only alone
-	if !scoped && (scope.Mode == ModeModify || len(scope.Features) > 0) {
+	// without the columns there's nowhere to keep the feature list, and a token without one would grow with the plan
+	if !ScopesReady(ctx, db) {
 		return "", ErrScopesUnavailable
 	}
 
@@ -291,19 +350,54 @@ func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string
 
 	// read_only stays in step with mode so an older panel binary reading this row still gets it right
 	readOnly := scope.Mode == ModeReadOnly
-	if scoped {
-		_, err = db.ExecContext(ctx,
-			"INSERT INTO mcp_tokens (user_id, name, token_prefix, token_hash, read_only, expires_at, mode, allowed_features) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-			userID, name, tokenPrefix, hashToken(rawToken), readOnly, expiresAt, scope.Mode, joinFeatures(scope.Features))
-	} else {
-		_, err = db.ExecContext(ctx,
-			"INSERT INTO mcp_tokens (user_id, name, token_prefix, token_hash, read_only, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
-			userID, name, tokenPrefix, hashToken(rawToken), readOnly, expiresAt)
-	}
+	_, err = db.ExecContext(ctx,
+		"INSERT INTO mcp_tokens (user_id, name, token_prefix, token_hash, read_only, expires_at, mode, allowed_features) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+		userID, name, tokenPrefix, hashToken(rawToken), readOnly, expiresAt, scope.Mode, joinFeatures(scope.Features))
 	if err != nil {
 		return "", err
 	}
 	return rawToken, nil
+}
+
+// FreezeLegacy pins a user's old no-list tokens to the features they have right now, so they stop growing with the plan
+func FreezeLegacy(ctx context.Context, db *sql.DB, userID int, userFeatures []string) (int64, error) {
+	if !ScopesReady(ctx, db) {
+		return 0, ErrScopesUnavailable
+	}
+	res, err := db.ExecContext(ctx, "UPDATE mcp_tokens SET allowed_features = ? WHERE user_id = ? AND allowed_features IS NULL",
+		joinFeatures(FreezableFeatures(userFeatures)), userID)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+}
+
+// LegacyOwner is a user who still has old no-list tokens
+type LegacyOwner struct {
+	UserID   int
+	Username string
+	Context  string
+}
+
+// LegacyOwners lists users with tokens that haven't been frozen yet
+func LegacyOwners(ctx context.Context, db *sql.DB) ([]LegacyOwner, error) {
+	if !ScopesReady(ctx, db) {
+		return nil, ErrScopesUnavailable
+	}
+	rows, err := db.QueryContext(ctx, "SELECT DISTINCT u.id, u.username, IFNULL(u.server, '') FROM mcp_tokens t JOIN users u ON u.id = t.user_id WHERE t.allowed_features IS NULL")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []LegacyOwner
+	for rows.Next() {
+		var o LegacyOwner
+		if err := rows.Scan(&o.UserID, &o.Username, &o.Context); err != nil {
+			return nil, err
+		}
+		out = append(out, o)
+	}
+	return out, rows.Err()
 }
 
 // RevokeAllForUser deletes every token the user has, returns how many were removed

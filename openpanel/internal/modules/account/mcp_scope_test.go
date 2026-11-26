@@ -3,6 +3,7 @@ package account
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -11,7 +12,7 @@ import (
 )
 
 func TestMCPModifyTokenHidesDestructiveTools(t *testing.T) {
-	s := withScope(newTestMCPServer(nil, false, "mysql"), mcptokens.Scope{Mode: mcptokens.ModeModify})
+	s := withScope(newTestMCPServer(nil, false, "mysql"), mcptokens.Scope{Mode: mcptokens.ModeModify, AllFeatures: true})
 	_, result := mcpDo(t, s, "tools/list", nil)
 	names := listedNames(result)
 	if !names["mysql_databases_post"] {
@@ -28,7 +29,7 @@ func TestMCPModifyTokenRefusesDelete(t *testing.T) {
 	called := false
 	mux := http.NewServeMux()
 	mux.HandleFunc("DELETE /api/mysql/databases/{db_name}", func(http.ResponseWriter, *http.Request) { called = true })
-	s := withScope(newTestMCPServer(mux, true, "mysql"), mcptokens.Scope{Mode: mcptokens.ModeModify})
+	s := withScope(newTestMCPServer(mux, true, "mysql"), mcptokens.Scope{Mode: mcptokens.ModeModify, AllFeatures: true})
 	var deleteTool string
 	for _, name := range mcpToolOrder {
 		if tool := getMCPToolRegistry()[name]; tool.Method == "DELETE" && strings.HasPrefix(tool.Path, "/api/mysql/databases/") {
@@ -86,18 +87,22 @@ func TestMCPFeatureOptions(t *testing.T) {
 	if len(only) != 1 || only[0].Feature != "dns" || only[0].Label != "DNS Zone Editor" {
 		t.Errorf("filtered options = %v", only)
 	}
-	if bad := unknownMCPFeatures([]string{"dns", "nope"}); len(bad) != 1 || bad[0] != "nope" {
-		t.Errorf("unknown = %v", bad)
+	for _, o := range all {
+		if o.Sensitive != mcptokens.IsSensitive(o.Feature) {
+			t.Errorf("%s sensitive = %v", o.Feature, o.Sensitive)
+		}
 	}
 }
 
 func TestRenderMCPPageScopes(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := MCPPageData{
-		LayoutData:     baseLayout(mgr, "/account/mcp"),
-		MCPURL:         "https://panel.example.com/mcp",
-		FeatureOptions: mcpFeatureOptions(map[string]bool{"dns": true, "domains": true}),
-		FeatureLabels:  mcpFeatureLabels(),
+		LayoutData:       baseLayout(mgr, "/account/mcp"),
+		MCPURL:           "https://panel.example.com/mcp",
+		FeatureOptions:   mcpFeatureOptions(map[string]bool{"dns": true, "domains": true, "phpmyadmin": true}),
+		FeatureLabels:    mcpFeatureLabels(),
+		SensitiveOptions: []mcpFeatureOption{{Feature: "phpmyadmin", Label: "phpMyAdmin", Sensitive: true}},
+		FeatureSummaries: map[int]string{},
 		Tokens: []mcptokens.Token{
 			{ID: 1, Name: "Deployer", TokenPrefix: "op_mcp_ab", CreatedAt: "2026-11-23 10:00:00", Mode: mcptokens.ModeModify, Features: []string{"dns"}},
 		},
@@ -110,6 +115,13 @@ func TestRenderMCPPageScopes(t *testing.T) {
 	// upstream playwright checks input[name="read_only"], so there must be exactly one
 	if n := strings.Count(body, `name="read_only"`); n != 1 {
 		t.Errorf("%d read_only inputs", n)
+	}
+	if !strings.Contains(body, `name="all_features" class="mt-0.5" checked`) || !strings.Contains(body, `name="features_form"`) {
+		t.Error("all features should be the ticked default")
+	}
+	// the sensitive one sits apart and isn't ticked
+	if i := strings.Index(body, `value="phpmyadmin"`); i < 0 || strings.Contains(body[i:i+40], "checked") || !strings.Contains(body, "Sensitive, never included by default") {
+		t.Error("phpmyadmin should be offered unticked under the sensitive heading")
 	}
 	for _, want := range []string{`name="allow_destructive"`, `name="scope_form"`, `value="dns"`, `value="domains"`, "No deletes", "DNS Zone Editor"} {
 		if !strings.Contains(body, want) {
@@ -153,5 +165,28 @@ func TestRenderMCPPageClientSnippets(t *testing.T) {
 	}
 	if strings.Contains(body, "&lt;your-token&gt;") {
 		t.Error("placeholder left in after generating a token")
+	}
+}
+
+func TestFormFeatures(t *testing.T) {
+	user := []string{"api", "mcp", "dns", "domains", "twofa", "phpmyadmin"}
+	cases := []struct {
+		name string
+		form url.Values
+		want []string
+	}{
+		{"all features", url.Values{"features_form": {"1"}, "all_features": {"on"}}, []string{"dns", "domains"}},
+		// normal boxes ticked while all features is on don't narrow it, sensitive ones add to it
+		{"all plus a sensitive one", url.Values{"features_form": {"1"}, "all_features": {"on"}, "features": {"dns", "phpmyadmin"}}, []string{"dns", "domains", "phpmyadmin"}},
+		{"picked", url.Values{"features_form": {"1"}, "features": {"dns"}}, []string{"dns"}},
+		{"nothing picked", url.Values{"features_form": {"1"}}, nil},
+		// an old theme's form without the new fields keeps its meaning
+		{"old form with boxes", url.Values{"features": {"dns"}}, []string{"dns"}},
+		{"old form without boxes", url.Values{}, []string{"dns", "domains"}},
+	}
+	for _, c := range cases {
+		if got := formFeatures(c.form, user); strings.Join(got, ",") != strings.Join(c.want, ",") {
+			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
 	}
 }

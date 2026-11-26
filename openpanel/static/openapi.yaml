@@ -6206,7 +6206,9 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Create an MCP token.
+      summary: Create an MCP token. mode is readonly, modify or full. features lists what the token may
+        use, the account must have each one. Leave features out for every feature the account has except
+        account, twofa, passkeys and phpmyadmin. MCP tokens can't call this, use your login.
       operationId: post_account_mcp
       tags:
       - MCP Tokens
@@ -6220,15 +6222,26 @@ paths:
                 name:
                   type: string
                   example: my token
-                read_only:
-                  type: boolean
-                  example: true
+                mode:
+                  type: string
+                  example: modify
+                features:
+                  type: array
+                  items:
+                    type: string
+                    example: dns
+                  example:
+                  - dns
+                  - domains
                 expires_in_days:
                   type: integer
                   example: 30
               example:
                 name: my token
-                read_only: true
+                mode: modify
+                features:
+                - dns
+                - domains
                 expires_in_days: 30
       responses:
         '200':

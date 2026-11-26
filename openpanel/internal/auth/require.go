@@ -241,8 +241,17 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 			}
 			if !contains(userFeatures, featureName) {
 				log.Printf("APP - API user %d (%s): access denied to %s (feature %q not enabled for this account)", userID, details.Username, r.URL.Path, featureName)
-				writeJSONError(w, http.StatusForbidden, "Access denied", "")
+				writeJSONError(w, http.StatusForbidden, "Access denied", "This account doesn't have the '"+featureName+"' feature")
 				return
+			}
+
+			// tokens from before feature lists get pinned to what the account has today, from then on they don't grow
+			if via == ViaMCP {
+				if tok, ok := MCPTokenInfo(r); ok && tok.Scope.AllFeatures {
+					if n, err := mcptokens.FreezeLegacy(ctx, a.DB, userID, userFeatures); err == nil && n > 0 {
+						log.Printf("APP - API user %d (%s): pinned %d older MCP token(s) to the account's current features", userID, details.Username, n)
+					}
+				}
 			}
 
 			// same 2fa enforcement as RequireLogin, bearer tokens only get the 2fa enrollment routes until it's on
@@ -290,22 +299,28 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 	}
 }
 
-// MCPScopeBlock says why a scoped token may not make this request, empty when it may
+// MCPScopeBlock says why a token may not make this request, empty when it may
 func MCPScopeBlock(scope mcptokens.Scope, featureName string, r *http.Request) (string, string) {
-	// a narrower token minting a wider one would undo its own limits
-	if scope.Limited() && strings.HasPrefix(r.URL.Path, "/api/account/mcp") && r.Method != http.MethodGet && r.Method != http.MethodHead {
-		return "This token can't create or revoke tokens", "Only a full-access token without feature limits can manage tokens"
+	// a token minting or revoking tokens could hand itself more than it was given
+	if TokenManagementWrite(r.Method, r.URL.Path) {
+		return "Tokens can't create or revoke tokens", "Manage tokens on Account > AI Assistant (MCP) in OpenPanel"
 	}
-	if scope.Limited() && apirisk.ExposesSecrets(r) {
-		return "This token can't read database credentials", "Use a full-access token without feature limits"
+	if featureName != "api" && featureName != "mcp" && !scope.Allows(featureName) {
+		return "This token isn't allowed to use the '" + featureName + "' feature", "Make a new token that includes '" + featureName + "' on Account > AI Assistant (MCP)"
 	}
-	if len(scope.Features) > 0 && featureName != "api" && featureName != "mcp" && !contains(scope.Features, featureName) {
-		return "This token isn't allowed to use the '" + featureName + "' feature", "Generate a token that includes it"
+	// a database login works around read-only and no-deletes, you can drop tables with it
+	if scope.Mode != mcptokens.ModeFull && apirisk.ExposesSecrets(r) {
+		return "This token can't read database passwords or log in to phpMyAdmin", "Use a full-access token that includes the feature"
 	}
 	if scope.Mode == mcptokens.ModeModify && apirisk.ForRequest(r) == apirisk.Destructive {
 		return "This token can't delete or overwrite things", "Use a full-access token for deletes, restores, password changes and similar actions"
 	}
 	return "", ""
+}
+
+// TokenManagementWrite is true for creating or revoking MCP tokens
+func TokenManagementWrite(method, path string) bool {
+	return strings.HasPrefix(path, "/api/account/mcp") && method != http.MethodGet && method != http.MethodHead
 }
 
 func writeJSONError(w http.ResponseWriter, status int, errMsg, hint string) {
