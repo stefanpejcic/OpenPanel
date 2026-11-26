@@ -33,7 +33,7 @@ When generating a token you can also set:
 - **Features**: **All features your account has today** is ticked by default. Untick it to pick only some, for example **DNS Zone Editor** and **Domains**.
 - **Sensitive features**: **Account** (password and email changes, sessions), **2FA**, **Passkeys** and **phpMyAdmin** are never included by default, not even with **All features**. Tick them only if the assistant really needs them: together they're close to full control of your account.
 
-A token keeps the feature list it was made with. Features added to your account later aren't added to existing tokens, so make a new token when you need one of them. Tokens made before OpenPanel 2.0.29 had no list. They were pinned once to the features the account had when the panel was updated, sensitive ones included, so nothing they did before stops working.
+A token keeps the feature list it was made with. Features added to your account later aren't added to existing tokens, so make a new token when you need one of them. Tokens made before OpenPanel 2.0.30 had no list. They were pinned once to the features the account had when the panel was updated, sensitive ones included, so nothing they did before stops working.
 
 No token can create or revoke tokens, not even a full-access one, so a token can never hand itself more access. Manage tokens on this page, or through the API with your login.
 
