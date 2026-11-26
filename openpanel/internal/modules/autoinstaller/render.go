@@ -37,7 +37,8 @@ func renderAutoinstallerPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 	// only fetched for users who can actually run containers
 	if layout.UserAllowed["docker"] {
-		data.DockerTemplates = dockertemplates.Load(r.Context(), a)
+		// hidden_docker_apps lists the apps the admin took off this page, new apps from the list still show
+		data.DockerTemplates = dockertemplates.WithoutHidden(dockertemplates.Load(r.Context(), a), a.Config.Get("hidden_docker_apps", ""))
 	}
 	if err := autoinstallerPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("AUTOINSTALLER - template render error: %v", err)

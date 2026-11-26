@@ -166,3 +166,21 @@ func Parse(data []byte) ([]Template, error) {
 	}
 	return out, nil
 }
+
+// WithoutHidden drops the apps an admin hid with hidden_docker_apps, spaces or commas between ids
+func WithoutHidden(list []Template, hidden string) []Template {
+	skip := map[string]bool{}
+	for _, id := range strings.FieldsFunc(hidden, func(r rune) bool { return r == ',' || r == ' ' || r == '\t' }) {
+		skip[id] = true
+	}
+	if len(skip) == 0 {
+		return list
+	}
+	out := make([]Template, 0, len(list))
+	for _, t := range list {
+		if !skip[t.ID] {
+			out = append(out, t)
+		}
+	}
+	return out
+}

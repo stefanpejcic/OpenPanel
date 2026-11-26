@@ -691,7 +691,7 @@ export const pages = {
     shots: [
       { name: 'branding', alt: 'Branding section with the brand name, favicon, logo for light and dark backgrounds and logout URL', prepare: async page => { await markSectionId('brand')(page); await showDocsLogo(page); }, crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'display', alt: 'Theme and layout section with the theme picker, menu style, avatar type, charts mode and country flags', prepare: markSectionId('display'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'dashboard', alt: 'Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications and the report bugs link', prepare: markSectionId('dashboard'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'dashboard', alt: 'Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications, Docker apps on the Auto Installer and the report bugs link', prepare: markSectionId('dashboard'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'security', alt: 'Login and sessions section with password reset, captcha, login rate limits and session options', prepare: markSectionId('security'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'passwords', alt: 'Passwords and 2FA section with the minimum password strength, Weakpass check and Enforce 2FA', prepare: markSectionId('passwords'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'users', alt: 'Accounts section with the username change toggle and forbidden usernames', prepare: markSectionId('users'), crop: { from: '[data-shot=section]', pad: 16 } },

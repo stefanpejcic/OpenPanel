@@ -41,10 +41,11 @@ Each logo is either uploaded or set as a URL. When no logo is set, the field off
 - **Display 2FA widget:** Show a message on users' dashboards encouraging them to enable Two-Factor Authentication.
 - **Display how-to guides widget:** Show how-to articles on users' dashboards. When enabled, a **How-to articles** field appears below it to edit the Knowledge Base articles shown (needs an active Enterprise license and a non-reseller account to edit).
 - **Applications shown on the dashboard:** Which applications are listed on the users' dashboard.
+- <span id="docker-apps"></span>**Docker apps on the Auto Installer:** Which one-click Docker apps users with the **Docker** feature see in the *Docker applications* section of the [Auto Installer](/docs/panel/applications/autoinstaller/#docker-applications). Every app from `/etc/openpanel/docker/templates/applications.yml` is shown as a button, blue ones are shown to users, click one to hide or show it, and **Restore default** shows them all again. Only the hidden apps are saved, as `hidden_docker_apps=` in the `[PANEL]` section of `openpanel.config`, so apps added to the list in a later update show up on their own. It changes what the Auto Installer lists, not what users can run: with the Docker feature they can still add any image from *Containers*. Applies after OpenPanel restarts.
 - **Display link to report bugs:** Show a "Found a bug? Let us know" link at the bottom of all user pages.
 
-![Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications and the report bugs link](/img/openadmin-screenshots/settings/openpanel-dashboard.png#gh-light-mode-only)
-![Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications and the report bugs link](/img/openadmin-screenshots/settings/openpanel-dashboard_dark.png#gh-dark-mode-only)
+![Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications, Docker apps on the Auto Installer and the report bugs link](/img/openadmin-screenshots/settings/openpanel-dashboard.png#gh-light-mode-only)
+![Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications, Docker apps on the Auto Installer and the report bugs link](/img/openadmin-screenshots/settings/openpanel-dashboard_dark.png#gh-dark-mode-only)
 
 ### Onboarding wizard {#onboarding}
 

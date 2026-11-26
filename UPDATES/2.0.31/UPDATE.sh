@@ -29,3 +29,16 @@ if [ -f "$modern_readme" ] && grep -q 'github.com/stefanpejcic/modern-openpanel-
            -e 's#^Author URI:.*#Author URI: https://github.com/caesarmind#' "$modern_readme"
     echo "Modern theme readme now points at github.com/caesarmind"
 fi
+
+# hidden_docker_apps lists the one-click Docker apps the admin took off the Auto Installer, existing configs don't have the key yet
+op_config=/etc/openpanel/openpanel/conf/openpanel.config
+if [ -f "$op_config" ] && ! grep -q '^hidden_docker_apps=' "$op_config"; then
+    if grep -q '^applications_dashboard_items=' "$op_config"; then
+        sed -i '/^applications_dashboard_items=/a hidden_docker_apps=' "$op_config"
+    elif grep -q '^\[PANEL\]' "$op_config"; then
+        sed -i '/^\[PANEL\]/a hidden_docker_apps=' "$op_config"
+    else
+        printf '\n[PANEL]\nhidden_docker_apps=\n' >> "$op_config"
+    fi
+    echo "Added hidden_docker_apps= to $op_config"
+fi
