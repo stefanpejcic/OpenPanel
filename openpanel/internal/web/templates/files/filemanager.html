@@ -59,7 +59,7 @@
 
       <!-- START breadcrumbs -->
       <nav aria-label="{{.T.Get "FileManager Breadcrumbs"}}" id="tour-fm-breadcrumbs" class="mt-1">
-         <ol role="list" class="flex flex-wrap items-center gap-1 text-sm text-gray-500">
+         <ol role="list" id="fmCrumbs" class="flex flex-wrap items-center gap-1 text-sm text-gray-500">
             <li class="flex">
                <a href="/files?view={{.View}}" class="text-gray-500 hover:text-gray-900 dark:hover:text-gray-50">/var/www/html/</a>
             </li>
@@ -281,14 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
 <div class="lg:flex lg:items-stretch">
 {{template "fm_tree" .}}
 <div class="min-w-0 flex-1">
-{{if eq (len .Directories) 0}}{{if eq (len .Files) 0}}
-
-    {{template "drag_and_drop" .}}
-    <table class="hidden w-full mt-0 text-left" id="fm_new_table"><tbody>{{template "fm_new_rows" .}}</tbody></table>
-    {{template "empty_directory" .}}
-
-{{end}}{{end}}
-{{if or (gt (len .Directories) 0) (gt (len .Files) 0)}}
 
     {{if eq .View "classic"}}
         {{template "actions_buttons" .}}
@@ -297,6 +289,16 @@ document.addEventListener('DOMContentLoaded', () => {
     {{end}}
 
     {{template "drag_and_drop" .}}
+
+    <!-- filemanager.js swaps this block when the folder changes, everything around it stays loaded -->
+    <div id="fmListing" data-path="{{.PathParam}}">
+    {{if and (eq (len .Directories) 0) (eq (len .Files) 0)}}
+
+    <table class="hidden w-full mt-0 text-left" id="fm_new_table"><tbody>{{template "fm_new_rows" .}}</tbody></table>
+    {{template "empty_directory" .}}
+
+    {{else}}
+
     {{template "files_table" .}}
 
     {{if gt .TotalPages 1}}
@@ -334,30 +336,12 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     {{end}}
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (typeof reportHealthIssues !== 'function') return;
-        const noPermFiles = [];
-        document.querySelectorAll('#filemanager_table tbody tr[data-file]').forEach(function (row) {
-            const perms = row.getAttribute('data-permissions') || '';
-            if (/^.-{9}$/.test(perms)) noPermFiles.push(row.getAttribute('data-file'));
-        });
-        if (!noPermFiles.length) return;
-        let issue;
-        if (noPermFiles.length === 1) {
-            issue = { id: 'perms0000:' + noPermFiles[0], severity: 'error', message: "{{.T.Get "File"}} " + noPermFiles[0] + " {{.T.Get "has no permissions (0000) and cannot be accessed."}}" };
-        } else if (noPermFiles.length === 2) {
-            issue = { id: 'perms0000:' + noPermFiles.join(','), severity: 'error', message: "{{.T.Get "Files"}} " + noPermFiles.join(', ') + " {{.T.Get "have no permissions (0000) and cannot be accessed."}}" };
-        } else {
-            issue = { id: 'perms0000:multiple', severity: 'error', message: noPermFiles.length + " {{.T.Get "files have no permissions (0000) and cannot be accessed."}}" };
-        }
-        reportHealthIssues('files:' + window.location.pathname, [issue], 24);
-    });
-    </script>
+    {{end}}
+    </div>
+
     {{template "fm_inline_js" .}}
     {{template "fm_picker_modal" .}}
 
-{{end}}
 </div>
 </div>
 
