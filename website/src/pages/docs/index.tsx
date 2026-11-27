@@ -57,7 +57,7 @@ const MAIN = [
 const MORE = [
     ["How-to guides", "/docs/articles/intro/"],
     ["OpenAdmin API", "/docs/admin/api/"],
-    ["Changelog", "/docs/changelog/2.0.29/"],
+    ["Changelog", "/docs/changelog/2.0.30/"],
     ["Install command generator", "/install/"],
 ];
 
