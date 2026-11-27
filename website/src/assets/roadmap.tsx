@@ -3,6 +3,8 @@ import {
     MonitorIcon,
     SelfHostedIcon,
     IdentityIcon,
+    ComponentsIcon,
+    WizardsIcon,
 } from "@site/src/components/landing/icons";
 
 // what is being worked on right now, empty hides the section; update it once things ship
@@ -22,5 +24,13 @@ export const plannedFeatures = [
     {
         icon: <IdentityIcon />,
         title: "Reseller rebranding",
+    },
+    {
+        icon: <ComponentsIcon />,
+        title: "Terraform provider",
+    },
+    {
+        icon: <WizardsIcon />,
+        title: "Ansible collection",
     },
 ];
