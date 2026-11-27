@@ -2601,6 +2601,29 @@ Updated ai_max_tokens to 4096
 ```
 </details>
 
+### `ai_reasoning_effort`
+
+How much the model reasons before answering: `none`, `minimal`, `low`, `medium`, `high` or `xhigh`. Empty (default) doesn't send it, so the model's default applies. If an OpenAI model rejects tools with its default reasoning (for example `gpt-6-luna` on `/chat/completions`), the assistant retries with `none`. For Anthropic models `none` and `minimal` are sent as `low`.
+
+**Check current value**:
+```bash
+opencli config get ai_reasoning_effort
+```
+
+**Set new value**:
+```bash
+opencli config update ai_reasoning_effort none
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_reasoning_effort none
+Updated ai_reasoning_effort to none
+```
+</details>
+
 ### `ai_actions`
 
 What the assistant can do in the user's account: `off` (only answers questions), `read` (default, can also look up account data) or `all` (can also make changes, after the user approves each one). Any other value falls back to `read`.

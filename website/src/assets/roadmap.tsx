@@ -5,6 +5,7 @@ import {
     IdentityIcon,
     ComponentsIcon,
     WizardsIcon,
+    ProvidersIcon,
 } from "@site/src/components/landing/icons";
 
 // what is being worked on right now, empty hides the section; update it once things ship
@@ -32,5 +33,9 @@ export const plannedFeatures = [
     {
         icon: <WizardsIcon />,
         title: "Ansible collection",
+    },
+    {
+        icon: <ProvidersIcon />,
+        title: "AI assistant: OpenAI Responses API (/v1/responses)",
     },
 ];

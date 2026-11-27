@@ -84,7 +84,7 @@ func turnAnthropic(ctx context.Context, s Settings, system string, conv []turnMs
 		Fallbacks: anthropic.BetaFallbacksParamUnion{OfDefault: constant.ValueOf[constant.Default]()},
 	}
 	if supportsEffort(s.Model) {
-		params.OutputConfig = anthropic.BetaOutputConfigParam{Effort: anthropic.BetaOutputConfigEffortLow}
+		params.OutputConfig = anthropic.BetaOutputConfigParam{Effort: anthropicEffort(s.Reasoning)}
 	}
 	for _, t := range tools {
 		params.Tools = append(params.Tools, anthropic.BetaToolUnionParam{OfTool: &anthropic.BetaToolParam{
@@ -152,6 +152,19 @@ func turnAnthropic(ctx context.Context, s Settings, system string, conv []turnMs
 	return out, nil
 }
 
+// anthropicEffort maps the admin's reasoning effort to claude's, which has no none or minimal, low stays the default
+func anthropicEffort(r string) anthropic.BetaOutputConfigEffort {
+	switch r {
+	case "medium":
+		return anthropic.BetaOutputConfigEffortMedium
+	case "high":
+		return anthropic.BetaOutputConfigEffortHigh
+	case "xhigh":
+		return anthropic.BetaOutputConfigEffortXhigh
+	}
+	return anthropic.BetaOutputConfigEffortLow
+}
+
 // supportsEffort is true for the claude models that take output_config.effort, older ones 400 on it
 func supportsEffort(model string) bool {
 	for _, p := range []string{"claude-fable-", "claude-mythos-", "claude-opus-5", "claude-sonnet-5", "claude-haiku-5", "claude-opus-4-6", "claude-opus-4-7", "claude-opus-4-8", "claude-sonnet-4-6"} {
@@ -207,30 +220,40 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 		reqBody["tools"] = ts
 	}
 
+	if s.Reasoning != "" {
+		reqBody["reasoning_effort"] = s.Reasoning
+	}
+
 	resp, err := postChat(ctx, s, reqBody)
 	if err != nil {
 		return turnOut{}, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	// each 400 that names a parameter we can fix gets one retry: the max tokens field name, and reasoning effort
+	// for models like gpt-6-luna that reject tools with their default reasoning on /chat/completions
+	retriedTokens, retriedReasoning := false, false
+	for resp.StatusCode != http.StatusOK {
 		snippet, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		msg := providerError(snippet)
-		// a custom endpoint in front of an openai model, or an openai-compatible API that wants the other name, gets one retry with it
-		if other := otherTokensField(tokensField); resp.StatusCode == http.StatusBadRequest && strings.Contains(msg, tokensField) {
+		switch {
+		case resp.StatusCode == http.StatusBadRequest && !retriedTokens && strings.Contains(msg, tokensField):
+			// a custom endpoint in front of an openai model, or an openai-compatible API that wants the other name
+			retriedTokens = true
 			delete(reqBody, tokensField)
-			reqBody[other] = s.MaxTokens
-			resp.Body.Close()
-			if resp, err = postChat(ctx, s, reqBody); err != nil {
-				return turnOut{}, err
-			}
-			defer resp.Body.Close()
-			if resp.StatusCode != http.StatusOK {
-				snippet, _ = io.ReadAll(io.LimitReader(resp.Body, 2048))
-				return turnOut{}, fmt.Errorf("provider returned %d: %s", resp.StatusCode, providerError(snippet))
-			}
-		} else {
+			tokensField = otherTokensField(tokensField)
+			reqBody[tokensField] = s.MaxTokens
+		case resp.StatusCode == http.StatusBadRequest && !retriedReasoning && s.Reasoning == "" && strings.Contains(msg, "reasoning_effort"):
+			// only when the admin left it empty, a value they picked is theirs to change after seeing the error
+			retriedReasoning = true
+			reqBody["reasoning_effort"] = "none"
+		default:
 			return turnOut{}, fmt.Errorf("provider returned %d: %s", resp.StatusCode, msg)
 		}
+		resp.Body.Close()
+		if resp, err = postChat(ctx, s, reqBody); err != nil {
+			return turnOut{}, err
+		}
+		defer resp.Body.Close()
 	}
 
 	var out turnOut

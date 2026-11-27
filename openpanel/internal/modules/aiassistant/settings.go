@@ -28,6 +28,7 @@ type Settings struct {
 	DocsChars    int // documentation sent with each question, the prompt is what makes CPU-only models slow
 	MonthlyLimit int // requests per user per month, 0 is unlimited
 	MaxTokens    int
+	Reasoning    string // reasoning effort: none, minimal, low, medium, high or xhigh, empty leaves it to the model
 	BrandName    string
 	Actions      string // off, read or all
 }
@@ -44,11 +45,17 @@ func LoadSettings(cfg config.Config) Settings {
 		DocsChars:    atoiDefault(cfg.Get("ai_docs_chars", ""), defaultDocsChars),
 		MonthlyLimit: atoiDefault(cfg.Get("ai_monthly_limit", ""), defaultLimit),
 		MaxTokens:    atoiDefault(cfg.Get("ai_max_tokens", ""), defaultMaxTokens),
+		Reasoning:    strings.ToLower(strings.TrimSpace(unquote(cfg.Get("ai_reasoning_effort", "")))),
 		BrandName:    strings.TrimSpace(unquote(cfg.Get("brand_name", ""))),
 		Actions:      strings.ToLower(strings.TrimSpace(unquote(cfg.Get("ai_actions", modeRead)))),
 	}
 	if s.Actions != modeOff && s.Actions != modeAll {
 		s.Actions = modeRead
+	}
+	switch s.Reasoning {
+	case "none", "minimal", "low", "medium", "high", "xhigh":
+	default:
+		s.Reasoning = ""
 	}
 	if s.Provider == "" {
 		s.Provider = "openrouter"
