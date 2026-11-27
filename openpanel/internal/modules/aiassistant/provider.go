@@ -183,10 +183,15 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 			msgs = append(msgs, map[string]any{"role": "user", "content": m.Text})
 		}
 	}
+	// openai's newer models reject max_tokens and only take max_completion_tokens, most other compatible APIs only know max_tokens
+	tokensField := "max_tokens"
+	if s.Provider == "openai" {
+		tokensField = "max_completion_tokens"
+	}
 	reqBody := map[string]any{
 		"model":          s.Model,
 		"messages":       msgs,
-		"max_tokens":     s.MaxTokens,
+		tokensField:      s.MaxTokens,
 		"stream":         true,
 		"stream_options": map[string]any{"include_usage": true},
 	}
@@ -201,28 +206,31 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 		}
 		reqBody["tools"] = ts
 	}
-	body, _ := json.Marshal(reqBody)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.BaseURL+"/chat/completions", bytes.NewReader(body))
-	if err != nil {
-		return turnOut{}, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "text/event-stream")
-	if s.APIKey != "" {
-		req.Header.Set("Authorization", "Bearer "+s.APIKey)
-	}
-	if s.Provider == "openrouter" {
-		req.Header.Set("X-Title", s.BrandName)
-	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := postChat(ctx, s, reqBody)
 	if err != nil {
 		return turnOut{}, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		snippet, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
-		return turnOut{}, fmt.Errorf("provider returned %d: %s", resp.StatusCode, providerError(snippet))
+		msg := providerError(snippet)
+		// a custom endpoint in front of an openai model, or an openai-compatible API that wants the other name, gets one retry with it
+		if other := otherTokensField(tokensField); resp.StatusCode == http.StatusBadRequest && strings.Contains(msg, tokensField) {
+			delete(reqBody, tokensField)
+			reqBody[other] = s.MaxTokens
+			resp.Body.Close()
+			if resp, err = postChat(ctx, s, reqBody); err != nil {
+				return turnOut{}, err
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				snippet, _ = io.ReadAll(io.LimitReader(resp.Body, 2048))
+				return turnOut{}, fmt.Errorf("provider returned %d: %s", resp.StatusCode, providerError(snippet))
+			}
+		} else {
+			return turnOut{}, fmt.Errorf("provider returned %d: %s", resp.StatusCode, msg)
+		}
 	}
 
 	var out turnOut
@@ -230,6 +238,7 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 	// tool calls arrive in pieces keyed by index
 	calls := map[int]*toolCall{}
 	args := map[int]*strings.Builder{}
+	finish := ""
 	sc := bufio.NewScanner(resp.Body)
 	sc.Buffer(make([]byte, 64*1024), 1024*1024)
 	for sc.Scan() {
@@ -254,6 +263,7 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 						} `json:"function"`
 					} `json:"tool_calls"`
 				} `json:"delta"`
+				FinishReason string `json:"finish_reason"`
 			} `json:"choices"`
 			Usage *struct {
 				PromptTokens     int64 `json:"prompt_tokens"`
@@ -273,6 +283,9 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 			out.InputTokens, out.OutputTokens = ev.Usage.PromptTokens, ev.Usage.CompletionTokens
 		}
 		for _, c := range ev.Choices {
+			if c.FinishReason != "" {
+				finish = c.FinishReason
+			}
 			if c.Delta.Content != "" {
 				text.WriteString(c.Delta.Content)
 				onText(c.Delta.Content)
@@ -298,6 +311,10 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 		return out, err
 	}
 	out.Text = text.String()
+	// reasoning models count their thinking against the limit and can run out before writing anything
+	if finish == "length" && out.Text == "" && len(calls) == 0 {
+		return out, fmt.Errorf("the model used all %d max tokens before answering, raise Max tokens per answer", s.MaxTokens)
+	}
 
 	idx := make([]int, 0, len(calls))
 	for i := range calls {
@@ -316,6 +333,30 @@ func turnOpenAI(ctx context.Context, s Settings, system string, conv []turnMsg, 
 		out.Calls = append(out.Calls, *c)
 	}
 	return out, nil
+}
+
+func postChat(ctx context.Context, s Settings, reqBody map[string]any) (*http.Response, error) {
+	body, _ := json.Marshal(reqBody)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.BaseURL+"/chat/completions", bytes.NewReader(body))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "text/event-stream")
+	if s.APIKey != "" {
+		req.Header.Set("Authorization", "Bearer "+s.APIKey)
+	}
+	if s.Provider == "openrouter" {
+		req.Header.Set("X-Title", s.BrandName)
+	}
+	return http.DefaultClient.Do(req)
+}
+
+func otherTokensField(f string) string {
+	if f == "max_tokens" {
+		return "max_completion_tokens"
+	}
+	return "max_tokens"
 }
 
 // providerError pulls the message out of an openai-style error body so the admin sees why in the logs

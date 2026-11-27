@@ -27,6 +27,9 @@ type monthUsage struct {
 type usageFile struct {
 	Months   map[string]*monthUsage `json:"months"`
 	LastUsed string                 `json:"last_used,omitempty"`
+	// why the last question failed, OpenAdmin shows it on the AI assistant settings so the admin doesn't need the container logs
+	LastError   string `json:"last_error,omitempty"`
+	LastErrorAt string `json:"last_error_at,omitempty"`
 }
 
 func usagePath(username string) string {
@@ -110,5 +113,34 @@ func addUsage(username string, inTokens, outTokens int64, actions int) {
 	m.InputTokens += inTokens
 	m.OutputTokens += outTokens
 	m.Actions += actions
+	saveUsage(username, f)
+}
+
+// refundRequest gives back a question the provider never answered, so a broken key or model doesn't eat the user's limit
+func refundRequest(username string) {
+	usageMu.Lock()
+	defer usageMu.Unlock()
+	f := loadUsage(username)
+	if m := f.month(); m.Requests > 0 {
+		m.Requests--
+		saveUsage(username, f)
+	}
+}
+
+// setLastError keeps why the last question failed, an empty msg clears it once a question gets answered again
+func setLastError(username, msg string) {
+	if len(msg) > 500 {
+		msg = msg[:500] + "..."
+	}
+	usageMu.Lock()
+	defer usageMu.Unlock()
+	f := loadUsage(username)
+	if f.LastError == msg {
+		return
+	}
+	f.LastError, f.LastErrorAt = msg, ""
+	if msg != "" {
+		f.LastErrorAt = time.Now().UTC().Format(time.RFC3339)
+	}
 	saveUsage(username, f)
 }

@@ -86,8 +86,10 @@ type agent struct {
 	steps    int
 	// set once the model has read content others can write (files, logs), saved permissions stop applying after that
 	tainted bool
-	wait    *waiting
-	emit    func(map[string]any)
+	// the provider answered at least once, a question that fails before that isn't counted against the limit
+	answered bool
+	wait     *waiting
+	emit     func(map[string]any)
 }
 
 var (
@@ -160,6 +162,7 @@ func (ag *agent) run(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+		ag.answered = true
 		ag.conv = append(ag.conv, turnMsg{Role: "assistant", Text: out.Text, Calls: out.Calls})
 		if len(out.Calls) == 0 {
 			return nil

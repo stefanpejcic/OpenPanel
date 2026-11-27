@@ -137,7 +137,13 @@ func handleChat(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *http.
 	}
 	ag.conv = withDocs(msgs, docs.get(r.Context(), s.DocsURL), s.DocsChars, req.Page.Path, req.Page.Title)
 	ag.emit = ndjson(w)
-	finish(ag, r.Context(), u.Requests, func(ctx context.Context) error { return ag.run(ctx) })
+	finish(ag, r.Context(), u.Requests, func(ctx context.Context) error {
+		err := ag.run(ctx)
+		if err != nil && !ag.answered {
+			refundRequest(username)
+		}
+		return err
+	})
 }
 
 // finish runs the agent and closes the stream with either the answer's end or the pending confirmation
@@ -146,6 +152,9 @@ func finish(ag *agent, ctx context.Context, used int, run func(context.Context) 
 	defer cancel()
 	if err := run(ctx); err != nil {
 		log.Printf("AI - chat for %s via %s (%s) failed: %v", ag.username, ag.s.Provider, ag.s.Model, err)
+		if !errors.Is(err, errRefused) {
+			setLastError(ag.username, err.Error())
+		}
 		msg := "The AI Assistant couldn't answer right now, please try again later."
 		if errors.Is(err, errRefused) {
 			msg = "The AI Assistant can't help with that request."
@@ -153,6 +162,7 @@ func finish(ag *agent, ctx context.Context, used int, run func(context.Context) 
 		ag.emit(map[string]any{"error": msg})
 		return
 	}
+	setLastError(ag.username, "")
 	pending := ag.wait != nil
 	if pending {
 		storePending(ag)
