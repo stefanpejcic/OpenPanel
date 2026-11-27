@@ -62,3 +62,11 @@ fi
 if [ -f "$MAIL_ENV" ] && ! grep -q '^WEBMAIL_CLIENT=' "$MAIL_ENV"; then
     printf '\n# webmail client for the users: roundcube or golub, change it with: opencli email-webmail client golub\nWEBMAIL_CLIENT=roundcube\n' >> "$MAIL_ENV"
 fi
+
+# the webmail feature isn't only Roundcube anymore
+FEATURES_JSON="/etc/openpanel/openadmin/config/features.json"
+if [ -f "$FEATURES_JSON" ] && grep -q '"Webmail (Roundcube)"' "$FEATURES_JSON"; then
+    echo "Renaming the webmail feature in $FEATURES_JSON..."
+    sed -i -e 's/"title": "Webmail (Roundcube)"/"title": "Webmail"/' \
+        -e 's/auto-login to webmail (Roundcube) for email accounts. The Roundcube service must be configured separately./auto-login to webmail (Roundcube or Golub) for email accounts. The webmail service must be configured separately./' "$FEATURES_JSON"
+fi
