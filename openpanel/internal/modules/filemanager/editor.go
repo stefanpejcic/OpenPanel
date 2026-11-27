@@ -1,7 +1,9 @@
 package filemanager
 
 import (
+	"errors"
 	"io"
+	"io/fs"
 	"mime"
 	"net/http"
 	"path"
@@ -9,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
@@ -176,6 +179,13 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		_ = r.ParseForm()
 		editedContent := r.Form.Get("editor_content")
 
+		// the file's encoding as the editor opened it, the text goes back to disk in the same one
+		enc, encErr := normalizeEncoding(r.Form.Get("encoding"))
+		if encErr != nil {
+			fail(http.StatusBadRequest, web.Tr(a, r, "Unknown file encoding."))
+			return
+		}
+
 		contentToWrite := editedContent
 		if containsString(unixLineEndingExts, fileExt) || containsString(unixLineEndingExts, strings.ToLower(filename)) {
 			contentToWrite = strings.ReplaceAll(contentToWrite, "\r\n", "\n")
@@ -183,8 +193,14 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 			contentToWrite = strings.TrimPrefix(contentToWrite, "\ufeff")
 		}
 
+		encoded, convErr := encodeFromEditor(contentToWrite, enc)
+		if convErr != nil {
+			fail(http.StatusUnprocessableEntity, web.Tr(a, r, "The file was not saved: some characters can't be stored in %(encoding)s. Remove them or reopen the file as UTF-8.", "encoding", strings.ToUpper(enc)))
+			return
+		}
+
 		// the body was read after the path check, so the write has to go through the root handle, not the path string
-		writeErr := root.WriteFileAtomic(rel, []byte(contentToWrite), 0o644)
+		writeErr := root.WriteFileAtomic(rel, encoded, 0o644)
 
 		// the editor saves over fetch so undo history survives, it wants JSON not a flash + redirect
 		if wantsJSON {
@@ -226,7 +242,15 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	f, openErr := openRegular(root, rel)
 	if openErr != nil {
 		if !isNew {
-			fail(http.StatusNotFound, "Error accessing file size.")
+			// say what is wrong, the editor's Reopen shows this as a toast and offers to create a missing file
+			switch {
+			case errors.Is(openErr, fs.ErrNotExist):
+				fail(http.StatusNotFound, web.Tr(a, r, "%(path)s doesn't exist.", "path", "/var/www/html/"+filePath))
+			case errors.Is(openErr, errNotRegular):
+				fail(http.StatusUnprocessableEntity, web.Tr(a, r, "%(path)s is a folder or a special file, only files can be edited.", "path", "/var/www/html/"+filePath))
+			default:
+				fail(http.StatusNotFound, "Error accessing file size.")
+			}
 			return
 		}
 	} else {
@@ -249,7 +273,25 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 				return
 			}
 		} else {
-			fileContent = string(data)
+			q := r.URL.Query()
+			enc, encErr := normalizeEncoding(q.Get("encoding"))
+			if encErr != nil {
+				fail(http.StatusBadRequest, web.Tr(a, r, "Unknown file encoding."))
+				return
+			}
+			// not UTF-8 and no encoding picked: open it byte for byte so a save can't damage it, the page offers the encoding select and Reopen
+			if !q.Has("encoding") && !wantsJSON && !utf8.Valid(data) {
+				q.Set("encoding", fallbackEncoding)
+				q.Set("encoding_guess", "1")
+				http.Redirect(w, r, "/file-manager/edit-file/"+escapeURLPath(filePath)+"?"+q.Encode(), http.StatusFound)
+				return
+			}
+			text, decErr := decodeForEditor(data, enc)
+			if decErr != nil {
+				fail(http.StatusUnprocessableEntity, web.Tr(a, r, "The file can't be read as %(encoding)s.", "encoding", strings.ToUpper(enc)))
+				return
+			}
+			fileContent = text
 		}
 	}
 
@@ -257,6 +299,9 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		web.WriteJSON(w, http.StatusOK, fileContent)
 		return
 	}
+
+	// themes that ship their own editor page also run on panels without ?encoding=, they look for this before offering the encoding select
+	w.Header().Set("X-Editor-Encodings", "1")
 
 	editor := r.URL.Query().Get("editor")
 	if editor == "" {

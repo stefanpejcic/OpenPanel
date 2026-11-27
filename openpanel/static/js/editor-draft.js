@@ -55,6 +55,17 @@
             if (open) {
                 const body = $('[data-op-draft-body]');
                 body.textContent = '';
+                // the diff table is lines x lines, past this a big file would freeze the tab
+                if ((onDisk.split('\n').length + 1) * (draft.content.split('\n').length + 1) > 4e6) {
+                    const line = document.createElement('div');
+                    line.className = lineClass[' '];
+                    line.textContent = root.dataset.tooBig || 'The file is too large to show the changes.';
+                    body.appendChild(line);
+                    $('[data-op-draft-stats]').textContent = '';
+                    diffBox.hidden = false;
+                    viewBtn.setAttribute('aria-expanded', 'true');
+                    return;
+                }
                 let added = 0, removed = 0;
                 lineDiff(onDisk, draft.content).forEach(([op, text]) => {
                     if (op === '+') added++;

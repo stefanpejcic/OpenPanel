@@ -14,7 +14,6 @@
     }
     #editor-body { flex: 1; min-height: 0; }
     #editor-body > * { height: 100%; }
-    .editor-header { display: flex; padding: 0px 10px; justify-content: space-between; align-items: center; }
 
     /* textarea editor */
     #editor-text {
@@ -33,6 +32,32 @@
 
     /* Ace */
     #editor-ace { width: 100%; }
+
+    /* two rows with the same edges: title | actions, then editor tools | file path, encoding, Reopen (static/js/file-editor.js fills the selects) */
+    .fe-head, .fe-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+    .fe-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .fe-file { flex: 0 1 34rem; }
+    .fe-row select, .fe-row button { flex: none; }
+    /* output.css gives selects form padding, which pushes the text up in a 32px box */
+    select.fe-ctl { padding: 0 28px 0 8px; line-height: 30px; background-position: right 6px center; }
+    .fe-ctl {
+        height: 32px; padding: 0 8px; box-sizing: border-box;
+        border: 1px solid #d1d5db; border-radius: 6px;
+        background: #fff; color: #111827; font-size: 13px;
+    }
+    .fe-ctl:focus-visible { outline: 2px solid #3b82f6; outline-offset: 1px; }
+    button.fe-ctl { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+    button.fe-ctl:hover { background: #f9fafb; }
+    .fe-icon { width: 32px; justify-content: center; padding: 0; font-size: 16px; }
+    .fe-path { flex: 1 1 auto; min-width: 8rem; width: 100%; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .fe-sep { width: 1px; height: 20px; background: #e5e7eb; margin: 0 2px; }
+    .fe-warn { border-radius: 6px; padding: 8px 12px; font-size: 13px; background: #fffbeb; color: #92400e; }
+    @media (max-width: 639px) { .fe-file { flex-basis: 100%; } }
+    html.dark .fe-ctl { border-color: #1f2937; background: #030712; color: #f9fafb; }
+    html.dark button.fe-ctl:hover { background: #111827; }
+    html.dark .fe-sep { background: #1f2937; }
+    html.dark .fe-warn { background: rgba(120, 53, 15, .35); color: #fcd34d; }
+    [data-op-draft] { flex-shrink: 0; }
 </style>
 
 
@@ -42,6 +67,7 @@
 {{else if eq .Editor "ace"}}
     <script src="{{static "vendor/ace/ace.min.js"}}"></script>
     <script src="{{static "vendor/ace/ext-language_tools.min.js"}}"></script>
+    <script src="{{static "vendor/ace/ext-modelist.js"}}"></script>
 {{else if eq .Editor "codemirror"}}
     <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
     <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
@@ -51,6 +77,7 @@
     <script src="{{static "vendor/codemirror/mode/css/css.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/mode/javascript/javascript.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/mode/htmlmixed/htmlmixed.min.js"}}"></script>
+    <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/mode/php/php.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/mode/python/python.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/mode/shell/shell.min.js"}}"></script>
@@ -60,6 +87,8 @@
     <script src="{{static "vendor/codemirror/addon/edit/matchbrackets.min.js"}}"></script>
     <script src="{{static "vendor/codemirror/addon/edit/closebrackets.min.js"}}"></script>
 {{end}}
+<script src="{{static "js/editor-draft.js"}}"></script>
+<script src="{{static "js/file-editor.js"}}"></script>
 
 
 
@@ -67,9 +96,9 @@
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <section aria-label="{{.T.Get "File Editor Header"}}" id="editor-container" class="bg-white dark:bg-gray-950">
-        <div class="flex shrink-0 flex-col gap-4 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:border-gray-800">
-            <div>
-
+        <div class="flex shrink-0 flex-col gap-3 border-b border-gray-200 px-4 py-3 sm:px-6 lg:px-8 dark:border-gray-800">
+        <div class="fe-head">
+            <div class="min-w-0">
                 {{if eq .FilePath "wpcli_themes.txt"}}
                     <div>
                         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress themes set"}}</h1>
@@ -86,20 +115,11 @@
                     </div>
                     <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Set API key to be used on Site Manager for your websites."}} <a href="https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Documentation"}}<i class="ri-external-link-line" aria-hidden="true"></i></a></p>
                 {{else}}
-                    <div>
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit file"}}</h1>
-                    </div>
-
-      <!-- START breadcrumbs -->
-      <p class="mt-1 text-sm text-gray-500 flex flex-wrap font-mono text-xs">
-<span>/var/www/html/</span>{{range .Breadcrumbs}}{{if .Last}}<span class="text-gray-900 dark:text-gray-50">{{.Name}}</span>{{else}}<span>{{.Name}}/</span>{{end}}{{end}}</p>
-      <!-- END breadcrumbs -->
-
+                    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit file"}}</h1>
                 {{end}}
-
             </div>
 
-            <div class="editor-header flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
 
                 <div class="relative" x-data="{ open: false }">
                     <button type="button"
@@ -128,13 +148,35 @@
             </div>
         </div>
 
+        <div class="fe-bar">
+            <div class="fe-row" role="toolbar" aria-label="{{.T.Get "Editor tools"}}">
+                <button type="button" data-fe-undo class="fe-ctl fe-icon" title="{{.T.Get "Undo"}} (Ctrl+Z)" aria-label="{{.T.Get "Undo"}}"><i class="ri-arrow-go-back-line" aria-hidden="true"></i></button>
+                <button type="button" data-fe-redo class="fe-ctl fe-icon" title="{{.T.Get "Redo"}} (Ctrl+Y)" aria-label="{{.T.Get "Redo"}}"><i class="ri-arrow-go-forward-line" aria-hidden="true"></i></button>
+                <span class="fe-sep" aria-hidden="true"></span>
+                <span data-fe-mode-wrap><select data-fe-mode class="fe-ctl" aria-label="{{.T.Get "Syntax"}}" title="{{.T.Get "Syntax"}}"></select></span>
+                <select data-fe-size class="fe-ctl" aria-label="{{.T.Get "Text size"}}" title="{{.T.Get "Text size"}}"></select>
+            </div>
+            {{if not (or (eq .FilePath "wpcli_themes.txt") (eq .FilePath "wpcli_plugins.txt") (eq .FilePath "pagespeed_api_key.txt"))}}
+            <!-- path and encoding: change either and Reopen, like the file was opened that way -->
+            <div class="fe-row fe-file">
+                <input type="text" data-fe-path class="fe-ctl fe-path" value="/var/www/html/{{.FilePath}}" title="/var/www/html/{{.FilePath}}" spellcheck="false" autocomplete="off" aria-label="{{.T.Get "File path"}}">
+                <select data-fe-encoding class="fe-ctl" aria-label="{{.T.Get "Encoding"}}" title="{{.T.Get "Encoding"}}"></select>
+                <button type="button" data-fe-reopen class="fe-ctl" title="{{.T.Get "Open the path with the selected encoding"}}"><i class="ri-refresh-line" aria-hidden="true"></i> {{.T.Get "Reopen"}}</button>
+            </div>
+            {{end}}
+        </div>
+
+        <p data-fe-notice class="fe-warn" role="status" hidden>{{.T.Get "This file isn't UTF-8, so it opened byte for byte as ISO-8859-1 and saving keeps its bytes. If letters look wrong, pick its encoding and click Reopen."}}</p>
+        </div>
+
+        {{template "editor_draft" (dict "T" .T "Class" "mx-4 mt-3 sm:mx-6 lg:mx-8")}}
+
         <input type="hidden" name="editor_content" id="editor_content">
 
         <div id="editor-body">
         {{if eq .Editor "text"}}
-            <textarea id="editor-text" aria-label="{{.T.Get "Edit file"}}" class="block bg-white font-mono text-gray-900 dark:bg-gray-950 dark:text-gray-50" spellcheck="false" autocorrect="off" autocapitalize="off">{{.FileContent}}</textarea>
+            <textarea id="editor-text" aria-label="{{.T.Get "Edit file"}}" class="block bg-white font-mono text-gray-900 dark:bg-gray-950 dark:text-gray-50" spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
         {{else if eq .Editor "codemirror"}}
-            <textarea id="editor-codemirror" style="display:none;">{{.FileContent}}</textarea>
             <div id="editor-codemirror-mount"></div>
         {{else if eq .Editor "ace"}}
             <div id="editor-ace"></div>
@@ -148,267 +190,31 @@
 
 
 <script>
-(function () {
-    const filePath    = {{.FilePathJSON}};
-    const fileContent = {{.FileContentJSON}};
-    const editorType  = '{{.Editor}}';
-    const isDark      = document.documentElement.classList.contains('dark');
-    const i18n = {
-        unsavedChanges: "{{.T.Get "You have unsaved changes. Leave anyway?"}}",
-        leave: "{{.T.Get "Leave"}}",
-        saved: "{{.T.Get "File saved successfully"}}",
-        saveFailed: "{{.T.Get "Error saving file."}}"
-    };
-
-    function getExtension(name) {
-        return name.split('.').pop().toLowerCase();
-    }
-
-    const hiddenInput     = document.getElementById('editor_content');
-    const saveBtn         = document.getElementById('editorcontentvalue');
-
-
-    let editor = null;   // used by Monaco and Ace
-    let cm     = null;   // used by CodeMirror
-    let getContent = () => fileContent;   // each backend swaps in its own getter
-
-
-    // opened from the file manager as its own window: offer Close, and tell the file manager after a save
-    const opener = (() => { try { return window.opener && window.opener !== window && window.opener.location.origin === location.origin ? window.opener : null; } catch (e) { return null; } })();
-    if (opener) {
-        const closeBtn = document.getElementById('closeWindowButton');
-        closeBtn.hidden = false;
-        closeBtn.addEventListener('click', () => window.close());
-    }
-
-    // Ctrl/Cmd+S to save, regardless of which editor backend is active
-    document.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 's') {
-            e.preventDefault();
-            saveBtn.click();
-        }
-    });
     if (window.registerShortcut) registerShortcut(['Ctrl', 'S'], "{{.T.Get "Save file"}}");
-
-    function getHashLine() {
-        const h = window.location.hash;
-        if (h && h.startsWith('#')) {
-            const n = parseInt(h.substring(1));
-            if (!isNaN(n)) return n;
-        }
-        return null;
-    }
-    function setHashLine(n) {
-        const newHash = '#' + n;
-        if (window.location.hash !== newHash) history.replaceState(null, null, newHash);
-    }
-
-    // MONACO
-    if (editorType === 'monaco') {
-        const languageMap = {
-            'py':'python','js':'javascript','html':'html','css':'css','scss':'scss',
-            'java':'java','c':'c','cpp':'cpp','php':'php','sql':'sql','sh':'shell',
-            'md':'markdown','ini':'ini','gitconfig':'ini','less':'less','xml':'xml',
-            'yaml':'yaml','yml':'yaml','json':'json','ts':'typescript','rb':'ruby',
-            'rs':'rust','swift':'swift','perl':'perl','twig':'twig',
-        };
-
-        require.config({ paths: { vs: '{{static "vendor/monaco/vs"}}' } });
-        require(['vs/editor/editor.main'], function () {
-            const lang   = languageMap[getExtension(filePath)] || 'plaintext';
-            const editor = monaco.editor.create(document.getElementById('editor'), {
-                value: fileContent, language: lang,
-                theme: isDark ? 'vs-dark' : 'vs', automaticLayout: true, lineNumbers: 'on',
-            });
-
-            window._editorLayout = () => editor.layout();
-
-            const line = getHashLine();
-            if (line) {
-                editor.revealLineInCenter(line);
-                editor.setPosition({ lineNumber: line, column: 1 });
-                editor.focus();
-            }
-
-            editor.onDidChangeCursorPosition(() => {
-                const pos = editor.getPosition();
-                if (pos) setHashLine(pos.lineNumber);
-            });
-
-            getContent = () => editor.getValue();
-
-            editor.onDidChangeModelContent(() => { isDirty = true; });
-        });
-    }
-
-    // ACE
-    else if (editorType === 'ace') {
-        const aceModMap = {
-            'py':'python','js':'javascript','html':'html','css':'css','scss':'scss',
-            'java':'java','c':'c','cpp':'c_cpp','php':'php','sql':'sql','sh':'sh',
-            'md':'markdown','ini':'ini','xml':'xml','yaml':'yaml','yml':'yaml',
-            'json':'json','ts':'typescript','rb':'ruby','rs':'rust','swift':'swift',
-            'perl':'perl',
-        };
-
-        const aceEl  = document.getElementById('editor-ace');
-        editor = ace.edit(aceEl);
-        editor.setTheme(isDark ? 'ace/theme/monokai' : 'ace/theme/chrome');
-
-        const mode = aceModMap[getExtension(filePath)] || 'text';
-        editor.session.setMode('ace/mode/' + mode);
-        editor.setValue(fileContent, -1);   // -1 = move cursor to start
-        editor.setOptions({ fontSize: '14px', showPrintMargin: false, enableLiveAutocompletion: true });
-
-        window._editorLayout = () => editor.resize();
-
-        const line = getHashLine();
-        if (line) { editor.gotoLine(line, 0, true); }
-
-        editor.selection.on('changeCursor', () => {
-            setHashLine(editor.getCursorPosition().row + 1);
-        });
-
-        getContent = () => editor.getValue();
-    }
-
-    // CODEMIRROR
- else if (editorType === 'codemirror') {
-    const cmModeMap = {
-        'py':   'text/x-python',
-        'js':   'text/javascript',
-        'html': 'text/html',
-        'css':  'text/css',
-        'php':  'text/x-php',
-        'sh':   'text/x-sh',
-        'sql':  'text/x-sql',
-        'xml':  'application/xml',
-        'yaml': 'text/x-yaml',
-        'yml':  'text/x-yaml',
-        'md':   'text/x-markdown',
-        'json': 'application/json',
-    };
-    const mode    = cmModeMap[getExtension(filePath)] || 'null';
-    const mountEl = document.getElementById('editor-codemirror-mount');
-
-    cm = CodeMirror(mountEl, {
-        value: fileContent,
-        mode: mode,
-        theme: isDark ? 'dracula' : 'default',
-        lineNumbers: true,
-        matchBrackets: true,
-        autoCloseBrackets: true,
-        indentUnit: 4,
-        tabSize: 4,
-        indentWithTabs: false,
-        lineWrapping: false,
-        extraKeys: { Tab: (cm) => cm.replaceSelection('    ') },
+    opFileEditor({
+        backend: '{{.Editor}}',
+        filePath: {{.FilePathJSON}},
+        content: {{.FileContentJSON}},
+        homePrefix: '/var/www/html/',
+        locale: '{{.T.Locale}}',
+        root: document.getElementById('editor-container'),
+        urls: {
+            monacoVs: '{{static "vendor/monaco/vs"}}',
+            ace: '{{static "vendor/ace"}}',
+        },
+        i18n: {
+            unsavedChanges: "{{.T.Get "You have unsaved changes. Leave anyway?"}}",
+            leave: "{{.T.Get "Leave"}}",
+            saved: "{{.T.Get "File saved successfully"}}",
+            saveFailed: "{{.T.Get "Error saving file."}}",
+            reopen: "{{.T.Get "Reopen"}}",
+            reopenUnsaved: "{{.T.Get "You have unsaved changes. Reopen anyway?"}}",
+            reopenFailed: "{{.T.Get "The file could not be opened."}}",
+            createFile: "{{.T.Get "Create file"}}",
+            outsideHome: "{{.T.Get "Only files in /var/www/html/ can be opened."}}",
+            plainText: "{{.T.Get "Plain text"}}",
+        },
     });
-
-    // refresh once laid out or the cursor goes missing
-    requestAnimationFrame(() => requestAnimationFrame(() => cm.refresh()));
-
-    const line = getHashLine();
-    if (line) {
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            cm.scrollIntoView({ line: line - 1, ch: 0 }, 200);
-            cm.setCursor({ line: line - 1, ch: 0 });
-        }));
-    }
-
-    cm.on('cursorActivity', () => {
-        setHashLine(cm.getCursor().line + 1);
-    });
-
-    getContent = () => cm.getValue();
-}
-
-    // PLAIN TEXT
-    else {
-        const ta = document.getElementById('editor-text');
-
-        ta.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = ta.selectionStart;
-                const end   = ta.selectionEnd;
-                ta.value = ta.value.substring(0, start) + '    ' + ta.value.substring(end);
-                ta.selectionStart = ta.selectionEnd = start + 4;
-            }
-        });
-
-        getContent = () => ta.value;
-    }
-
-    // UNSAVED CHANGES
-    let isDirty = false;
-
-    if (editorType === 'monaco') {
-        // monaco is async — the listener is set inside the require() callback
-    } else if (editorType === 'ace') {
-        editor.session.on('change', () => { isDirty = true; });
-    } else if (editorType === 'codemirror') {
-        cm.on('change', () => { isDirty = true; });
-    } else {
-        document.getElementById('editor-text').addEventListener('input', () => { isDirty = true; });
-    }
-
-    // save over fetch instead of a form post so the page doesn't reload and undo/redo history stays
-    const form = saveBtn.closest('form');
-    const saveIcon = saveBtn.querySelector('i');
-    let saving = false;
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (saving) return;
-        saving = true;
-        saveBtn.disabled = true;
-        saveIcon.className = 'ri-loader-4-line animate-spin';
-        const sent = getContent();
-        hiddenInput.value = sent;
-        const url = new URL(location.href);
-        url.hash = '';
-        url.searchParams.set('output', 'json');
-        try {
-            const res = await fetch(url, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || i18n.saveFailed);
-            // only clean if nothing was typed while the request was out
-            if (getContent() === sent) isDirty = false;
-            showToast(data.message || i18n.saved, 'success');
-            if (opener) { try { opener.postMessage({ type: 'op-file-saved', path: filePath }, location.origin); } catch (err) {} }
-        } catch (err) {
-            showToast(err.message || i18n.saveFailed, 'error');
-        } finally {
-            saving = false;
-            saveBtn.disabled = false;
-            saveIcon.className = 'ri-save-line';
-        }
-    });
-
-    window.addEventListener('beforeunload', (e) => {
-        if (!isDirty) return;
-        e.preventDefault();
-        e.returnValue = '';
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!isDirty) return;
-        const anchor = e.target.closest('a[href]');
-        if (!anchor) return;
-        const href = anchor.getAttribute('href');
-        if (!href || href.startsWith('#')) return;
-        if (anchor.closest('[x-data]')) return;
-        e.preventDefault();
-        window.opConfirm(i18n.unsavedChanges, { ok: i18n.leave, danger: true }).then((ok) => {
-            if (!ok) return;
-            isDirty = false;
-            if (anchor.target === '_blank') window.open(anchor.href, '_blank');
-            else window.location.href = anchor.href;
-        });
-    });
-
-
-})();
 </script>
 
 <!-- END templates/files/edit_file.html -->

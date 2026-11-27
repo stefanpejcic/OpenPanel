@@ -1,6 +1,6 @@
 {{define "editor_draft"}}{{/* call with (dict "T" .T "Class" "margins") */}}
 <!-- unsaved copy kept in this browser, static/js/editor-draft.js shows it when it differs from the saved file -->
-<div data-op-draft hidden data-locale="{{.T.Locale}}" class="{{.Class}}">
+<div data-op-draft hidden data-locale="{{.T.Locale}}" data-too-big="{{.T.Get "The file is too large to show the changes."}}" class="{{.Class}}">
     <div class="flex flex-col gap-3 rounded-md p-4 text-sm bg-blue-50 text-blue-900 sm:flex-row sm:items-center sm:justify-between dark:bg-blue-950/70 dark:text-blue-300" role="status">
         <div class="flex gap-3">
             <i class="ri-history-line text-lg leading-5" aria-hidden="true"></i>
