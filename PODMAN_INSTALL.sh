@@ -1023,6 +1023,8 @@ EOF
     if [[ -n "$new_hostname" ]]; then
         if [[ "$new_hostname" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
             sed -i "s/example\.net/$new_hostname/g" "${ETC_DIR}caddy/Caddyfile"
+            # /webmail follows the webmail.<hostname> block just written, so Email Settings shows it instead of ip:8080
+            sed -i "s|^redir @webmail .*|redir @webmail https://webmail.$new_hostname/ 301|" "${ETC_DIR}caddy/redirects.conf"
         elif [[ "$new_hostname" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
             if grep -q "# START HOSTNAME IP #" "${ETC_DIR}caddy/Caddyfile"; then
                 sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "${ETC_DIR}caddy/Caddyfile"
