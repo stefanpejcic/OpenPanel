@@ -3,7 +3,10 @@ package emails
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -30,6 +33,11 @@ const (
 	masterUser              = "openpanel"
 	mailserverContainerName = "openadmin_mailserver"
 	roundcubeContainerName  = "openadmin_roundcube"
+	golubContainerName      = "openadmin_golub"
+	// shared with the golub container through golub.env, opencli makes it when switching to golub
+	golubSSOKeyPath = "/etc/openpanel/openpanel/golub_sso.key"
+	// golub refuses tokens that live longer than a minute
+	golubTokenTTL = 30 * time.Second
 	// its own key, the panel's secret.key signs sessions and must never end up in the roundcube container
 	dovecotMasterPassPath = "/etc/openpanel/openpanel/dovecot_master.key"
 )
@@ -134,14 +142,68 @@ func GetWebmailDomain(ctx context.Context, a *appctx.App, currentUsername string
 	return domain
 }
 
-// isWebmailRunning mirrors _is_webmail_running().
-func isWebmailRunning(ctx context.Context) bool {
+// runningWebmail says which webmail client runs, roundcube, golub or "" for none
+func runningWebmail(ctx context.Context) string {
 	out, err := exec.CommandContext(ctx, "podman", "ps", "--format", "{{.Names}}").Output()
 	if err != nil {
 		log.Printf("WEBMAIL - Error checking Podman containers: %v", err)
-		return false
+		return ""
 	}
-	return strings.Contains(string(out), roundcubeContainerName)
+	return webmailFromNames(string(out))
+}
+
+func webmailFromNames(names string) string {
+	for _, n := range strings.Split(names, "\n") {
+		switch strings.TrimSpace(n) {
+		case golubContainerName:
+			return "golub"
+		case roundcubeContainerName:
+			return "roundcube"
+		}
+	}
+	return ""
+}
+
+// isWebmailRunning mirrors _is_webmail_running().
+func isWebmailRunning(ctx context.Context) bool {
+	return runningWebmail(ctx) != ""
+}
+
+// webmailAutologin returns the url that logs the browser into email, and the token in it
+func webmailAutologin(ctx context.Context, client, webmailURL, email string) (string, string, error) {
+	base := strings.TrimRight(webmailURL, "/")
+	if client == "golub" {
+		secret, err := tenantfs.ReadFile(golubSSOKeyPath)
+		if err != nil {
+			return "", "", err
+		}
+		token, err := golubSSOToken(strings.TrimSpace(string(secret)), email, time.Now())
+		if err != nil {
+			return "", "", err
+		}
+		return base + "/sso?token=" + token, token, nil
+	}
+	token, err := createWebmailToken(ctx, email)
+	if err != nil {
+		return "", "", err
+	}
+	return base + "/autologin.php?token=" + token, token, nil
+}
+
+// golubSSOToken signs email|expires|nonce|lang|theme the way golub verifies it, golub then logs in as email*openpanel
+func golubSSOToken(secret, email string, now time.Time) (string, error) {
+	if len(secret) < 32 {
+		return "", errors.New("golub SSO key is missing or too short")
+	}
+	nonce := make([]byte, 16)
+	if _, err := rand.Read(nonce); err != nil {
+		return "", err
+	}
+	payload := strings.Join([]string{email, strconv.FormatInt(now.Add(golubTokenTTL).Unix(), 10), hex.EncodeToString(nonce), "", ""}, "|")
+	m := hmac.New(sha256.New, []byte(secret))
+	m.Write([]byte(payload))
+	enc := base64.RawURLEncoding
+	return enc.EncodeToString([]byte(payload)) + "." + enc.EncodeToString(m.Sum(nil)), nil
 }
 
 // mailserverExistsAndRunning mirrors mailserver_exists_and_running().
@@ -257,7 +319,8 @@ func handleWebmailLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domains, _ := a.AllDomainsForUser(ctx, userID)
 	userDomains := domainSet(domains)
 
-	if !isWebmailRunning(ctx) {
+	client := runningWebmail(ctx)
+	if client == "" {
 		web.FlashRedirect(a, w, r, "info", "Webmail service is not yet started, please contact Administrator to enable it.", "/emails")
 		return
 	}
@@ -288,12 +351,13 @@ func handleWebmailLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, tokenErr := createWebmailToken(ctx, email)
+	target, _, tokenErr := webmailAutologin(ctx, client, webmailURL, email)
 	if tokenErr != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		log.Printf("WEBMAIL - autologin for %s: %v", client, tokenErr)
+		http.Redirect(w, r, webmailURL, http.StatusFound)
 		return
 	}
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "accessed webmail for "+email, ipAddress)
-	http.Redirect(w, r, strings.TrimRight(webmailURL, "/")+"/autologin.php?token="+token, http.StatusFound)
+	http.Redirect(w, r, target, http.StatusFound)
 }

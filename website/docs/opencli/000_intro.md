@@ -199,8 +199,8 @@ Description: Refresh the cached email accounts and quota usage file for users.
 Usage: opencli email-usage <USERNAME|--all>
 ------------------------
 opencli email-webmail
-Description: Display or update the domain used for accessing webmail.
-Usage: opencli email-webmail [--debug] [domain <domain>]
+Description: Display or update the domain used for accessing webmail, or switch the webmail client.
+Usage: opencli email-webmail [--debug] [domain <domain>] [client [roundcube|golub]]
 ------------------------
 opencli faq
 Description: Display answers to most frequently asked questions.

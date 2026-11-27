@@ -801,6 +801,40 @@ Webmail domain updated to https://webmail.example.com
 
 Add `--debug` to display verbose information.
 
+Display the webmail client users get, `roundcube` (the default) or `golub`:
+
+```bash
+opencli email-webmail client
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-webmail client
+roundcube
+```
+</details>
+
+Switch the webmail client to [Golub](https://github.com/stefanpejcic/Golub):
+
+```bash
+opencli email-webmail client golub
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-webmail client golub
+Roundcube (Webmail) removed successfully.
+Golub (Webmail) added successfully.
+Webmail client is now golub.
+```
+</details>
+
+Only one client runs at a time, both are served on port 8080 behind the webmail domain. The choice is saved as `WEBMAIL_CLIENT` in `/usr/local/mail/openmail/mailserver.env`, and the mailserver restarts bring back the chosen client. Switching to Golub creates the single sign-on key `/etc/openpanel/openpanel/golub_sso.key` and `/usr/local/mail/openmail/golub.env`, so OpenPanel users log into Golub without a password like with Roundcube. Switch back with `opencli email-webmail client roundcube`.
+
 ## Rate limits
 
 `opencli email-ratelimit` generates postfwd rate-limiting rules for users and domains, based on the `max_hourly_email` limit of their plan. The limit is per account: each domain gets a rule that tags its emails with the account (`set(op_account=<USERNAME>)`) and a counting rule with the shared id `limit_<USERNAME>_rate`, so emails from all domains of the account add up to one hourly limit.
