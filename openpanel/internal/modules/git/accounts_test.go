@@ -115,7 +115,7 @@ func TestConnectAccount(t *testing.T) {
 	if acct.Login != "octo" || acct.Title() != "Work" || acct.Expires != "2099-01-02 03:04:05 UTC" {
 		t.Fatalf("stored account = %+v", acct)
 	}
-	if fi, err := os.Stat(accountsPath(userContext)); err != nil || fi.Mode().Perm() != 0o600 {
+	if fi, err := os.Stat(filepath.Join(accountRoot(userContext), accountsFile)); err != nil || fi.Mode().Perm() != 0o600 {
 		t.Fatalf("accounts.json should be 0600, got %v %v", fi, err)
 	}
 	if _, err := connectAccount(ctx, userContext, goodToken, ""); err == nil || !strings.Contains(err.Error(), "already connected") {
@@ -386,5 +386,62 @@ func TestRenderGitPageAccounts(t *testing.T) {
 	}
 	if n := strings.Count(body, `<select name="account"`); n != 2 {
 		t.Errorf("account select rendered %d times in settings, want 2", n)
+	}
+}
+
+func TestNoStoreWithoutAContext(t *testing.T) {
+	withFakeAccount(t)
+	withFakeGitHub(t)
+	ctx := context.Background()
+	for _, bad := range []string{"", ".", "..", "a/b"} {
+		if _, err := loadAccounts(bad); !errors.Is(err, errNoContext) {
+			t.Errorf("loadAccounts(%q) = %v, an account without a context must not share a store", bad, err)
+		}
+		if _, err := connectAccount(ctx, bad, goodToken, ""); !errors.Is(err, errNoContext) {
+			t.Errorf("connectAccount(%q) = %v", bad, err)
+		}
+		if _, err := loadRepos(bad); !errors.Is(err, errNoContext) {
+			t.Errorf("loadRepos(%q) = %v", bad, err)
+		}
+		if err := updateRepos(bad, func(r []Repo) ([]Repo, error) { return r, nil }); !errors.Is(err, errNoContext) {
+			t.Errorf("updateRepos(%q) = %v", bad, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(rootOverride, "accounts.json")); err == nil {
+		t.Fatal("a store was written outside any account")
+	}
+}
+
+func TestAccountStoreRefusesASwappedDir(t *testing.T) {
+	userContext, _ := withFakeAccount(t)
+	withFakeGitHub(t)
+	ctx := context.Background()
+	if _, err := connectAccount(ctx, userContext, goodToken, ""); err != nil {
+		t.Fatal(err)
+	}
+	// another account's store, the kind of place a swapped-in link would aim at
+	victim := filepath.Join(rootOverride, "victim")
+	os.MkdirAll(victim, 0o700)
+	os.WriteFile(filepath.Join(victim, accountsFile), []byte(`[{"id":"v1","login":"victim","token":"github_pat_victimvictimvictim00"}]`), 0o600)
+
+	real := accountRoot(userContext)
+	if err := os.Rename(real, real+".moved"); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(victim, real); err != nil {
+		t.Fatal(err)
+	}
+	// a link owned by the account, root-owned links are followed on purpose
+	if err := os.Lchown(real, 12345, 12345); err != nil {
+		t.Skip("needs root to hand the link to another uid")
+	}
+	if accounts, err := loadAccounts(userContext); err == nil {
+		t.Fatalf("read through a link the account made: %+v", accounts)
+	}
+	if err := updateAccounts(userContext, func(a []Account) ([]Account, error) { return nil, nil }); err == nil {
+		t.Fatal("wrote through a link the account made")
+	}
+	if data, _ := os.ReadFile(filepath.Join(victim, accountsFile)); !strings.Contains(string(data), "victim") {
+		t.Fatal("the other account's store was changed")
 	}
 }

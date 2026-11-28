@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -13,11 +14,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -75,19 +78,45 @@ func isValidFullName(s string) bool {
 	return fullNameRE.MatchString(s) && !strings.Contains(s, "..") && !strings.HasSuffix(s, ".git")
 }
 
-func accountsPath(userContext string) string {
-	return filepath.Join(accountRoot(userContext), "accounts.json")
+// openAccountStore pins the account's git dir, the account owns the home above it and could swap the dir between a check by name and the read or write
+func openAccountStore(userContext string) (*os.Root, error) {
+	if !validContext(userContext) {
+		return nil, errNoContext
+	}
+	dir := accountRoot(userContext)
+	root, err := paths.OpenAccountDir(filepath.Dir(dir), dir)
+	if err != nil {
+		return nil, err
+	}
+	fi, err := root.Stat(".")
+	if err != nil {
+		root.Close()
+		return nil, err
+	}
+	if st, ok := fi.Sys().(*syscall.Stat_t); !fi.IsDir() || (ok && int(st.Uid) != os.Geteuid()) {
+		root.Close()
+		return nil, fmt.Errorf("%s is not owned by the panel", dir)
+	}
+	return root, nil
 }
+
+const accountsFile = "accounts.json"
 
 // loadAccounts reads accounts.json, a missing file is just an empty list
 func loadAccounts(userContext string) ([]Account, error) {
-	if err := checkAccountRoot(userContext); err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return []Account{}, nil
-		}
+	root, err := openAccountStore(userContext)
+	if errors.Is(err, os.ErrNotExist) {
+		return []Account{}, nil
+	}
+	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(accountsPath(userContext))
+	defer root.Close()
+	return readAccounts(root)
+}
+
+func readAccounts(root *os.Root) ([]Account, error) {
+	data, err := root.ReadFile(accountsFile)
 	if errors.Is(err, os.ErrNotExist) {
 		return []Account{}, nil
 	}
@@ -110,7 +139,13 @@ func updateAccounts(userContext string, fn func([]Account) ([]Account, error)) e
 		return err
 	}
 	defer unlockFile(f)
-	accounts, err := loadAccounts(userContext)
+	// one handle for the read, the temp file and the rename, so all three hit the same directory
+	root, err := openAccountStore(userContext)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+	accounts, err := readAccounts(root)
 	if err != nil {
 		return err
 	}
@@ -122,11 +157,10 @@ func updateAccounts(userContext string, fn func([]Account) ([]Account, error)) e
 	if err != nil {
 		return err
 	}
-	tmp := accountsPath(userContext) + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o600); err != nil {
+	if err := root.WriteFile(accountsFile+".tmp", data, 0o600); err != nil {
 		return err
 	}
-	return os.Rename(tmp, accountsPath(userContext))
+	return root.Rename(accountsFile+".tmp", accountsFile)
 }
 
 func getAccount(userContext, id string) (Account, bool) {

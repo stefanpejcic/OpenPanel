@@ -88,7 +88,17 @@ func storePath(userContext string) string {
 	return filepath.Join(accountRoot(userContext), "repos.json")
 }
 
+// errNoContext is for an account with no context yet, without it every such account would land in the same /home/git
+var errNoContext = errors.New("Git is not available until this account's home directory exists")
+
+func validContext(userContext string) bool {
+	return userContext != "" && userContext != "." && userContext != ".." && !strings.ContainsAny(userContext, "/\\")
+}
+
 func ensureAccountRoot(userContext string) error {
+	if !validContext(userContext) {
+		return errNoContext
+	}
 	root := accountRoot(userContext)
 	if err := os.MkdirAll(root, 0o700); err != nil {
 		return err
@@ -102,6 +112,9 @@ func ensureAccountRoot(userContext string) error {
 
 // checkAccountRoot refuses a git dir the account could have planted, since the parent home is theirs and git runs as root in here
 func checkAccountRoot(userContext string) error {
+	if !validContext(userContext) {
+		return errNoContext
+	}
 	root := accountRoot(userContext)
 	fi, err := os.Lstat(root)
 	if err != nil {
