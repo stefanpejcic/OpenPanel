@@ -115,12 +115,12 @@ Click **New service** on the Containers page to run any Docker image next to you
 
    These limits apply to this container only, it can't use more than your hosting plan allows.
 
-3. **Networks** – Tick one or more networks from your `docker-compose.yml`. The container can talk to every service on the networks you choose. At least one is required.
+3. **Networks** – Tick one or more networks from your `docker-compose.yml`. The container can talk to every service on the networks you choose. At least one is required. `socket-proxy` isn't offered, only the built-in cron and backup services use it.
 
 4. **Storage (optional)**
    - **Add volume** – Pick one of your Docker volumes, enter the path it's mounted at inside the container, and optionally mark it **Read-only**.
    - **+ New volume** – The last option in the volume list. It switches the row to a name field so you can create a new volume for this container, for example `uptimekuma_data`. Names are 3 to 64 lowercase letters, digits or `_`, starting with a letter. The volume is created when you save, and it keeps its data if the container is deleted later.
-   - **Give access to the Docker socket** – Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers. Unchecked by default.
+   - **Give access to the Docker socket** – Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers. Unchecked by default, and only shown when the server allows it (OpenAdmin > Settings > OpenPanel > Allow the Docker socket in containers, off by default).
 
 5. **Environment variables (optional)** – Add a key and value per row, or click **Paste as text** to paste them as `KEY: value` lines, one per line. `{domain}` in a value is replaced with the domain chosen in the next step (or `localhost` if none), for example `WEBHOOK_URL: https://{domain}/`.
 
