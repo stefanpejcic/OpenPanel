@@ -107,6 +107,13 @@ Install on any supported Linux VPS or dedicated server (`x86_64` or `ARM64`, 1 G
 bash <(curl -sSL https://openpanel.org)
 ```
 
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/install-flow-dark.svg">
+    <img src=".github/assets/install-flow-light.svg" alt="The install script checks the server, installs Podman and system packages, downloads OpenAdmin, OpenCLI and the configuration, sets up MariaDB, BIND9, the Sentinel firewall and Caddy, then creates the admin account" width="100%">
+  </picture>
+</div>
+
 For full installation options and configuration flags: [openpanel.com/install](https://openpanel.com/install) · [Resource calculator](https://openpanel.com/calculator/) · [System requirements](https://openpanel.com/docs/articles/install-update/system-requirements/)
 
 ## Platform Capabilities
@@ -218,6 +225,14 @@ Manage multiple OpenPanel servers from a single **OpenAdmin** master under **Sys
 
 <div align="center">
   <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/multi-server-dark.svg">
+    <img src=".github/assets/multi-server-light.svg" alt="One OpenAdmin master manages, applies and syncs settings to several servers; each server is a full OpenPanel install that keeps serving if the master is down, and accounts can move between servers" width="100%">
+  </picture>
+</div>
+<br>
+
+<div align="center">
+  <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://openpanel.com/img/openadmin-screenshots/multi-server/cluster-page_dark.png">
     <img src="https://openpanel.com/img/openadmin-screenshots/multi-server/cluster-page.png" alt="OpenAdmin System > Multi-server management dashboard" width="800">
   </picture>
@@ -228,6 +243,14 @@ Manage multiple OpenPanel servers from a single **OpenAdmin** master under **Sys
 ## Connect your AI assistant (MCP)
 
 OpenPanel Enterprise includes a built-in [Model Context Protocol (MCP)](https://openpanel.com/docs/panel/account/mcp/) server at `/mcp`, letting users manage sites, domains, DNS records, databases and logs from their AI assistant with scoped, revocable tokens (**Read-only**, **No deletes**, per-feature access and expiry).
+
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/mcp-flow-dark.svg">
+    <img src=".github/assets/mcp-flow-light.svg" alt="An AI client connects to POST /mcp on OpenPanel with a token the user made; the token's mode (read-only, no deletes or full), feature list and expiry decide what it can reach in that user's account" width="100%">
+  </picture>
+</div>
+<br>
 
 <div align="center">
   <a href="https://openpanel.com/docs/panel/account/mcp/"><img src="https://github.com/claude.png" width="44" alt="Claude Code"></a>&nbsp;&nbsp;
