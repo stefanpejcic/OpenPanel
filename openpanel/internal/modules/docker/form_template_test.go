@@ -2,6 +2,8 @@ package docker
 
 import (
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -144,5 +146,41 @@ func TestCheckSocketAccess(t *testing.T) {
 	}
 	if checkSocketAccess(false, []string{"./data", "pgdata"}, false, "") != nil {
 		t.Fatal("ordinary volumes stay fine")
+	}
+}
+
+func TestUserNetworksHidesSocketProxy(t *testing.T) {
+	compose := map[string]any{"networks": map[string]any{"www": nil, "db": nil, "socket-proxy": nil}}
+	for _, svc := range []string{"", "myapp", "docker-proxy"} {
+		if containsString(userNetworks(compose, svc), "socket-proxy") {
+			t.Fatalf("%q shouldn't be offered socket-proxy", svc)
+		}
+	}
+	for _, svc := range []string{"cron", "backup"} {
+		if !containsString(userNetworks(compose, svc), "socket-proxy") {
+			t.Fatalf("%s keeps socket-proxy", svc)
+		}
+	}
+	if got := selectedNetworks([]string{"socket-proxy", "www"}, userNetworks(compose, "myapp")); len(got) != 1 || got[0] != "www" {
+		t.Fatalf("submitted socket-proxy should be dropped, got %v", got)
+	}
+}
+
+func TestSocketAllowedReadsServerSetting(t *testing.T) {
+	old := panelConfigPath
+	t.Cleanup(func() { panelConfigPath = old })
+	dir := t.TempDir()
+	panelConfigPath = filepath.Join(dir, "missing.config")
+	if socketAllowed() {
+		t.Fatal("off when the config file is missing")
+	}
+	for val, want := range map[string]bool{"yes": true, "YES": true, "no": false, "": false, "1": false} {
+		panelConfigPath = filepath.Join(dir, "openpanel.config")
+		if err := os.WriteFile(panelConfigPath, []byte("dev_mode=off\ndocker_socket="+val+"\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if socketAllowed() != want {
+			t.Fatalf("docker_socket=%q: want %v", val, want)
+		}
 	}
 }

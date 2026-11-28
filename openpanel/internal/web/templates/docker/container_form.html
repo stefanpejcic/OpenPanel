@@ -191,13 +191,16 @@
             <p x-show="!volumes.length" class="text-sm text-gray-500">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</p>
             <p x-show="volumes.some(v => v.isNew)" x-cloak class="mt-2 text-xs text-gray-500">{{.T.Get "New volumes are created when you save, and keep their data if the container is deleted."}}</p>
 
+            {{if or .SocketAllowed .AddSocket}}
             <label class="mt-4 flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
                 <input type="checkbox" name="add_socket" class="mt-0.5" {{if .AddSocket}}checked{{end}}>
                 <span>
                     <span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Give access to the Docker socket"}}</span>
                     <span class="mt-0.5 block text-xs text-gray-500">{{.T.Get "Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers."}}</span>
+                    {{if not .SocketAllowed}}<span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{.T.Get "Turned off on this server. Untick it to save this container."}}</span>{{end}}
                 </span>
             </label>
+            {{end}}
         </div>
 
         <!-- 5: environment -->
