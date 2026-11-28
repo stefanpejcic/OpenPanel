@@ -18,7 +18,7 @@ if [ -f "$MAIL_COMPOSE" ] && ! grep -q '^  golub:' "$MAIL_COMPOSE"; then
     cat > "$golub_block" <<'BLOCK'
   # alternative webmail, only one of roundcube and golub runs since both use port 8080; switch with: opencli email-webmail client golub
   golub:
-    image: ghcr.io/stefanpejcic/golub:0.1
+    image: ghcr.io/stefanpejcic/golub:0.3
     container_name: openadmin_golub
     env_file: golub.env
     restart: always
@@ -58,6 +58,18 @@ BLOCK
         { print }
     ' "$MAIL_COMPOSE" > "$MAIL_COMPOSE.tmp" && mv "$MAIL_COMPOSE.tmp" "$MAIL_COMPOSE"
     rm -f "$golub_block"
+fi
+# servers that got the golub block from an earlier 2.0.32 beta move up to 0.3; only the golub container is recreated, never the mailserver
+if [ -f "$MAIL_COMPOSE" ] && grep -q 'ghcr.io/stefanpejcic/golub:0\.[12]$' "$MAIL_COMPOSE"; then
+    echo "Updating Golub webmail to 0.3 in $MAIL_COMPOSE..."
+    sed -i 's|ghcr.io/stefanpejcic/golub:0\.[12]$|ghcr.io/stefanpejcic/golub:0.3|' "$MAIL_COMPOSE"
+    if podman ps --format '{{.Names}}' | grep -qx openadmin_golub; then
+        # pull first so golub is down only for the restart itself
+        podman pull -q ghcr.io/stefanpejcic/golub:0.3 >/dev/null
+        podman stop -t 10 openadmin_golub >/dev/null
+        podman rm -f openadmin_golub >/dev/null
+        (cd "$MAIL_DIR" && podman-compose up -d --no-deps golub >/dev/null 2>&1)
+    fi
 fi
 if [ -f "$MAIL_ENV" ] && ! grep -q '^WEBMAIL_CLIENT=' "$MAIL_ENV"; then
     printf '\n# webmail client for the users: roundcube or golub, change it with: opencli email-webmail client golub\nWEBMAIL_CLIENT=roundcube\n' >> "$MAIL_ENV"
