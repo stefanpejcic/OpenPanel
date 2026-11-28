@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -75,6 +76,25 @@ func createRepo(ctx context.Context, a *appctx.App, userID int, userContext stri
 	}
 	if r.DeployMode == "" {
 		r.DeployMode = DeployAutomatic
+	}
+
+	// a repo picked from a connected account gets its address from GitHub, never from the form
+	if id := strings.TrimSpace(v.Get("account")); id != "" && r.Source == SourceRemote {
+		acct, ok := getAccount(userContext, id)
+		if !ok {
+			return r, "", errors.New("This GitHub account is no longer connected.")
+		}
+		full := strings.TrimSpace(v.Get("github_repo"))
+		if !isValidFullName(full) {
+			return r, "", errors.New("Select a repository from the list.")
+		}
+		hosted, err := hostedRepo(ctx, acct, full)
+		if err != nil {
+			return r, "", errors.New("Could not read " + full + " from GitHub: " + err.Error())
+		}
+		r.AccountID, r.RemoteRepo = acct.ID, hosted.FullName
+		r.RemoteURL = githubCloneBase + hosted.FullName + ".git"
+		r.RemoteUser, r.RemotePass = "", ""
 	}
 
 	switch r.Source {
@@ -235,7 +255,20 @@ func updateSettings(ctx context.Context, userContext, name string, v url.Values)
 			return err
 		}
 	}
-	if _, sent := v["remote_user"]; sent && current.Source == SourceRemote && !isSSHURL(current.RemoteURL) {
+	relinked := false
+	if id := strings.TrimSpace(v.Get("account")); id != "" && current.RemoteRepo != "" && id != current.AccountID {
+		acct, ok := getAccount(userContext, id)
+		if !ok {
+			return errors.New("This GitHub account is no longer connected.")
+		}
+		if _, err := hostedRepo(ctx, acct, current.RemoteRepo); err != nil {
+			return errors.New("This account cannot read " + current.RemoteRepo + " on GitHub.")
+		}
+		// the old webhook belongs to the old account's token, drop it while that token may still be around
+		dropHook(ctx, userContext, current)
+		next.AccountID, relinked = id, true
+	}
+	if _, sent := v["remote_user"]; sent && current.Source == SourceRemote && current.RemoteRepo == "" && !isSSHURL(current.RemoteURL) {
 		next.RemoteUser = strings.TrimSpace(v.Get("remote_user"))
 		// blank keeps the saved password, so the form never has to echo it back
 		if p := v.Get("remote_pass"); p != "" {
@@ -250,6 +283,9 @@ func updateSettings(ctx context.Context, userContext, name string, v url.Values)
 		x.Branch, x.TargetDir, x.DeployMode = next.Branch, next.TargetDir, next.DeployMode
 		x.Actions, x.ActionsContainer = next.Actions, next.ActionsContainer
 		x.RemoteUser, x.RemotePass = next.RemoteUser, next.RemotePass
+		if relinked {
+			x.AccountID = next.AccountID
+		}
 	})
 }
 
@@ -295,7 +331,22 @@ type actionResult struct {
 	NewPassword string `json:"push_password,omitempty"`
 }
 
-// doAction runs one create/pull/deploy/settings/reset_password/delete action from form values
+// hookNote tries to add the push webhook on GitHub and says how that went, empty when there was nothing to do
+func hookNote(ctx context.Context, a *appctx.App, r *http.Request, username, userContext string, repo Repo, quiet bool) string {
+	if repo.RemoteRepo == "" || repo.DeployMode != DeployAutomatic || repo.HookID != 0 {
+		return ""
+	}
+	added, err := ensureHook(ctx, userContext, username, web.PublicBaseURL(ctx, a, r), repo)
+	switch {
+	case added:
+		return " " + web.Tr(a, r, "GitHub now tells the panel about every push.")
+	case err != nil && !quiet:
+		return " " + web.Tr(a, r, "The push webhook could not be added on GitHub (%(error)s). Add the webhook URL from the repository settings by hand.", "error", err.Error())
+	}
+	return ""
+}
+
+// doAction runs one create/pull/deploy/settings/reset_password/delete or account action from form values
 func doAction(ctx context.Context, a *appctx.App, r *http.Request, userID int, username, userContext string, v url.Values) (actionResult, error) {
 	name := strings.TrimSpace(v.Get("repo"))
 	ip := reqip.ClientIP(r)
@@ -308,6 +359,7 @@ func doAction(ctx context.Context, a *appctx.App, r *http.Request, userID int, u
 		}
 		_ = logger.RecordUserAction(a.Config, username, "added git repository "+repo.Name, ip)
 		res := actionResult{Repo: repo.Name, NewPassword: pw}
+		note := hookNote(ctx, a, r, username, userContext, repo, false)
 		switch {
 		case err != nil:
 			// repo exists but its first deploy failed, still hand back the password
@@ -319,6 +371,7 @@ func doAction(ctx context.Context, a *appctx.App, r *http.Request, userID int, u
 		default:
 			res.Message = tr("Repository %(repo)s cloned (branch %(branch)s), nothing was deployed yet.", "repo", repo.Name, "branch", repo.Branch)
 		}
+		res.Message += note
 		return res, nil
 
 	case "pull":
@@ -363,7 +416,8 @@ func doAction(ctx context.Context, a *appctx.App, r *http.Request, userID int, u
 		}
 		_ = logger.RecordUserAction(a.Config, username, "changed settings of git repository "+name, ip)
 		saved, _ := getRepo(userContext, name)
-		return actionResult{Repo: name, Message: tr("Settings saved for %(repo)s: branch %(branch)s, %(mode)s, deploying to %(dir)s.", "repo", name, "branch", saved.Branch, "mode", tr(modeLabel(saved.DeployMode)), "dir", saved.TargetDir)}, nil
+		msg := tr("Settings saved for %(repo)s: branch %(branch)s, %(mode)s, deploying to %(dir)s.", "repo", name, "branch", saved.Branch, "mode", tr(modeLabel(saved.DeployMode)), "dir", saved.TargetDir)
+		return actionResult{Repo: name, Message: msg + hookNote(ctx, a, r, username, userContext, saved, true)}, nil
 
 	case "reset_password":
 		pw, err := resetPushPassword(userContext, name)
@@ -375,11 +429,32 @@ func doAction(ctx context.Context, a *appctx.App, r *http.Request, userID int, u
 
 	case "delete":
 		repo, _ := getRepo(userContext, name)
+		dropHook(ctx, userContext, repo)
 		if err := deleteRepo(userContext, name); err != nil {
 			return actionResult{}, errors.New(tr("Could not remove %(repo)s: %(error)s", "repo", name, "error", tr(err.Error())))
 		}
 		_ = logger.RecordUserAction(a.Config, username, "removed git repository "+name, ip)
 		return actionResult{Repo: name, Message: tr("Repository %(repo)s removed. Files already deployed to %(dir)s were left in place.", "repo", name, "dir", repo.TargetDir)}, nil
+
+	case "account_add":
+		acct, err := connectAccount(ctx, userContext, v.Get("token"), v.Get("label"))
+		if err != nil {
+			return actionResult{}, err
+		}
+		_ = logger.RecordUserAction(a.Config, username, "connected GitHub account "+acct.Login, ip)
+		return actionResult{Message: tr("GitHub account %(login)s connected.", "login", acct.Login)}, nil
+
+	case "account_remove":
+		acct, used, err := disconnectAccount(ctx, userContext, strings.TrimSpace(v.Get("account")))
+		if err != nil {
+			return actionResult{}, err
+		}
+		_ = logger.RecordUserAction(a.Config, username, "disconnected GitHub account "+acct.Login, ip)
+		msg := tr("GitHub account %(login)s disconnected.", "login", acct.Login)
+		if used > 0 {
+			msg += " " + tr("%(count)s repositories used it and cannot pull until another account is picked in their settings.", "count", strconv.Itoa(used))
+		}
+		return actionResult{Message: msg}, nil
 	}
 	return actionResult{}, errors.New("Invalid action.")
 }

@@ -41,6 +41,10 @@ type Repo struct {
 	RemoteURL  string `json:"remote_url,omitempty"`
 	RemoteUser string `json:"remote_user,omitempty"`
 	RemotePass string `json:"remote_pass,omitempty"`
+	// AccountID and RemoteRepo are set for repos picked from a connected account, its token then replaces RemoteUser/RemotePass
+	AccountID  string `json:"account_id,omitempty"`
+	RemoteRepo string `json:"remote_repo,omitempty"`
+	HookID     int64  `json:"hook_id,omitempty"`
 	Branch     string `json:"branch"`
 	Domain     string `json:"domain"`
 	TargetDir  string `json:"target_dir"`
@@ -63,7 +67,7 @@ type Repo struct {
 // rootOverride lets tests keep repos in a temp dir
 var rootOverride string
 
-// accountRoot is the root-only dir holding an account's bare repos, repos.json and deploy key
+// accountRoot is the root-only dir holding an account's bare repos, repos.json, accounts.json and deploy key
 func accountRoot(userContext string) string {
 	if rootOverride != "" {
 		return filepath.Join(rootOverride, userContext)
@@ -84,7 +88,17 @@ func storePath(userContext string) string {
 	return filepath.Join(accountRoot(userContext), "repos.json")
 }
 
+// errNoContext is for an account with no context yet, without it every such account would land in the same /home/git
+var errNoContext = errors.New("Git is not available until this account's home directory exists")
+
+func validContext(userContext string) bool {
+	return userContext != "" && userContext != "." && userContext != ".." && !strings.ContainsAny(userContext, "/\\")
+}
+
 func ensureAccountRoot(userContext string) error {
+	if !validContext(userContext) {
+		return errNoContext
+	}
 	root := accountRoot(userContext)
 	if err := os.MkdirAll(root, 0o700); err != nil {
 		return err
@@ -98,6 +112,9 @@ func ensureAccountRoot(userContext string) error {
 
 // checkAccountRoot refuses a git dir the account could have planted, since the parent home is theirs and git runs as root in here
 func checkAccountRoot(userContext string) error {
+	if !validContext(userContext) {
+		return errNoContext
+	}
 	root := accountRoot(userContext)
 	fi, err := os.Lstat(root)
 	if err != nil {

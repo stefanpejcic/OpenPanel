@@ -22,6 +22,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/git", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleGitPage(a, w, r) }))
 	mux.Handle("GET /git/site.json", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSiteJSON(a, w, r) }))
 	mux.Handle("POST /git/action.json", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleGitJSON(a, w, r) }))
+	mux.Handle("GET /git/github/accounts.json", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleAccountsJSON(a, w, r) }))
+	mux.Handle("GET /git/github/repos.json", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleHostedRepos(a, w, r) }))
+	mux.Handle("GET /git/github/branches.json", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleHostedBranches(a, w, r) }))
 	mux.Handle("POST /git/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleGitBulk(a, mux, w, r) }))
 
 	mux.HandleFunc(httpPrefix, func(w http.ResponseWriter, r *http.Request) { handleSmartHTTP(a, w, r) })
@@ -50,7 +53,11 @@ func apiList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
-	web.WriteJSON(w, http.StatusOK, map[string]any{"repos": buildViews(r.Context(), userContext, username, web.PublicBaseURL(r.Context(), a, r), repos, r.URL.Query().Get("domain"))})
+	accounts, _ := loadAccounts(userContext)
+	web.WriteJSON(w, http.StatusOK, map[string]any{
+		"repos":    buildViews(r.Context(), userContext, username, web.PublicBaseURL(r.Context(), a, r), repos, accounts, r.URL.Query().Get("domain")),
+		"accounts": accountViews(accounts, repos),
+	})
 }
 
 // apiAction takes the same fields as the page form, as JSON or form values

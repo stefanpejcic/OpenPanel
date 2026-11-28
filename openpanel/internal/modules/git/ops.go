@@ -74,8 +74,20 @@ func remoteEnv(ctx context.Context, userContext string, r Repo) ([]string, error
 		ip = "[" + ip + "]"
 	}
 	kv := []string{"http.followRedirects", "false", "http.curloptResolve", host + ":" + port + ":" + ip}
-	if r.RemoteUser != "" || r.RemotePass != "" {
-		auth := base64.StdEncoding.EncodeToString([]byte(r.RemoteUser + ":" + r.RemotePass))
+	user, pass := r.RemoteUser, r.RemotePass
+	if r.RemoteRepo != "" {
+		acct, ok := getAccount(userContext, r.AccountID)
+		if !ok {
+			return nil, errAccountGone
+		}
+		// the token only ever goes to the host the panel built the URL for
+		if !strings.HasPrefix(r.RemoteURL, githubCloneBase) {
+			return nil, errors.New("this repository's address does not match its connected account")
+		}
+		user, pass = "x-access-token", acct.Token
+	}
+	if user != "" || pass != "" {
+		auth := base64.StdEncoding.EncodeToString([]byte(user + ":" + pass))
 		kv = append(kv, "http.extraHeader", "Authorization: Basic "+auth)
 	}
 	env := []string{"GIT_CONFIG_COUNT=" + strconv.Itoa(len(kv)/2)}
