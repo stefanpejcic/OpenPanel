@@ -24,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -159,7 +160,9 @@ func handleWPTools(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 	case "updates":
-		web.WriteJSON(w, http.StatusOK, cachedWPUpdates(r.Context(), a, s, r.FormValue("refresh") == "1"))
+		res := cachedWPUpdates(r.Context(), a, s, r.FormValue("refresh") == "1")
+		res.AutoUpdateLocked = websites.WPUpdatePrefsLocked(a.Config)
+		web.WriteJSON(w, http.StatusOK, res)
 	case "update":
 		handleWPToolUpdate(a, w, r, s)
 	case "core-update":
@@ -278,6 +281,8 @@ type wpUpdatesResult struct {
 	ThemeUpdates  int      `json:"theme_updates"`
 	PluginError   string   `json:"plugin_error,omitempty"`
 	ThemeError    string   `json:"theme_error,omitempty"`
+	// AutoUpdateLocked is the admin's lock, set per request so a cached list never carries an old value
+	AutoUpdateLocked bool `json:"auto_update_locked"`
 }
 
 func countUpdates(items []wpItem) int {
@@ -496,6 +501,10 @@ func handleWPToolCoreUpdate(a *appctx.App, w http.ResponseWriter, r *http.Reques
 }
 
 func handleWPToolAutoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request, s *wpToolSite) {
+	if websites.WPUpdatePrefsLocked(a.Config) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": websites.WPUpdatePrefsLockedMessage})
+		return
+	}
 	kind, names, err := itemKindAndNames(r)
 	if err != nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})

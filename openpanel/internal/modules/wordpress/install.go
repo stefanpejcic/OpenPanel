@@ -2,6 +2,7 @@ package wordpress
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os/exec"
 	"path/filepath"
@@ -398,6 +399,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		processInstallSet(ctx, userContext, wpBaseCmd, installPath, pluginFile, "plugin", emit)
 		processInstallSet(ctx, userContext, wpBaseCmd, installPath, themeFile, "theme", emit)
 	}
+	applyUpdateDefaults(ctx, userContext, wpBaseCmd, installPath, websites.WPUpdateDefaultArgs(a.Config), emit)
 
 	emit(map[string]any{"status": "Saving website information to SiteManager"})
 	if _, insertErr := a.DB.ExecContext(ctx,
@@ -590,6 +592,20 @@ func processInstallSet(ctx context.Context, userContext string, wpBaseCmd []stri
 		return
 	}
 	installSetItems(ctx, userContext, wpBaseCmd, installPath, strings.Split(string(content), "\n"), wpType, emit)
+}
+
+// applyUpdateDefaults writes the admin's auto-update preferences to the new site's wp-config.php, a failure doesn't fail the install
+func applyUpdateDefaults(ctx context.Context, userContext string, wpBaseCmd []string, installPath string, sets [][]string, emit func(map[string]any)) {
+	if len(sets) == 0 {
+		return
+	}
+	emit(map[string]any{"status": "Setting automatic update preferences"})
+	for _, set := range sets {
+		argv := append(append(append([]string{}, wpBaseCmd...), set...), "--skip-plugins", "--skip-themes", "--path="+installPath, "--allow-root")
+		if out, runErr := podmanmanager.Command(ctx, userContext, argv).CombinedOutput(); runErr != nil {
+			log.Printf("WORDPRESS - couldn't set %s for %s: %v: %s", set[2], installPath, runErr, strings.TrimSpace(string(out)))
+		}
+	}
 }
 
 // installSetItems installs and activates each plugin/theme slug or zip url

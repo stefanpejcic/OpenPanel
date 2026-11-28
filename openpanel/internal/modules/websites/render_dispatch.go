@@ -138,6 +138,7 @@ type WPSinglePageData struct {
 	SSLExpires           string            // 2006-01-02
 	RedisOn              bool              // the Redis Object Cache drop-in is in wp-content
 	TakenSites           map[string]string // every site on the account by name, the Clone tab won't copy onto one
+	UpdatePrefsLocked    bool              // the admin set wp_auto_update_lock, the Updates tab shows the preferences read-only
 }
 
 // sslState turns the domain's HTTPS mode and certificate into the header badge
@@ -198,6 +199,7 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		data.PageTabs = nil
 	}
 	data.SecurityToggles = wpSecurityToggles
+	data.UpdatePrefsLocked = WPUpdatePrefsLocked(a.Config)
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := wpSinglePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - wp single template render error: %v", err)
