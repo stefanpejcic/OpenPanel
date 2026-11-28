@@ -62,3 +62,17 @@ func TestInstallURL(t *testing.T) {
 		t.Error("placeholder lost")
 	}
 }
+
+func TestWithoutHidden(t *testing.T) {
+	list := []Template{{ID: "uptime-kuma"}, {ID: "grafana"}, {ID: "ghost"}}
+	if got := WithoutHidden(list, ""); len(got) != 3 {
+		t.Fatalf("nothing hidden should keep every app, got %d", len(got))
+	}
+	got := WithoutHidden(list, "grafana, ghost")
+	if len(got) != 1 || got[0].ID != "uptime-kuma" {
+		t.Fatalf("expected only uptime-kuma, got %+v", got)
+	}
+	if got := WithoutHidden(list, "not-in-the-list"); len(got) != 3 {
+		t.Fatalf("an unknown id should not hide anything, got %d", len(got))
+	}
+}

@@ -68,13 +68,14 @@ func apiWebmailToken(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isWebmailRunning(ctx) {
+	client := runningWebmail(ctx)
+	if client == "" {
 		web.WriteJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Webmail service is not running"})
 		return
 	}
 
 	webmailURL := GetWebmailDomain(ctx, a, currentUsername)
-	token, tokenErr := createWebmailToken(ctx, email)
+	autologinURL, token, tokenErr := webmailAutologin(ctx, client, webmailURL, email)
 	if tokenErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": tokenErr.Error()})
 		return
@@ -82,6 +83,6 @@ func apiWebmailToken(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "generated webmail token for "+email, reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{
-		"email": email, "token": token, "autologin_url": webmailURL + "/autologin.php?token=" + token, "webmail_url": webmailURL,
+		"email": email, "token": token, "autologin_url": autologinURL, "webmail_url": webmailURL,
 	})
 }

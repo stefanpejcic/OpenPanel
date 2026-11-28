@@ -55,6 +55,21 @@ func TestRenderFilesPage(t *testing.T) {
 		if !regexp.MustCompile(`MAX_BATCH_BYTES = \(\s*1000\s*\|\|`).MatchString(body) {
 			t.Error("drop zone doesn't get the upload batch size")
 		}
+		// filemanager.js swaps these two when a folder opens without a reload
+		if !strings.Contains(body, `<div id="fmListing" data-path="documents">`) {
+			t.Error("listing wrapper missing or without its path")
+		}
+		if !strings.Contains(body, `id="fmCrumbs"`) {
+			t.Error("breadcrumb list has no id")
+		}
+		// the table belongs inside the wrapper, the toolbar and scripts outside so they survive a swap
+		listing := body[strings.Index(body, `id="fmListing"`):]
+		if strings.Index(listing, `id="filemanager_table"`) < 0 || strings.Index(listing, `id="filemanager_table"`) > strings.Index(listing, "js/filemanager.js") {
+			t.Error("table isn't inside the listing wrapper")
+		}
+		if strings.Index(body, `id="mainButtons"`) > strings.Index(body, `id="fmListing"`) {
+			t.Error("toolbar is inside the listing wrapper")
+		}
 	})
 
 	t.Run("empty directory", func(t *testing.T) {
@@ -66,8 +81,21 @@ func TestRenderFilesPage(t *testing.T) {
 		if err := filesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "This folder is empty") {
+		body := w.Body.String()
+		if !strings.Contains(body, "This folder is empty") {
 			t.Error("expected empty-directory message")
+		}
+		// an empty folder can fill up without a reload, so it needs the toolbar, scripts and picker too
+		for _, want := range []string{`id="fmListing"`, `id="mainButtons"`, "js/filemanager.js", `id="fmPickerModal"`, `id="SelectAll-button"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("empty folder page missing %q", want)
+			}
+		}
+		if !regexp.MustCompile(`class="[^"]* hidden"[^>]*id="mainButtons"`).MatchString(body) {
+			t.Error("toolbar should start hidden in an empty folder")
+		}
+		if strings.Contains(body, `id="filemanager_table"`) {
+			t.Error("empty folder shouldn't render the table")
 		}
 	})
 

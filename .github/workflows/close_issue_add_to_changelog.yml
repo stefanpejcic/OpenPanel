@@ -78,27 +78,12 @@ jobs:
 
           ENTRY="- [${ISSUE_TITLE} #${ISSUE_NUMBER}](${ISSUE_URL})"
 
-          # Insert under '### 🐛 Bug Fixes'
+          # Insert right under the first '### 🐛 Bug Fixes', or add that heading at the end. No getline: the template
+          # ends on the heading, getline hit EOF there and printed the heading 3 times
           TMP_FILE="${FILE}.tmp"
           awk -v entry="$ENTRY" '
-            BEGIN { inserted=0 }
-            /^### 🐛 Bug Fixes/ {
-              print; getline;
-              if ($0 ~ /^-/ || $0 ~ /^\s*$/) {
-                print entry;
-                inserted=1;
-              }
-              print;
-              next
-            }
-            /^### / && !inserted && $0 != "### 🐛 Bug Fixes" {
-              if (!inserted && prev == "Not yet released.") {
-                print "### 🐛 Bug Fixes"
-                print entry
-                inserted=1
-              }
-            }
-            { print; prev=$0 }
+            { print }
+            !inserted && $0 == "### 🐛 Bug Fixes" { print entry; inserted=1 }
             END {
               if (!inserted) {
                 print "### 🐛 Bug Fixes"

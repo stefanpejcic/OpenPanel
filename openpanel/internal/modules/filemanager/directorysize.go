@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -25,7 +26,8 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	defer root.Close()
 
-	out, runErr := runOnDir(r.Context(), root, rel, "du", "-sh")
+	name, args := tenantfs.LowPrio(false, "du", "-sh")
+	out, runErr := runOnDir(r.Context(), root, rel, name, args...)
 	if runErr != nil {
 		errMsg := runErr.Error()
 		if exitErr, ok := runErr.(*exec.ExitError); ok {

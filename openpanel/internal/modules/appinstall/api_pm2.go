@@ -1,6 +1,7 @@
 package appinstall
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"net/http"
@@ -29,6 +30,17 @@ func RegisterPM2API(mux *http.ServeMux, a *appctx.App) {
 
 	apiregistry.Handle(mux, a, "pm2", "PATCH /api/pm2/{site_name...}", func(w http.ResponseWriter, r *http.Request) { apiPM2Update(a, w, r) })
 	apiregistry.Handle(mux, a, "pm2", "DELETE /api/pm2/{site_name...}", func(w http.ResponseWriter, r *http.Request) { apiPM2Delete(a, w, r) })
+}
+
+// appService finds the compose service behind a site the caller owns; the API takes site names like example.com/blog,
+// which can't be service names themselves since those have no dots
+func appService(ctx context.Context, a *appctx.App, siteName string) (service, appType string, ok bool) {
+	var container, kind sql.NullString
+	err := a.DB.QueryRowContext(ctx, "SELECT container, type FROM sites WHERE site_name = ?", siteName).Scan(&container, &kind)
+	if err != nil || container.String == "" {
+		return "", "", false
+	}
+	return strings.ToLower(container.String), kind.String, true
 }
 
 // apiPM2GetDispatch dispatches GET /api/pm2/{site_name}/logs.
@@ -70,13 +82,16 @@ func writeAPIPM2JSON(w http.ResponseWriter, status int, v any) {
 func apiPM2Logs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
-	siteName := r.PathValue("site_name")
-
-	containerName, _, _ := strings.Cut(strings.ToLower(strings.ReplaceAll(siteName, "/", "-")), "_")
+	siteName := strings.ToLower(r.PathValue("site_name"))
 	domainRoot, _, _ := strings.Cut(siteName, "/")
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
 		writeAPIPM2JSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		return
+	}
+	containerName, _, ok := appService(ctx, a, siteName)
+	if !ok {
+		writeAPIPM2JSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
 		return
 	}
 
@@ -118,6 +133,17 @@ func apiPM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request, action 
 		return
 	}
 
+	service, _, ok := appService(ctx, a, siteName)
+	if !ok {
+		writeAPIPM2JSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
+		return
+	}
+	// pulling a fresh image is slow and only needed for :latest tags, a redeploy only wants the restart
+	var opts struct {
+		NoPull bool `json:"no_pull"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&opts)
+
 	currentUsername, userContext, err := injectedContext(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -133,13 +159,16 @@ func apiPM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request, action 
 	var runErr error
 	switch action {
 	case "stop":
-		out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "down", siteName))
+		out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "down", service))
 	case "start":
-		out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", siteName))
+		out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", service))
 	case "restart":
-		if out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "pull", siteName)); runErr == nil {
-			if out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "down", siteName)); runErr == nil {
-				out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", siteName))
+		if !opts.NoPull {
+			out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "pull", service))
+		}
+		if runErr == nil {
+			if out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "down", service)); runErr == nil {
+				out, runErr = run(podmanmanager.PodmanComposeArgv("-f", composeFile, "up", "-d", service))
 			}
 		}
 	}
@@ -178,14 +207,14 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var appType, nameForManager, containerName sql.NullString
-	row := a.DB.QueryRowContext(ctx, "SELECT type, site_name, container FROM sites WHERE container LIKE ?", "%"+siteNameLower+"%")
-	if scanErr := row.Scan(&appType, &nameForManager, &containerName); scanErr != nil {
+	// exact site name only, a LIKE on container could match another account's app
+	service, appType, found := appService(ctx, a, siteNameLower)
+	if !found {
 		writeAPIPM2JSON(w, http.StatusNotFound, map[string]string{"error": "Application not found"})
 		return
 	}
 
-	kind, ok := kindByAppType(appType.String)
+	kind, ok := kindByAppType(appType)
 	if !ok {
 		writeAPIPM2JSON(w, http.StatusBadRequest, map[string]string{"error": "Only NodeJS, Python, or Ruby applications can be updated"})
 		return
@@ -242,7 +271,7 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ramValue += "G"
 	}
 
-	prefix := strings.ToUpper(siteNameLower) + "_" + kind.PyOrNode + "_"
+	prefix := strings.ToUpper(service) + "_" + kind.PyOrNode + "_"
 	envFile := "/home/" + userContext + "/.env"
 	if !fileExists(envFile) {
 		writeAPIPM2JSON(w, http.StatusInternalServerError, map[string]string{"error": ".env file not found"})
@@ -256,7 +285,7 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		switch {
 		case version != "" && strings.HasPrefix(line, prefix+"TAG="):
 			newLines = append(newLines, prefix+`TAG="`+version+`"`)
-			_, _ = a.DB.ExecContext(ctx, "UPDATE sites SET version = ? WHERE container = ?", version, containerName.String)
+			_, _ = a.DB.ExecContext(ctx, "UPDATE sites SET version = ? WHERE site_name = ?", version, siteNameLower)
 		case strings.HasPrefix(line, prefix+"REQUIREMENTS="):
 			newLines = append(newLines, prefix+`REQUIREMENTS="`+requirements+`"`)
 		case startupFile != "" && strings.HasPrefix(line, prefix+"STARTUP_FILE="):

@@ -166,7 +166,8 @@ func sortDuOutputBySize(out string) string {
 // diskUsageOutput runs `find . -maxdepth 1 -type d ! -name . -exec du -sh {} \;` under actualFolder, cached 5s
 func diskUsageOutput(ctx context.Context, a *appctx.App, userContext, actualFolder string) string {
 	out, _ := cache.Memoize(ctx, a.Cache, "disk_usage:"+userContext+":"+actualFolder, cacheTTL, func() (string, error) {
-		out, err := tenantfs.OutputIn(ctx, "/home/"+userContext, actualFolder, "find", ".", "-maxdepth", "1", "-type", "d", "!", "-name", ".", "-exec", "du", "-sh", "{}", ";")
+		name, args := tenantfs.LowPrio(true, "find", ".", "-maxdepth", "1", "-type", "d", "!", "-name", ".", "-exec", "du", "-sh", "{}", ";")
+		out, err := tenantfs.OutputIn(ctx, "/home/"+userContext, actualFolder, name, args...)
 		if err != nil {
 			if _, ok := err.(*exec.ExitError); !ok {
 				return "", nil //nolint:nilerr // command failure -> empty output, not an error response

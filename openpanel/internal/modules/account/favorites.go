@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -55,11 +56,21 @@ type favoriteErr struct {
 	Status  int
 }
 
+// a favorite is a link to a page inside the panel, nothing with a scheme, a space or markup
+var favoriteLinkRe = regexp.MustCompile(`^[A-Za-z0-9/_.?=&%#-]+$`)
+
+func validFavoriteLink(link string) bool {
+	return len(link) <= 512 && !strings.Contains(link, "..") && favoriteLinkRe.MatchString(link)
+}
+
 // addFavorite appends a new favorite link for a user.
 func addFavorite(a *appctx.App, ctx context.Context, path, username, link, title, ip string) ([]Favorite, *favoriteErr) {
 	newLink := strings.TrimLeft(link, "/")
 	if newLink == "" || title == "" {
 		return nil, &favoriteErr{"Link and title must be provided", http.StatusBadRequest}
+	}
+	if !validFavoriteLink(newLink) {
+		return nil, &favoriteErr{"Invalid link", http.StatusBadRequest}
 	}
 
 	var favorites []Favorite

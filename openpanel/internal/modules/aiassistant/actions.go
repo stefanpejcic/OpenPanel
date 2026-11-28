@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apidocs"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/apirisk"
 )
 
 // what the assistant may do: off answers only, read looks things up, all can also make changes
@@ -20,9 +21,9 @@ const (
 type risk string
 
 const (
-	riskRead        risk = "read"
-	riskChange      risk = "change"
-	riskDestructive risk = "destructive"
+	riskRead        = risk(apirisk.Read)
+	riskChange      = risk(apirisk.Change)
+	riskDestructive = risk(apirisk.Destructive)
 )
 
 // action is one documented /api/ endpoint the assistant can call
@@ -35,6 +36,8 @@ type action struct {
 	Title       string
 	Description string
 	Body        json.RawMessage
+	BodySchema  json.RawMessage
+	QuerySchema json.RawMessage
 	Params      string
 	PathParams  []string
 	Risk        risk
@@ -55,10 +58,6 @@ var excludedRE = regexp.MustCompile(`(?i)/temporary-link$|/wp-info$|/favicon$|/s
 
 var excludedDescRE = regexp.MustCompile(`(?i)multipart/form-data|form-encoded|^download`)
 
-var destructivePathRE = regexp.MustCompile(`(?i)kill|stop|suspend|restore|reset|restart|delete|remove|password|/raw|import|/mysql$|/webserver$|/image$|vhost|webserver-conf|/ini$|configuration|detach|edit-file|rename|/move$|permissions|extract|wp-cli|bulk|resources|timezone|/default$|docroot|/dns$|/secure$|/destination$|/settings$|/remote-access$|/cache/[a-z]+$|/services/<|/extensions$|website-builder/<|/containers/<service>$`)
-
-var destructiveDescRE = regexp.MustCompile(`(?i)\b(wipes?|uninstall|deletes?|removes?|drops? (database|user)|overwrites?|restarts?|recreates?|kills?|disable|password)\b`)
-
 var untrustedRE = regexp.MustCompile(`(?i)log|file|folder|trash|quarantine|visitors|vhost|/raw|filters|processlist|website-builder|wp-cli|activity|/search/|/stats|scan|safebrowsing|vulnerability|pagespeed|tables|/ini$`)
 
 var (
@@ -68,16 +67,7 @@ var (
 )
 
 func classify(method, path, desc string) risk {
-	switch method {
-	case "GET", "HEAD":
-		return riskRead
-	case "DELETE":
-		return riskDestructive
-	}
-	if destructivePathRE.MatchString(path) || destructiveDescRE.MatchString(desc) {
-		return riskDestructive
-	}
-	return riskChange
+	return risk(apirisk.Classify(method, path, desc))
 }
 
 func excluded(method, path, desc string) bool {
@@ -110,6 +100,8 @@ func loadActions() []*action {
 				Path        string          `json:"path"`
 				Description string          `json:"description"`
 				Body        json.RawMessage `json:"body"`
+				BodySchema  json.RawMessage `json:"body_schema"`
+				QuerySchema json.RawMessage `json:"query_schema"`
 				Params      string          `json:"params"`
 			} `json:"endpoints"`
 		}
@@ -131,7 +123,8 @@ func loadActions() []*action {
 				features = []string{one}
 			}
 			for _, ep := range g.Endpoints {
-				if excluded(ep.Method, ep.Path, ep.Description) {
+				// the assistant only sends json, form and upload handlers would get an empty body
+				if excluded(ep.Method, ep.Path, ep.Description) || formSchema(ep.BodySchema) {
 					continue
 				}
 				name := actionSlug(ep.Path)
@@ -141,6 +134,7 @@ func loadActions() []*action {
 				act := &action{
 					Name: name, Method: ep.Method, Path: ep.Path, Group: g.Group, Features: features,
 					Title: shortTitle(ep.Description), Description: ep.Description, Body: ep.Body, Params: ep.Params,
+					BodySchema: ep.BodySchema, QuerySchema: ep.QuerySchema,
 					Risk: classify(ep.Method, ep.Path, ep.Description),
 				}
 				act.Untrusted = act.Risk == riskRead && untrustedRE.MatchString(ep.Path)
@@ -157,6 +151,14 @@ func loadActions() []*action {
 		}
 	})
 	return actionList
+}
+
+// formSchema is true for a body schema marked as form-encoded or multipart
+func formSchema(raw json.RawMessage) bool {
+	var s struct {
+		ContentType string `json:"x-content-type"`
+	}
+	return len(raw) > 0 && json.Unmarshal(raw, &s) == nil && s.ContentType != "" && s.ContentType != "application/json"
 }
 
 // shortTitle is the first clause of the description, for cards and the activity log
@@ -231,6 +233,12 @@ func (act *action) describe() map[string]any {
 	}
 	if len(act.PathParams) > 0 {
 		d["params"] = act.PathParams
+	}
+	if len(act.BodySchema) > 0 {
+		d["body_schema"] = act.BodySchema
+	}
+	if len(act.QuerySchema) > 0 {
+		d["query_schema"] = act.QuerySchema
 	}
 	if len(act.Body) > 0 {
 		d["body_example"] = act.Body

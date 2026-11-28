@@ -150,3 +150,34 @@ func TestMissingStaticPathsAreNotCached(t *testing.T) {
 		t.Fatalf("assetHashes grew from %d to %d on missing files", before, after)
 	}
 }
+
+// Monaco's loader appends module names to the vs folder URL, so a ?t= on it broke the editor with user themes on
+func TestStaticURLForFolderHasNoQuery(t *testing.T) {
+	origFS, origAllow := assetFS, AllowUserTheme
+	t.Cleanup(func() { assetFS, AllowUserTheme = origFS, origAllow })
+	assetFS = testStaticFS(t)
+	AllowUserTheme = true
+
+	if got := themeStaticURL(builtinTheme, "css"); got != "/static/css" {
+		t.Errorf("built-in folder: got %q, want /static/css", got)
+	}
+	if got := themeStaticURL(builtinTheme, "css/custom.css"); got != "/static/css/custom.css?t=default" {
+		t.Errorf("files still name the theme: got %q", got)
+	}
+
+	dir := newTheme(t, "kit")
+	os.MkdirAll(filepath.Join(dir, "static", "vendor", "lib"), 0o755)
+	def := themeByName("kit")
+	if def == nil {
+		t.Fatal("theme kit not found")
+	}
+	if got := themeStaticURL(def, "vendor/lib"); got != "/static/vendor/lib" {
+		t.Errorf("theme folder: got %q, want /static/vendor/lib", got)
+	}
+	if got := themeStaticURL(def, "css"); got != "/static/css" {
+		t.Errorf("built-in folder on a theme: got %q, want /static/css", got)
+	}
+	if got := themeStaticURL(def, "nope/missing.js"); got != "/static/nope/missing.js?t=kit" {
+		t.Errorf("missing file: got %q", got)
+	}
+}

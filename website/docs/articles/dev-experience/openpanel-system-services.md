@@ -124,7 +124,7 @@ To customize these reports edit the [/etc/openpanel/goaccess/goaccess.conf](http
 
 Admins can set the OpenPanel version by changing the tag in the `/root/.env` file with any tag from [hub.docker.com](https://hub.docker.com/r/openpanel/openpanel/tags):
 ```
-VERSION="2.0.29"
+VERSION="2.0.30"
 ```
 
 By default OpenPanel is accesible on port `2083` but this can also be configured by Admin by editing the `PORT` value:

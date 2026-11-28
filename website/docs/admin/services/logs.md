@@ -26,7 +26,7 @@ This functionality supports modularity by allowing customization of the log file
 
 List of default log files: https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/openadmin/config/log_paths.json
 
-To define custom log files for the viewer, click on the 'Settings' link next ot the heading. IN the form edit the json and click on 'Save'.
+To define custom log files for the viewer, open `/services/logs/edit` directly (there's no button for it on the page), edit the JSON and click **Save**.
 
 
 

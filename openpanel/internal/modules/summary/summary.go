@@ -45,6 +45,9 @@ type Website struct {
 	pages        map[string]int
 	errorCount   int
 	errorExample string
+	// status codes and pages of the 5xx responses, to say which error and where
+	errStatus map[int]int
+	errPages  map[string]int
 }
 
 // Login is one panel login from the activity log, Country is the 2 letter code the login saved in .lastlogin
@@ -146,7 +149,7 @@ func (b *builder) website(name string) *Website {
 	if w, ok := b.buckets[name]; ok {
 		return w
 	}
-	w := &Website{Name: name, ips: map[string]int{}, limitedIPs: map[string]int{}, wafIPs: map[string]int{}, pages: map[string]int{}}
+	w := &Website{Name: name, ips: map[string]int{}, limitedIPs: map[string]int{}, wafIPs: map[string]int{}, pages: map[string]int{}, errStatus: map[int]int{}, errPages: map[string]int{}}
 	b.buckets[name] = w
 	return w
 }

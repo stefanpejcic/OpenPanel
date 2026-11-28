@@ -8,6 +8,10 @@ export const VIEWPORT_WIDTH = 1280;
 
 import { rename, all, click, fill, fillVisible, selectFirst, maskIPs, hideNotices, hideText, markCard, tab, markSection, markSectionId, clickAlpine, bulkSelect, onlyRows, fitBulkBar, firstRows } from './helpers.mjs';
 
+// the server's own uploaded logo is replaced with the OpenPanel one in the branding shot
+const DOCS_LOGO = 'data:image/svg+xml;base64,' + (await import('node:fs')).readFileSync(new URL('../../static/img/logo.svg', import.meta.url)).toString('base64');
+const showDocsLogo = page => page.evaluate(src => document.querySelectorAll('img[alt="Logo Preview"], img[alt="Dark logo preview"]').forEach(i => { i.src = src; }), DOCS_LOGO);
+
 // demo host names and addresses -> example ones
 const DEMO_NAMES = {
   // second test server used for pages the demo can't show
@@ -685,14 +689,16 @@ export const pages = {
   'settings/openpanel': {
     url: '/settings/open-panel',
     shots: [
-      { name: 'branding', alt: 'Branding section with the brand name, logo, favicon and logout URL', prepare: markSectionId('Branding'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'nameservers', alt: 'Nameservers section with the ns1 to ns4 fields', prepare: markSectionId('Nameservers'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'users', alt: 'Users section with toggles for what OpenPanel users can change', prepare: markSectionId('Users'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'display', alt: 'Display section with the OpenPanel interface options', prepare: markSectionId('Display'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'filemanager', alt: 'File Manager section with the file manager options', prepare: markSectionId('File Manager'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'databases', alt: 'Databases section with the database options', prepare: markSectionId('Databases'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'security', alt: 'Security section with the OpenPanel login and session options', prepare: markSectionId('Security'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'statistics', alt: 'Statistics section with the resource usage and statistics options', prepare: markSectionId('Statistics'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'branding', alt: 'Branding section with the brand name, favicon, logo for light and dark backgrounds and logout URL', prepare: async page => { await markSectionId('brand')(page); await showDocsLogo(page); }, crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'display', alt: 'Theme and layout section with the theme picker, menu style, avatar type, charts mode and country flags', prepare: markSectionId('display'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'dashboard', alt: 'Dashboard section with the onboarding wizard, 2FA and how-to widgets, dashboard applications, Docker apps on the Auto Installer and the report bugs link', prepare: markSectionId('dashboard'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'security', alt: 'Login and sessions section with password reset, captcha, login rate limits and session options', prepare: markSectionId('security'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'passwords', alt: 'Passwords and 2FA section with the minimum password strength, Weakpass check and Enforce 2FA', prepare: markSectionId('passwords'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'users', alt: 'Accounts section with the username change toggle and forbidden usernames', prepare: markSectionId('users'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'nameservers', alt: 'Domains and DNS section with the nameservers, DNS record types, subdomain sharing, restricted domains and domains per page', prepare: async page => { await page.evaluate(() => ['ns1.example.com', 'ns2.example.com'].forEach((v, i) => { const el = document.querySelector(`input[name=ns${i + 1}]`); el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); })); await page.waitForTimeout(300); await markSectionId('nameservers')(page); }, crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'filemanager', alt: 'File Manager section with the display, size limits, time limits, file types and trash options', prepare: markSectionId('files'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'databases', alt: 'Databases section with the database options', prepare: markSectionId('databases'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'history', alt: 'History and logs section with how many login, activity and resource usage records are kept and shown per page', prepare: markSectionId('history'), crop: { from: '[data-shot=section]', pad: 16 } },
     ],
   },
   // the AI Assistant section is shot on a test server with ADMIN_URL until the demo has it

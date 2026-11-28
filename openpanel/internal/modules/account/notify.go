@@ -15,6 +15,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -77,15 +78,88 @@ func mcpTokenEmail(a *appctx.App, r *http.Request, username, name, scope string,
 }
 
 // tokenScope describes a new token's access for the email, like " with read-only access that expires in 30 days"
-func tokenScope(readOnly bool, expiresInDays int) string {
-	scope := " with full access"
-	if readOnly {
-		scope = " with read-only access"
+func tokenScope(scope mcptokens.Scope, userFeatures []string, expiresInDays int) string {
+	text := " with full access"
+	switch scope.Mode {
+	case mcptokens.ModeReadOnly:
+		text = " with read-only access"
+	case mcptokens.ModeModify:
+		text = " with access to make changes but not delete"
+	}
+	switch featuresSummary(scope, userFeatures) {
+	case "":
+	case "all":
+		text += ", for all your current features,"
+	case "default":
+		text += ", for all your current features except account, 2FA, passkeys and phpMyAdmin,"
+	default:
+		text += ", limited to " + strings.Join(featureLabelList(scope.Features), "; ") + ","
 	}
 	if expiresInDays > 0 {
-		return scope + " that expires in " + strconv.Itoa(expiresInDays) + " days"
+		return text + " that expires in " + strconv.Itoa(expiresInDays) + " days"
 	}
-	return scope + " that never expires"
+	return text + " that never expires"
+}
+
+// featureLabelList turns feature names into the group names people see on the token page
+func featureLabelList(features []string) []string {
+	labels := mcpFeatureLabels()
+	out := make([]string, 0, len(features))
+	for _, f := range features {
+		if l := labels[f]; l != "" {
+			out = append(out, l)
+		} else {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// featuresSummary is "all" or "default" when the list is one of the two presets, "list" for a hand-picked one and "" for no list
+func featuresSummary(scope mcptokens.Scope, userFeatures []string) string {
+	if scope.AllFeatures {
+		return ""
+	}
+	if sameFeatures(scope.Features, mcptokens.FreezableFeatures(userFeatures)) {
+		return "all"
+	}
+	if sameFeatures(scope.Features, mcptokens.DefaultFeatures(userFeatures)) {
+		return "default"
+	}
+	return "list"
+}
+
+func sameFeatures(a, b []string) bool {
+	a, b = mcptokens.CleanFeatures(a), mcptokens.CleanFeatures(b)
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// tokenScopeNote is the short form for the activity log, like ", no deletes, features: dns, domains"
+func tokenScopeNote(scope mcptokens.Scope, userFeatures []string) string {
+	note := ""
+	switch scope.Mode {
+	case mcptokens.ModeReadOnly:
+		note = ", read-only"
+	case mcptokens.ModeModify:
+		note = ", no deletes"
+	}
+	switch featuresSummary(scope, userFeatures) {
+	case "all":
+		note += ", all features"
+	case "default":
+		note += ", all features except account, 2FA, passkeys and phpMyAdmin"
+	case "list":
+		note += ", features: " + strings.Join(scope.Features, " ")
+	}
+	return note
 }
 
 // rowName reads a passkey or token name before it's deleted, so the email can say which one it was

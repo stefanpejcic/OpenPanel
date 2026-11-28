@@ -58,6 +58,8 @@ Clicking **Install** opens the [Add a container](/docs/panel/containers/#adding-
 
 The list of templates is loaded from [applications.yml](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/templates/applications.yml) in the OpenPanel configuration repository and cached for 24 hours. If GitHub can't be reached, the copy on the server at `/etc/openpanel/docker/templates/applications.yml` is used.
 
+Your hosting provider can hide some of these apps from the list, so the Auto Installer may show fewer than the full list. See [Docker apps on the Auto Installer](/docs/admin/settings/openpanel/#docker-apps) in the OpenAdmin docs.
+
 :::tip
 Some apps finish their setup on first visit, for example Uptime Kuma asks you to create the admin account, and Gitea shows its installation page.
 :::

@@ -6,12 +6,12 @@ type Item = { type: string; label?: string; href?: string; docId?: string; items
 
 // hand picked, newest first; the version pages hold the full lists
 export const HIGHLIGHTS: [string, string, string][] = [
+    ["2.0.32", "Golub webmail", "A fast, privacy-first webmail you can switch to from Roundcube, with the same one-click login from OpenPanel."],
     ["2.0.28", "OpenCLI rewritten in Go", "Every opencli command in one binary, about 2x faster with the same commands and output."],
     ["2.0.28", "PHP 8.6 and user panel themes", "PHP 8.6 by default for new users, Saturn and Modern themes, and users can pick their own theme."],
     ["2.0.25", "32 new one-click Docker apps", "Open WebUI, Langflow, Excalidraw, Stirling PDF and more in the Auto Installer."],
     ["2.0.24", "ImunifyAV for every user", "Users get ImunifyAV's own interface and a summary of infected files and scans."],
     ["2.0.23", "WHMCS reseller accounts", "The WHMCS module can sell reseller accounts, with new reseller API endpoints."],
-    ["2.0.20", "LiteSpeed Enterprise and Percona", "LiteSpeed Enterprise as a web server and Percona as the default database."],
 ];
 
 const link = "text-refine-react-light-link dark:text-refine-react-dark-link hover:underline";

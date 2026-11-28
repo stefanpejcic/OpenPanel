@@ -9,10 +9,12 @@ registry. Writes two copies:
     whatever domain/port the panel is actually running on)
 
 Usage: python3 website/scripts/generate_openapi.py
+       (on Windows: python -X utf8 website/scripts/generate_openapi.py)
 Requires: pip install pyyaml
 
-The QUERY_PARAMS/FILE_RESPONSES/MULTIPART_SCHEMAS maps below encode detail
-that api_endpoints.json doesn't capture (query strings, file-download
+Endpoints with a body_schema / query_schema in api_endpoints.json get those
+typed schemas. The QUERY_PARAMS/FILE_RESPONSES/MULTIPART_SCHEMAS maps below
+encode detail for the rest, that api_endpoints.json doesn't capture (query strings, file-download
 content types, multipart/form bodies) - cross-checked by hand against the
 Go handlers and docs/panel/999_api.md. Update those maps, not the
 generated YAML, when adding new endpoints of these kinds.
@@ -65,6 +67,32 @@ def json_schema_for_value(v):
 def body_schema(body):
     props = {k: json_schema_for_value(v) for k, v in body.items()}
     return {"type": "object", "properties": props, "example": body}
+
+
+def to_openapi_30(schema):
+    """api_endpoints.json schemas are JSON Schema, where type can be a list - OpenAPI 3.0 wants oneOf for that."""
+    if isinstance(schema, list):
+        return [to_openapi_30(s) for s in schema]
+    if not isinstance(schema, dict):
+        return schema
+    out = OrderedDict()
+    for k, v in schema.items():
+        if k == "x-content-type":
+            continue
+        if k == "type" and isinstance(v, list):
+            types = [t for t in v if t != "null"]
+            if "null" in v:
+                out["nullable"] = True
+            if len(types) == 1:
+                out["type"] = types[0]
+            else:
+                out["oneOf"] = [{"type": t} for t in types]
+            continue
+        if k in ("properties",):
+            out[k] = OrderedDict((name, to_openapi_30(p)) for name, p in v.items())
+            continue
+        out[k] = to_openapi_30(v)
+    return out
 
 
 # Query params documented via curl examples in docs/panel/999_api.md, keyed by (method, openapi_path)
@@ -297,7 +325,18 @@ def build_spec(same_origin=False):
                     "name": p, "in": "path", "required": True,
                     "schema": {"type": extras.get("param_types", {}).get(p, "string")},
                 })
+            typed_query = e.get("query_schema", {}).get("properties", {})
+            query_required = set(e.get("query_schema", {}).get("required", []))
+            for qp, qschema in typed_query.items():
+                qschema = to_openapi_30(qschema)
+                param = OrderedDict([("name", qp), ("in", "query"), ("required", qp in query_required)])
+                if "description" in qschema:
+                    param["description"] = qschema.pop("description")
+                param["schema"] = qschema
+                parameters.append(param)
             for qp in QUERY_PARAMS.get((e['method'], oapi_path), []):
+                if qp in typed_query:
+                    continue
                 parameters.append({
                     "name": qp, "in": "query", "required": False,
                     "schema": {"type": "string"},
@@ -311,6 +350,20 @@ def build_spec(same_origin=False):
                     "required": True,
                     "content": {content_type: {"schema": schema}},
                 }
+            elif "body_schema" in e:
+                # an empty properties map documents a route that takes no body
+                if e["body_schema"].get("properties"):
+                    content_type = e["body_schema"].get("x-content-type", "application/json")
+                    schema = to_openapi_30(e["body_schema"])
+                    if "body" in e:
+                        schema["example"] = e["body"]
+                    for field, values in extras.get("body_enum", {}).items():
+                        if field in schema["properties"] and "enum" not in schema["properties"][field]:
+                            schema["properties"][field]["enum"] = values
+                    operation["requestBody"] = {
+                        "required": bool(e["body_schema"].get("required")),
+                        "content": {content_type: {"schema": schema}},
+                    }
             elif "body" in e:
                 schema = body_schema(e["body"])
                 for field, values in extras.get("body_enum", {}).items():

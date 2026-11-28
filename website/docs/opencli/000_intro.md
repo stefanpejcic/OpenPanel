@@ -199,8 +199,8 @@ Description: Refresh the cached email accounts and quota usage file for users.
 Usage: opencli email-usage <USERNAME|--all>
 ------------------------
 opencli email-webmail
-Description: Display or update the domain used for accessing webmail.
-Usage: opencli email-webmail [--debug] [domain <domain>]
+Description: Display or update the domain used for accessing webmail, or switch the webmail client.
+Usage: opencli email-webmail [--debug] [domain <domain>] [client [roundcube|golub]]
 ------------------------
 opencli faq
 Description: Display answers to most frequently asked questions.
@@ -385,6 +385,10 @@ Usage: opencli user-login <username> [--open|--delete]
 opencli user-loginlog
 Description: View user's .lastlogin file with last 20 successfull logins.
 Usage: opencli user-loginlog <USERNAME> [--table|--text|--json]
+------------------------
+opencli user-mcp
+Description: Create, list or revoke AI Assistant (MCP) tokens for an OpenPanel user and print client setup.
+Usage: opencli user-mcp <username> [--name=NAME] [--readonly|--no-deletes] [--features=a,b] [--expires=DAYS] [--client=NAME] [--json]
 ------------------------
 opencli user-password
 Description: Reset password for a user.

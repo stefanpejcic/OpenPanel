@@ -81,17 +81,17 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 <!-- OS_TEST_RESULTS_START -->
 | Operating System | Version | Last Tested | Status | Average install time[^2] | Notes |
 |---|---|---|---|---|---|
-| Ubuntu | 24 | 2026-11-25 09:45 UTC | ✅ Pass | 2m40s | **recommended for AMD CPU** |
-| Ubuntu | 26 | 2026-11-25 09:33 UTC | ✅ Pass | 4m55s |  |
-| Debian | 12 | 2026-11-25 09:53 UTC | ✅ Pass | 3m11s |  |
-| Debian | 13 | 2026-11-25 10:01 UTC | ✅ Pass | 2m51s |  |
-| AlmaLinux | 9.7 | 2026-11-25 09:02 UTC | ✅ Pass | 8m40s | **recommended for ARM CPU** |
-| AlmaLinux | 10 | 2026-11-25 08:45 UTC | ✅ Pass | 11m42s |  |
+| Ubuntu | 24 | 2026-11-27 10:24 UTC | ✅ Pass | 2m21s | **recommended for AMD CPU** |
+| Ubuntu | 26 | 2026-11-27 10:13 UTC | ✅ Pass | 4m34s |  |
+| Debian | 12 | 2026-11-27 10:32 UTC | ✅ Pass | 2m50s |  |
+| Debian | 13 | 2026-11-27 10:41 UTC | ✅ Pass | 2m32s |  |
+| AlmaLinux | 9.7 | 2026-11-27 09:45 UTC | ✅ Pass | 7m27s | **recommended for ARM CPU** |
+| AlmaLinux | 10 | 2026-11-27 09:29 UTC | ✅ Pass | 10m21s |  |
 | OracleLinux | 10 | |  |  |  |
 | RockyLinux | 9.6 | | | |  |
-| RockyLinux | 10 | 2026-11-25 13:28 UTC | ✅ Pass | 12m50s |  |
+| RockyLinux | 10 | 2026-11-27 10:49 UTC | ✅ Pass | 11m42s |  |
 | CentOS | 9.5 | | | |  |
-| CentOS | 10 | 2026-11-25 09:17 UTC | ✅ Pass | 10m19s |  |
+| CentOS | 10 | 2026-11-27 09:58 UTC | ✅ Pass | 9m23s |  |
 
 <!-- OS_TEST_RESULTS_END -->
 
@@ -151,7 +151,7 @@ Special thanks to all [contributors](https://github.com/stefanpejcic/OpenPanel/g
 
 ## Version
 
-Latest OpenPanel version is: **2.0.29** - [View Changelog](https://openpanel.com/docs/changelog/2.0.29/)
+Latest OpenPanel version is: **2.0.31** - [View Changelog](https://openpanel.com/docs/changelog/2.0.31/)
 
 ## Contribute
 

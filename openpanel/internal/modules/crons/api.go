@@ -435,7 +435,8 @@ func apiCronsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	lines := 100
 	if v := r.URL.Query().Get("lines"); v != "" {
-		if n, parseErr := strconv.Atoi(v); parseErr == nil {
+		// below 1 the trim further down slices past the end and panics
+		if n, parseErr := strconv.Atoi(v); parseErr == nil && n > 0 {
 			lines = n
 		}
 	}

@@ -137,6 +137,8 @@ tags:
 - name: App Installer
   description: Requires the `nodejs or python or java or ruby` feature to be enabled on the account's
     plan.
+- name: App Deploy
+  description: Requires the `pm2` feature to be enabled on the account's plan.
 - name: Helpers
   description: Requires the `helpers` feature to be enabled on the account's plan.
 - name: API
@@ -232,7 +234,12 @@ paths:
               properties:
                 name:
                   type: string
-                  example: mydb
+                  pattern: ^[a-zA-Z0-9_]+$
+                  maxLength: 64
+                  description: Database name, letters, digits and underscore only; the account's database
+                    prefix is added if missing and the full prefixed name must be 64 characters or less.
+              required:
+              - name
               example:
                 name: mydb
       responses:
@@ -358,8 +365,13 @@ paths:
       - name: format
         in: query
         required: false
+        description: Dump format, sql for a plain .sql file or gzip for a gzip-compressed one.
         schema:
           type: string
+          enum:
+          - sql
+          - gzip
+          default: sql
       responses:
         '200':
           description: File download.
@@ -404,13 +416,24 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  maxLength: 32
+                  description: Database user name, letters, digits and underscore only; the account's
+                    database prefix is added if missing and the full prefixed name must be 32 characters
+                    or less.
                 password:
                   type: string
-                  example: p
+                  minLength: 1
+                  description: Password for the new database user.
                 host:
                   type: string
-                  example: '%'
+                  pattern: ^(%|[\w.\-]+)$
+                  default: '%'
+                  description: Host the user may connect from, % for any host, or a hostname or IP (letters,
+                    digits, underscore, dot, hyphen).
+              required:
+              - username
+              - password
               example:
                 username: u
                 password: p
@@ -442,8 +465,11 @@ paths:
       - name: host
         in: query
         required: false
+        description: Host part of the user account to drop, % for the any-host account.
         schema:
           type: string
+          pattern: ^(%|[\w.\-]+)$
+          default: '%'
       responses:
         '200':
           description: Success.
@@ -477,10 +503,15 @@ paths:
               properties:
                 password:
                   type: string
-                  example: newpass
+                  minLength: 1
+                  description: New password for the database user.
                 host:
                   type: string
-                  example: '%'
+                  pattern: ^(%|[\w.\-]+)$
+                  default: '%'
+                  description: Host part of the user account to change, % for the any-host account.
+              required:
+              - password
               example:
                 password: newpass
                 host: '%'
@@ -516,8 +547,10 @@ paths:
       - name: host
         in: query
         required: false
+        description: Host part of the user account to look up, % for the any-host account.
         schema:
           type: string
+          default: '%'
       responses:
         '200':
           description: Success.
@@ -532,7 +565,8 @@ paths:
       - bearerAuth: []
   /api/mysql/grants:
     post:
-      summary: Grant privileges to a user on a database.
+      summary: Grant privileges to a user on a database, replacing the privileges the user had on it.
+        Names must include the account prefix.
       operationId: post_mysql_grants
       tags:
       - MySQL
@@ -545,20 +579,49 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Existing database user name, used as-is with no prefix added.
                 database:
                   type: string
-                  example: mydb
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Existing database name, used as-is with no prefix added; system databases
+                    are rejected.
                 privileges:
                   type: array
+                  minItems: 1
                   items:
                     type: string
-                    example: ALL PRIVILEGES
-                  example:
-                  - ALL PRIVILEGES
+                    enum:
+                    - ALL PRIVILEGES
+                    - ALTER
+                    - ALTER ROUTINE
+                    - CREATE
+                    - CREATE ROUTINE
+                    - CREATE TEMPORARY TABLES
+                    - CREATE VIEW
+                    - DELETE
+                    - DROP
+                    - EVENT
+                    - EXECUTE
+                    - INDEX
+                    - INSERT
+                    - LOCK TABLES
+                    - REFERENCES
+                    - SELECT
+                    - SHOW VIEW
+                    - TRIGGER
+                    - UPDATE
+                  description: Privileges to grant (matched case-insensitively); replaces any existing
+                    grants on the database, and ALL PRIVILEGES overrides the rest.
                 host:
                   type: string
-                  example: '%'
+                  pattern: ^(%|[\w.\-]+)$
+                  default: '%'
+                  description: Host part of the user account to grant to, % for the any-host account.
+              required:
+              - username
+              - database
+              - privileges
               example:
                 username: u
                 database: mydb
@@ -591,13 +654,20 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database user to revoke from; system users are rejected.
                 database:
                   type: string
-                  example: mydb
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database to revoke all privileges on; system databases are rejected.
                 host:
                   type: string
-                  example: '%'
+                  pattern: ^(%|[\w.\-]+)$
+                  default: '%'
+                  description: Host part of the user account, % for the any-host account.
+              required:
+              - username
+              - database
               example:
                 username: u
                 database: mydb
@@ -713,7 +783,13 @@ paths:
               properties:
                 action:
                   type: string
-                  example: enable
+                  enum:
+                  - enable
+                  - disable
+                  description: enable exposes the MySQL port on all interfaces, disable binds it to 127.0.0.1;
+                    the MySQL service restarts either way.
+              required:
+              - action
               example:
                 action: enable
       responses:
@@ -743,13 +819,23 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  maxLength: 32
+                  description: Database user name; the account prefix is added unless a user with the
+                    exact unprefixed name already exists, and the final name must be 32 characters or
+                    less.
                 host:
                   type: string
-                  example: 1.2.3.4
+                  pattern: ^(%|[\w.\-]+)$
+                  description: Remote host or IP the user may connect from, or % for any host.
                 password:
                   type: string
-                  example: p
+                  minLength: 1
+                  description: Password for the new user@host account.
+              required:
+              - username
+              - host
+              - password
               example:
                 username: u
                 host: 1.2.3.4
@@ -780,13 +866,20 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database user whose host entry is changed, used as-is with no prefix added.
                 old_host:
                   type: string
-                  example: 1.2.3.4
+                  pattern: ^(%|[\w.\-]+)$
+                  description: Current host of the user@host account.
                 new_host:
                   type: string
-                  example: 5.6.7.8
+                  pattern: ^(%|[\w.\-]+)$
+                  description: New host for the account; same as old_host returns 200 with no change.
+              required:
+              - username
+              - old_host
+              - new_host
               example:
                 username: u
                 old_host: 1.2.3.4
@@ -817,10 +910,15 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database user whose host entry is removed, used as-is with no prefix added.
                 host:
                   type: string
-                  example: 1.2.3.4
+                  pattern: ^(%|[\w.\-]+)$
+                  description: Host of the user@host account to drop.
+              required:
+              - username
+              - host
               example:
                 username: u
                 host: 1.2.3.4
@@ -855,20 +953,226 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Update MySQL server configuration (restarts the service).
+      summary: Update MySQL server configuration. Unknown keys are ignored, and the response says whether
+        the service had to restart.
       operationId: put_mysql_configuration
       tags:
       - MySQL
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
+              description: Map of my.cnf keys to new values. Keys outside the allowed list are silently
+                dropped; at least one allowed key is required. The allowed list is the default set below
+                unless the admin overrides it in /etc/openpanel/mysql/keys.txt (GET /api/mysql/configuration
+                returns the live list as available_keys).
+              minProperties: 1
               properties:
+                max_allowed_packet:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf max_allowed_packet value.
+                max_connect_errors:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf max_connect_errors value.
                 max_connections:
-                  type: string
-                  example: '200'
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf max_connections value.
+                open_files_limit:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf open_files_limit value.
+                performance_schema:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf performance_schema value.
+                sql_mode:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf sql_mode value.
+                thread_cache_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf thread_cache_size value.
+                interactive_timeout:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf interactive_timeout value.
+                wait_timeout:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf wait_timeout value.
+                log_output:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf log_output value.
+                log_error:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf log_error value.
+                log_error_verbosity:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf log_error_verbosity value.
+                general_log:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf general_log value.
+                general_log_file:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf general_log_file value.
+                long_query_time:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf long_query_time value.
+                slow_query_log:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf slow_query_log value.
+                slow_query_log_file:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf slow_query_log_file value.
+                join_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf join_buffer_size value.
+                key_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf key_buffer_size value.
+                read_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf read_buffer_size value.
+                read_rnd_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf read_rnd_buffer_size value.
+                sort_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf sort_buffer_size value.
+                innodb_log_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_log_buffer_size value.
+                innodb_log_file_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_log_file_size value.
+                innodb_sort_buffer_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_sort_buffer_size value.
+                innodb_buffer_pool_chunk_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_buffer_pool_chunk_size value.
+                innodb_buffer_pool_instances:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_buffer_pool_instances value.
+                innodb_buffer_pool_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_buffer_pool_size value.
+                max_heap_table_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf max_heap_table_size value.
+                tmp_table_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf tmp_table_size value.
+                table_open_cache:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf table_open_cache value.
+                table_definition_cache:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf table_definition_cache value.
+                innodb_flush_log_at_trx_commit:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: my.cnf innodb_flush_log_at_trx_commit value.
+              additionalProperties:
+                oneOf:
+                - type: string
+                - type: number
+                - type: boolean
               example:
                 max_connections: '200'
       responses:
@@ -952,11 +1256,19 @@ paths:
       - name: unit
         in: query
         required: false
+        description: Unit for the reported sizes, matched case-insensitively.
         schema:
           type: string
+          enum:
+          - bytes
+          - kb
+          - mb
+          - gb
+          default: mb
       - name: show_all
         in: query
         required: false
+        description: Any non-empty value includes system databases in the result.
         schema:
           type: string
       responses:
@@ -1051,7 +1363,11 @@ paths:
               properties:
                 name:
                   type: string
-                  example: mydb
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database name, letters, digits and underscore only, used as-is with no
+                    prefix added; reserved names are rejected.
+              required:
+              - name
               example:
                 name: mydb
       responses:
@@ -1182,10 +1498,16 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Role name, letters, digits and underscore only, used as-is with no prefix
+                    added; reserved names are rejected.
                 password:
                   type: string
-                  example: p
+                  minLength: 1
+                  description: Password for the new role.
+              required:
+              - username
+              - password
               example:
                 username: u
                 password: p
@@ -1246,7 +1568,10 @@ paths:
               properties:
                 password:
                   type: string
-                  example: newpass
+                  minLength: 1
+                  description: New password for the role.
+              required:
+              - password
               example:
                 password: newpass
       responses:
@@ -1276,10 +1601,16 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Existing role that gets ALL PRIVILEGES on the database plus USAGE and CREATE
+                    on its public schema.
                 database:
                   type: string
-                  example: mydb
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Existing database to grant on; system databases are rejected.
+              required:
+              - username
+              - database
               example:
                 username: u
                 database: mydb
@@ -1309,10 +1640,15 @@ paths:
               properties:
                 username:
                   type: string
-                  example: u
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Role to revoke from; system roles are rejected.
                 database:
                   type: string
-                  example: mydb
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database to revoke all privileges on; system databases are rejected.
+              required:
+              - username
+              - database
               example:
                 username: u
                 database: mydb
@@ -1427,7 +1763,13 @@ paths:
               properties:
                 action:
                   type: string
-                  example: enable
+                  enum:
+                  - enable
+                  - disable
+                  description: enable exposes the PostgreSQL port on all interfaces, disable binds it
+                    to 127.0.0.1; the postgres service restarts either way.
+              required:
+              - action
               example:
                 action: enable
       responses:
@@ -1461,20 +1803,148 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Update PostgreSQL server configuration (restarts the service).
+      summary: Update PostgreSQL server configuration. Unknown keys are ignored, and the response says
+        whether the service had to restart.
       operationId: put_postgresql_configuration
       tags:
       - PostgreSQL
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
+              description: Map of postgresql.conf keys to new values. Keys outside the allowed list are
+                silently dropped; at least one allowed key is required. The allowed list is the default
+                set below unless the admin overrides it in /etc/openpanel/postgres/keys.txt (GET /api/postgresql/configuration
+                returns the live list as available_keys).
+              minProperties: 1
               properties:
                 max_connections:
-                  type: string
-                  example: '200'
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf max_connections value.
+                shared_buffers:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf shared_buffers value.
+                work_mem:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf work_mem value.
+                maintenance_work_mem:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf maintenance_work_mem value.
+                effective_cache_size:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf effective_cache_size value.
+                max_worker_processes:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf max_worker_processes value.
+                max_parallel_workers:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf max_parallel_workers value.
+                wal_level:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf wal_level value.
+                synchronous_commit:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf synchronous_commit value.
+                checkpoint_timeout:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf checkpoint_timeout value.
+                checkpoint_completion_target:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf checkpoint_completion_target value.
+                logging_collector:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf logging_collector value.
+                log_directory:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf log_directory value.
+                log_filename:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf log_filename value.
+                log_min_duration_statement:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf log_min_duration_statement value.
+                log_statement:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf log_statement value.
+                autovacuum:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf autovacuum value.
+                autovacuum_max_workers:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf autovacuum_max_workers value.
+                autovacuum_naptime:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf autovacuum_naptime value.
+                autovacuum_vacuum_scale_factor:
+                  oneOf:
+                  - type: string
+                  - type: number
+                  - type: boolean
+                  description: postgresql.conf autovacuum_vacuum_scale_factor value.
+              additionalProperties:
+                oneOf:
+                - type: string
+                - type: number
+                - type: boolean
               example:
                 max_connections: '200'
       responses:
@@ -1545,7 +2015,30 @@ paths:
               properties:
                 domain:
                   type: string
-                  example: example.com
+                  pattern: ^[a-zA-Z0-9.-]+$
+                  description: Domain name to add; it is trimmed, lowercased and a trailing dot is dropped
+                    before the character check.
+                docroot:
+                  type: string
+                  pattern: ^[a-zA-Z0-9._/-]+$
+                  description: Document root, must resolve to a path inside /var/www/html/ and not inside
+                    /var/www/html/backups; defaults to /var/www/html/<domain> when empty.
+                skip_containers:
+                  type: string
+                  description: Passed verbatim as an extra argument to opencli domains-add; the web form
+                    sends the literal value --skip_containers.
+                hs_ed25519_public_key:
+                  type: string
+                  pattern: ^[a-zA-Z0-9._/-]+$
+                  description: Path inside /var/www/html/ to the onion service public key file; required
+                    only for .onion domains.
+                hs_ed25519_secret_key:
+                  type: string
+                  pattern: ^[a-zA-Z0-9._/-]+$
+                  description: Path inside /var/www/html/ to the onion service secret key file; required
+                    only for .onion domains.
+              required:
+              - domain
               example:
                 domain: example.com
       responses:
@@ -1700,7 +2193,11 @@ paths:
               properties:
                 docroot:
                   type: string
-                  example: /var/www/html/example.com
+                  pattern: ^[a-zA-Z0-9._/-]+$
+                  description: New document root; must resolve to a path inside /var/www/html/ and not
+                    inside /var/www/html/backups.
+              required:
+              - docroot
               example:
                 docroot: /var/www/html/example.com
       responses:
@@ -1759,7 +2256,12 @@ paths:
               properties:
                 redirect_url:
                   type: string
-                  example: https://example.com
+                  pattern: ^https?://[!#-&(-\[\]-_a-z|~]+$
+                  description: Full http:// or https:// URL to redirect visitors to; no spaces or { }
+                    " ` \ characters, and it must not point back at this domain or form a redirect loop
+                    with another of your domains.
+              required:
+              - redirect_url
               example:
                 redirect_url: https://example.com
       responses:
@@ -1842,7 +2344,25 @@ paths:
               properties:
                 action:
                   type: string
-                  example: autossl
+                  enum:
+                  - autossl
+                  - generate
+                  - switch_and_generate
+                  - custom
+                  description: autossl switches the domain to AutoSSL, generate requests a certificate,
+                    switch_and_generate does both, custom installs certificate files you supply.
+                public_path:
+                  type: string
+                  pattern: ^[a-zA-Z0-9._/-]+$
+                  description: Path inside /var/www/html/ to the certificate file; required when action
+                    is custom.
+                private_path:
+                  type: string
+                  pattern: ^[a-zA-Z0-9._/-]+$
+                  description: Path inside /var/www/html/ to the private key file; required when action
+                    is custom.
+              required:
+              - action
               example:
                 action: autossl
       responses:
@@ -1901,7 +2421,10 @@ paths:
               properties:
                 vhost:
                   type: string
-                  example: '...vhost content...'
+                  minLength: 1
+                  description: Full VHost config content that replaces the current file.
+              required:
+              - vhost
               example:
                 vhost: '...vhost content...'
       responses:
@@ -1960,9 +2483,10 @@ paths:
               properties:
                 zone_content:
                   type: string
-                  example: |-
-                    $ORIGIN example.com.
-                    ...
+                  description: Full BIND zone file content; no carriage returns, only $TTL and $ORIGIN
+                    directives allowed, and it must pass named-checkzone.
+              required:
+              - zone_content
               example:
                 zone_content: |-
                   $ORIGIN example.com.
@@ -2000,16 +2524,27 @@ paths:
               properties:
                 name:
                   type: string
-                  example: www
+                  description: Record owner name, e.g. www; a name ending in the domain gets a trailing
+                    dot added.
                 ttl:
-                  type: string
-                  example: '3600'
+                  oneOf:
+                  - type: integer
+                  - type: string
+                  default: '3600'
+                  description: Time to live in seconds, as a number or string; defaults to 3600 when empty.
                 type:
                   type: string
-                  example: A
+                  description: Record type such as A, AAAA, CNAME, MX or TXT; uppercased before use.
                 value:
                   type: string
-                  example: 1.2.3.4
+                  description: Record data; TXT values are wrapped in double quotes if not already quoted.
+                priority:
+                  type: string
+                  description: Priority written between the type and the value, for MX and SRV records.
+              required:
+              - name
+              - type
+              - value
               example:
                 name: www
                 ttl: '3600'
@@ -2053,13 +2588,17 @@ paths:
               properties:
                 content:
                   type: string
-                  example: www 3600 IN A 5.6.7.8
+                  description: Replacement zone line(s) written in place of rows row_id through end_row_id.
                 end_row_id:
                   type: integer
-                  example: 5
+                  description: Last line number (1-based, inclusive) of the record being replaced, for
+                    multi-line records; defaults to row_id and must be a JSON number.
                 serial:
                   type: string
-                  example: '2025010101'
+                  description: Zone serial you last read; if given and it differs from the current serial
+                    the update is refused with 409.
+              required:
+              - content
               example:
                 content: www 3600 IN A 5.6.7.8
                 end_row_id: 5
@@ -2093,7 +2632,7 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -2101,7 +2640,8 @@ paths:
               properties:
                 end_row_id:
                   type: integer
-                  example: 5
+                  description: Last line number (1-based, inclusive) to delete for a multi-line record;
+                    when omitted or not greater than row_id only that one line is removed.
               example:
                 end_row_id: 5
       responses:
@@ -2179,13 +2719,18 @@ paths:
       - name: page
         in: query
         required: false
+        description: Page number, 1-based; values below 1 or non-numbers are treated as 1. Page size is
+          the server's domain_log_per_page setting (default 1000).
         schema:
-          type: string
+          type: integer
+          default: 1
       - name: show_all
         in: query
         required: false
+        description: Only the literal value true returns every entry without paging.
         schema:
-          type: string
+          type: boolean
+          default: false
       responses:
         '200':
           description: Success.
@@ -2242,7 +2787,10 @@ paths:
               properties:
                 capitalized_domain:
                   type: string
-                  example: Example.com
+                  minLength: 1
+                  description: How the domain name should be displayed, e.g. Example.com.
+              required:
+              - capitalized_domain
               example:
                 capitalized_domain: Example.com
       responses:
@@ -3289,16 +3837,31 @@ paths:
               properties:
                 schedule:
                   type: string
-                  example: 0 0 * * * *
+                  description: Cron schedule with 6 fields, seconds first (seconds minutes hours day month
+                    weekday), or an @-descriptor such as @daily or @every 1h.
                 command:
                   type: string
-                  example: /usr/bin/php script.php
+                  description: Command to run inside the container; no newlines, and must not contain
+                    image=, network=, job-run, job-local or job-service-run.
                 container:
                   type: string
-                  example: php-fpm-8.1
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_.-]*$
+                  description: Name of one of your own compose services to run the command in, as listed
+                    by GET /api/crons.
                 comment:
                   type: string
-                  example: my job
+                  maxLength: 30
+                  pattern: ^[^"\\]*$
+                  description: Job name, unique among your jobs, no double quotes or backslashes; when
+                    empty it defaults to the container name with -1, -2 appended if taken.
+                no_overlap:
+                  type: boolean
+                  default: false
+                  description: When true, a new run is skipped while the previous run is still going.
+              required:
+              - schedule
+              - command
+              - container
               example:
                 schedule: 0 0 * * * *
                 command: /usr/bin/php script.php
@@ -3317,7 +3880,8 @@ paths:
       security:
       - bearerAuth: []
     patch:
-      summary: Edit cron job. All original_* fields must match the existing job exactly.
+      summary: Edit cron job. All original_* fields must match the existing job exactly. Leaving out no_overlap
+        turns it off.
       operationId: patch_crons
       tags:
       - Cron Jobs
@@ -3330,34 +3894,50 @@ paths:
               properties:
                 original_schedule:
                   type: string
-                  example: 0 0 * * * *
+                  description: Current schedule of the job to edit, matched exactly after trimming.
                 original_command:
                   type: string
-                  example: '...'
+                  description: Current command of the job to edit, matched exactly after trimming.
                 original_container:
                   type: string
-                  example: php-fpm-8.1
+                  description: Current container of the job to edit, matched exactly after trimming.
                 original_comment:
                   type: string
-                  example: my job
+                  description: Current name of the job to edit, matched exactly after trimming.
                 schedule:
                   type: string
-                  example: 30 * * * *
+                  description: New cron schedule with 6 fields, seconds first, or an @-descriptor such
+                    as @daily.
                 command:
                   type: string
-                  example: '...'
+                  description: New command; no newlines, and must not contain image=, network=, job-run,
+                    job-local or job-service-run.
                 container:
                   type: string
-                  example: php-fpm-8.1
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_.-]*$
+                  description: New container, must be one of your own compose services.
                 comment:
                   type: string
-                  example: my job
+                  description: New job name; when empty the original name is kept.
+                no_overlap:
+                  type: boolean
+                  default: false
+                  description: When true, a new run is skipped while the previous run is still going;
+                    omitting it turns the setting off.
+              required:
+              - original_schedule
+              - original_command
+              - original_container
+              - original_comment
+              - schedule
+              - command
+              - container
               example:
                 original_schedule: 0 0 * * * *
                 original_command: '...'
                 original_container: php-fpm-8.1
                 original_comment: my job
-                schedule: 30 * * * *
+                schedule: 0 30 * * * *
                 command: '...'
                 container: php-fpm-8.1
                 comment: my job
@@ -3387,16 +3967,21 @@ paths:
               properties:
                 schedule:
                   type: string
-                  example: 0 0 * * * *
+                  description: Schedule of the job to delete, matched exactly after trimming.
                 command:
                   type: string
-                  example: '...'
+                  description: Command of the job to delete, matched exactly after trimming.
                 container:
                   type: string
-                  example: php-fpm-8.1
+                  description: Container of the job to delete, matched exactly after trimming.
                 comment:
                   type: string
-                  example: my job
+                  description: Name of the job to delete, matched exactly after trimming.
+              required:
+              - schedule
+              - command
+              - container
+              - comment
               example:
                 schedule: 0 0 * * * *
                 command: '...'
@@ -3446,11 +4031,12 @@ paths:
               properties:
                 content:
                   type: string
-                  example: |
-                    [job-exec "my job"]
-                    schedule = 0 0 * * * *
-                    container = php-fpm-8.3
-                    command = /usr/bin/php script.php
+                  description: 'Whole crons.ini: blocks of [job-exec "name"], schedule = , container =
+                    , command = and an optional no-overlap line, one blank line between blocks; containers
+                    must be your own and image=, network=, job-run, job-local, job-service-run are refused.
+                    An empty string clears the file.'
+              required:
+              - content
               example:
                 content: |
                   [job-exec "my job"]
@@ -3508,7 +4094,10 @@ paths:
               properties:
                 timezone:
                   type: string
-                  example: Europe/Belgrade
+                  description: IANA time zone name such as Europe/Belgrade, or UTC; must be in the panel's
+                    PHP time zone list.
+              required:
+              - timezone
               example:
                 timezone: Europe/Belgrade
       responses:
@@ -3530,16 +4119,22 @@ paths:
       tags:
       - Cron Jobs
       parameters:
-      - name: lines
-        in: query
-        required: false
-        schema:
-          type: string
       - name: job
         in: query
         required: false
+        description: Job name; only log lines containing [Job "<job>" are returned. Empty returns all
+          lines.
         schema:
           type: string
+          maxLength: 50
+      - name: lines
+        in: query
+        required: false
+        description: How many of the newest matching log lines to return, 1 or more. Default 100.
+        schema:
+          type: integer
+          default: 100
+          minimum: 1
       responses:
         '200':
           description: Success.
@@ -3935,24 +4530,71 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body; if it does not decode as JSON the handler falls back to form fields
+                (service_name, image, cpu, ram, network, healthcheck, environment, add_socket, and parallel
+                volume_name/volume_mount/volume_readonly arrays).
               properties:
                 service_name:
                   type: string
-                  example: myservice
+                  pattern: ^[a-z][a-z0-9]{2,}$
+                  description: 'New compose service name: starts with a lowercase letter, only lowercase
+                    letters and digits, at least 3 characters. Must not already exist.'
                 image:
                   type: string
-                  example: myimage:tag
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,254}$
+                  description: Container image reference, e.g. nginx:latest or ghcr.io/owner/app:1.0.
                 cpu:
                   type: string
-                  example: '1'
+                  description: CPU limit as a positive number of cores, e.g. "1" or "0.5".
                 ram:
                   type: string
-                  example: 512m
+                  pattern: ^\d+(\.\d+)?[gGmM]$
+                  description: Memory limit as a positive number followed by M or G, e.g. "512M" or "1.5G".
+                network:
+                  type: string
+                  description: Name of a network already declared in the account's docker-compose.yml
+                    to attach the service to.
+                healthcheck:
+                  type: string
+                  description: Optional compose healthcheck block written as a YAML string; rejected with
+                    400 if it does not parse.
+                environment:
+                  type: string
+                  description: 'Environment variables, one per line as KEY=value or key: value; each is
+                    stored in .env under the service''s prefix and referenced from the compose file.'
+                add_socket:
+                  type: boolean
+                  description: Mount the user's podman socket read-only at /var/run/docker.sock inside
+                    the container.
+                volumes:
+                  type: array
+                  description: Volume mounts. Entries with an empty name or mount are skipped.
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: 'Existing or new named volume (new names: 3-64 lowercase letters,
+                          digits or _, starting with a letter), or a relative folder inside the account
+                          like ./data.'
+                      mount:
+                        type: string
+                        description: Absolute path inside the container to mount the volume at.
+                      readonly:
+                        type: boolean
+                        description: Mount the volume read-only.
+              required:
+              - service_name
+              - image
+              - cpu
+              - ram
+              - network
               example:
                 service_name: myservice
-                image: myimage:tag
+                image: nginx:latest
                 cpu: '1'
                 ram: 512m
+                network: www
       responses:
         '200':
           description: Success.
@@ -4020,7 +4662,7 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -4028,7 +4670,9 @@ paths:
               properties:
                 pull:
                   type: boolean
-                  example: false
+                  default: false
+                  description: Pull the service's image before starting it. A missing or non-JSON body
+                    means false.
               example:
                 pull: false
       responses:
@@ -4104,24 +4748,36 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
+              description: JSON body; if it does not decode as JSON the handler falls back to form fields
+                with the same names. At least one of cpu, ram or pids must be non-empty, otherwise 400.
               properties:
                 cpu:
                   type: string
-                  example: '1'
+                  description: CPU limit as a number of cores, e.g. "1" or "0.5". "0" resets it to the
+                    plan's total CPU.
                 ram:
                   type: string
-                  example: 512m
+                  description: Memory limit in gigabytes, e.g. "1" or "1.5"; a "G" suffix is appended
+                    unless the value already ends in G. "0" resets it to the plan's total RAM. Megabyte
+                    values like "512m" are not converted and end up as "512mG".
                 pids:
                   type: string
-                  example: '512'
+                  description: Maximum number of processes, e.g. "512". "0" removes the limit (unlimited).
+              anyOf:
+              - required:
+                - cpu
+              - required:
+                - ram
+              - required:
+                - pids
               example:
                 cpu: '1'
-                ram: 512m
+                ram: '1.5'
                 pids: '512'
       responses:
         '200':
@@ -4150,8 +4806,11 @@ paths:
       - name: lines
         in: query
         required: false
+        description: Number of log lines to return from the end (podman logs --tail). Non-numeric values
+          fall back to 100; there is no upper bound.
         schema:
-          type: string
+          type: integer
+          default: 100
       responses:
         '200':
           description: Success.
@@ -4166,7 +4825,8 @@ paths:
       - bearerAuth: []
   /api/containers/{service}:
     patch:
-      summary: Edit a compose service's definition.
+      summary: Edit a compose service's definition. Replaces the whole service definition, so send every
+        setting you want to keep.
       operationId: patch_containers_service
       tags:
       - Docker / Containers
@@ -4182,16 +4842,68 @@ paths:
           application/json:
             schema:
               type: object
+              description: 'Replaces the whole service definition, not a partial update: volumes, environment,
+                healthcheck and add_socket that are left out are removed (only labels and extra_hosts
+                are carried over). JSON body with the same form-field fallback as POST /api/containers.
+                A running container is restarted afterwards.'
               properties:
+                service_name:
+                  type: string
+                  description: Optional; if sent it must equal the <service> path value, since renaming
+                    is not supported.
+                image:
+                  type: string
+                  description: Container image reference matching ^[A-Za-z0-9][A-Za-z0-9._/:@-]{0,254}$,
+                    or an image with a ${VAR} templated tag such as nginx:${NGINX_VERSION:-latest}.
                 cpu:
                   type: string
-                  example: '1'
+                  description: CPU limit as a positive number of cores, e.g. "1" or "0.5".
                 ram:
                   type: string
-                  example: 512m
+                  pattern: ^\d+(\.\d+)?[gGmM]$
+                  description: Memory limit as a positive number followed by M or G, e.g. "512M" or "1.5G".
+                network:
+                  type: string
+                  description: Name of a network already declared in the account's docker-compose.yml.
+                healthcheck:
+                  type: string
+                  description: Compose healthcheck block as a YAML string; rejected with 400 if it does
+                    not parse. Left out means no healthcheck.
+                environment:
+                  type: string
+                  description: 'Environment variables, one per line as KEY=value or key: value. Replaces
+                    all of the service''s existing variables; left out means none.'
+                add_socket:
+                  type: boolean
+                  description: Mount the user's podman socket read-only at /var/run/docker.sock inside
+                    the container.
+                volumes:
+                  type: array
+                  description: Full list of volume mounts for the service; left out means no volumes.
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: 'Existing or new named volume (new names: 3-64 lowercase letters,
+                          digits or _, starting with a letter), or a relative folder inside the account
+                          like ./data.'
+                      mount:
+                        type: string
+                        description: Absolute path inside the container to mount the volume at.
+                      readonly:
+                        type: boolean
+                        description: Mount the volume read-only.
+              required:
+              - image
+              - cpu
+              - ram
+              - network
               example:
+                image: nginx:latest
                 cpu: '1'
-                ram: 512m
+                ram: 1g
+                network: www
       responses:
         '200':
           description: Success.
@@ -5494,7 +6206,9 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Create an MCP token.
+      summary: Create an MCP token. mode is readonly, modify or full. features lists what the token may
+        use, the account must have each one. Leave features out for every feature the account has except
+        account, twofa, passkeys and phpmyadmin. MCP tokens can't call this, use your login.
       operationId: post_account_mcp
       tags:
       - MCP Tokens
@@ -5508,15 +6222,26 @@ paths:
                 name:
                   type: string
                   example: my token
-                read_only:
-                  type: boolean
-                  example: true
+                mode:
+                  type: string
+                  example: modify
+                features:
+                  type: array
+                  items:
+                    type: string
+                    example: dns
+                  example:
+                  - dns
+                  - domains
                 expires_in_days:
                   type: integer
                   example: 30
               example:
                 name: my token
-                read_only: true
+                mode: modify
+                features:
+                - dns
+                - domains
                 expires_in_days: 30
       responses:
         '200':
@@ -6092,13 +6817,17 @@ paths:
       - name: hidden_files
         in: query
         required: false
+        description: Set to "false" to leave out dotfiles; any other value or none lists them.
         schema:
           type: string
       - name: page
         in: query
         required: false
+        description: Page of the listing to return; clamped to the range 1..total pages. Page size is
+          the server's filemanager_files_per_page setting (default 500).
         schema:
-          type: string
+          type: integer
+          default: 1
       responses:
         '200':
           description: Success.
@@ -6123,6 +6852,20 @@ paths:
         required: true
         schema:
           type: string
+      - name: hidden_files
+        in: query
+        required: false
+        description: Set to "false" to leave out dotfiles; any other value or none lists them.
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page of the listing to return; clamped to the range 1..total pages. Page size is
+          the server's filemanager_files_per_page setting (default 500).
+        schema:
+          type: integer
+          default: 1
       responses:
         '200':
           description: Success.
@@ -6189,13 +6932,18 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post (application/x-www-form-urlencoded or multipart) is
+                also accepted, but then the directory key is path_param instead of path.
               properties:
                 path:
                   type: string
-                  example: subdir
+                  description: Directory relative to /var/www/html to create the file in; empty or omitted
+                    means the docroot root. A leading / is stripped.
                 filename:
                   type: string
-                  example: notes.txt
+                  description: Name of the new file. Fails with 409 if it already exists.
+              required:
+              - filename
               example:
                 path: subdir
                 filename: notes.txt
@@ -6223,13 +6971,19 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post is also accepted, but then the directory key is path_param
+                instead of path.
               properties:
                 path:
                   type: string
-                  example: subdir
+                  description: Parent directory relative to /var/www/html; empty or omitted means the
+                    docroot root. A leading / is stripped.
                 foldername:
                   type: string
-                  example: images
+                  description: Name of the new directory; must not contain a slash. Fails with 409 if
+                    it already exists.
+              required:
+              - foldername
               example:
                 path: subdir
                 foldername: images
@@ -6291,16 +7045,22 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post is also accepted, but then the directory key is path_param
+                instead of path.
               properties:
                 path:
                   type: string
-                  example: subdir
+                  description: Directory relative to /var/www/html that holds the item; empty or omitted
+                    means the docroot root.
                 old_name:
                   type: string
-                  example: old.txt
+                  description: Current name of the file or directory inside path; it must exist.
                 new_name:
                   type: string
-                  example: new.txt
+                  description: New name inside path. Fails with 409 if that name already exists.
+              required:
+              - old_name
+              - new_name
               example:
                 path: subdir
                 old_name: old.txt
@@ -6327,23 +7087,33 @@ paths:
       - name: filename
         in: query
         required: false
+        description: 'Name of the file or directory to delete inside path_param. Not checked for emptiness:
+          if omitted, path_param itself is the target.'
         schema:
           type: string
       - name: path_param
         in: query
         required: false
+        description: Directory relative to /var/www/html that holds the item; empty or omitted means the
+          docroot root.
         schema:
           type: string
       - name: item_type
         in: query
         required: false
+        description: '"directory" deletes recursively; any other value deletes a single file. Ignored
+          for symlinks, which are always just unlinked.'
         schema:
           type: string
+          default: file
       - name: mode
         in: query
         required: false
+        description: '"trash" moves the item to the trash; any other value, including the default, deletes
+          it permanently.'
         schema:
           type: string
+          default: permanent
       responses:
         '200':
           description: Success.
@@ -6368,20 +7138,34 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post is also accepted, with keys path_param, filename (repeated),
+                permissions, folder_permissions and recursive=on.
               properties:
                 path:
                   type: string
-                  example: subdir
+                  description: Directory relative to /var/www/html that holds the files; empty or omitted
+                    means the docroot root.
                 filenames:
                   type: array
                   items:
                     type: string
-                    example: a.txt
-                  example:
-                  - a.txt
+                  description: Names of the files or directories inside path to change. Names that fail
+                    are returned in the errored list.
                 permissions:
                   type: string
-                  example: '644'
+                  pattern: ^0?[0-7]{3}$
+                  description: Octal mode such as 644 or 0755. Setuid, setgid and sticky bits are refused.
+                folder_permissions:
+                  type: string
+                  pattern: ^0?[0-7]{3}$
+                  description: Octal mode for directories when recursive is set; defaults to permissions
+                    when empty.
+                recursive:
+                  type: boolean
+                  description: For a selected directory, apply folder_permissions to it and every folder
+                    under it and permissions to the files; symlinks are skipped.
+              required:
+              - permissions
               example:
                 path: subdir
                 filenames:
@@ -6408,22 +7192,29 @@ paths:
       parameters:
       - name: item_name
         in: query
-        required: false
+        required: true
+        description: Name of the file or directory to copy, inside path_param.
         schema:
           type: string
       - name: item_type
         in: query
         required: false
+        description: '"directory" copies the whole tree; any other value copies a single file.'
         schema:
           type: string
       - name: path_param
         in: query
         required: false
+        description: Directory relative to /var/www/html that holds the item; empty means the docroot
+          root.
         schema:
           type: string
       - name: destination_path
         in: query
         required: false
+        description: Destination relative to /var/www/html. If it is an existing directory the item is
+          copied into it under the same name; otherwise it is the new path. Defaults to path_param. Fails
+          with 409 if the destination exists.
         schema:
           type: string
       responses:
@@ -6447,17 +7238,23 @@ paths:
       parameters:
       - name: item_name
         in: query
-        required: false
+        required: true
+        description: Name of the file or directory to move, inside path_param.
         schema:
           type: string
       - name: path_param
         in: query
         required: false
+        description: Directory relative to /var/www/html that holds the item; empty means the docroot
+          root.
         schema:
           type: string
       - name: destination_path
         in: query
         required: false
+        description: Destination relative to /var/www/html; empty means the docroot root. If it is an
+          existing directory the item is moved into it under the same name; otherwise it is the new path.
+          Fails with 409 if the destination exists.
         schema:
           type: string
       responses:
@@ -6482,6 +7279,13 @@ paths:
       - name: path
         in: path
         required: true
+        schema:
+          type: string
+      - name: new
+        in: query
+        required: false
+        description: Set to "true" to get an empty string instead of a 404 when the file does not exist
+          yet.
         schema:
           type: string
       responses:
@@ -6513,10 +7317,15 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post is also accepted with the text in editor_content or
+                content.
               properties:
                 content:
                   type: string
-                  example: new file content
+                  description: Full new file content; replaces the file atomically. An empty string is
+                    allowed and empties the file. Line endings are normalised to LF for some file types.
+              required:
+              - content
               example:
                 content: new file content
       responses:
@@ -6541,6 +7350,13 @@ paths:
       - name: path
         in: path
         required: true
+        schema:
+          type: string
+      - name: path_param
+        in: query
+        required: false
+        description: Optional directory relative to /var/www/html that is prepended to the <path> in the
+          URL.
         schema:
           type: string
       responses:
@@ -6591,16 +7407,23 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post is also accepted, with keys archiveName, path_param
+                and extractDestination.
               properties:
                 archive_name:
                   type: string
-                  example: backup.zip
+                  description: Archive file name inside path. Must end in .zip, .tar, .tar.gz, .tgz or
+                    .gz (case-insensitive), otherwise 400.
                 path:
                   type: string
-                  example: subdir
+                  description: Directory relative to /var/www/html that holds the archive; empty means
+                    the docroot root.
                 extract_destination:
                   type: string
-                  example: subdir/extracted
+                  description: Directory relative to /var/www/html to extract into, created if missing.
+                    "/" means the docroot root; empty or omitted means the same directory as path.
+              required:
+              - archive_name
               example:
                 archive_name: backup.zip
                 path: subdir
@@ -6629,24 +7452,34 @@ paths:
           application/json:
             schema:
               type: object
+              description: JSON body. A form post is also accepted, with keys archiveName, extension,
+                pathParam and selectedFiles[].
               properties:
                 archive_name:
                   type: string
-                  example: backup
+                  description: Archive path relative to /var/www/html (not to path); .<extension> is appended
+                    unless already present. A leading / is stripped. Overwrites an existing file.
                 extension:
                   type: string
-                  example: zip
+                  enum:
+                  - zip
+                  - tar
+                  - tar.gz
+                  description: Archive format.
                 path:
                   type: string
-                  example: subdir
+                  description: Directory relative to /var/www/html that holds the selected files; empty
+                    means the docroot root.
                 selected_files:
                   type: array
                   items:
                     type: string
-                    example: a.txt
-                  example:
-                  - a.txt
-                  - b.txt
+                  minItems: 1
+                  description: Names of files or directories inside path to put in the archive.
+              required:
+              - archive_name
+              - extension
+              - selected_files
               example:
                 archive_name: backup
                 extension: zip
@@ -6950,6 +7783,13 @@ paths:
       operationId: get_git
       tags:
       - Git
+      parameters:
+      - name: domain
+        in: query
+        required: false
+        description: Only list repositories attached to this exact domain name.
+        schema:
+          type: string
       responses:
         '200':
           description: Success.
@@ -6976,13 +7816,91 @@ paths:
           application/json:
             schema:
               type: object
+              description: Flat JSON object when Content-Type is application/json, otherwise read as form
+                values. In JSON, true is sent on as "1", false and null are dropped, numbers are stringified;
+                arrays and objects are not supported. Which fields apply depends on action.
               properties:
                 action:
                   type: string
-                  example: deploy
+                  enum:
+                  - create
+                  - pull
+                  - deploy
+                  - settings
+                  - reset_password
+                  - delete
+                  description: What to do. Anything else returns 400 Invalid action.
                 repo:
                   type: string
-                  example: mysite
+                  description: Name of the existing repository to act on; needed for every action except
+                    create.
+                source:
+                  type: string
+                  enum:
+                  - remote
+                  - local
+                  description: 'create only: clone from a remote URL, or create a local repository you
+                    push to over HTTPS.'
+                name:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$
+                  description: 'create only: repository name; must not end in .git or .lock or contain
+                    "..". Defaults to the last URL segment for remote, or to the domain for local.'
+                remote_url:
+                  type: string
+                  description: 'create with source=remote: http(s)://host/path, git@host:path or ssh://user@host/path
+                    URL. Must not start with - or contain "..".'
+                remote_user:
+                  type: string
+                  description: 'create or settings: username for an HTTPS remote; ignored for SSH URLs.
+                    In settings, sending this key (even empty) updates the credentials, and an empty value
+                    clears them.'
+                remote_pass:
+                  type: string
+                  description: 'create or settings: password or token for an HTTPS remote. In settings,
+                    empty keeps the saved password.'
+                branch:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$
+                  description: 'create or settings: branch to deploy; must not contain "..", "//" or "/."
+                    or end in / or .lock. Local repos default to main. In settings, a remote repo''s branch
+                    must already be known (pull first).'
+                domain:
+                  type: string
+                  description: 'create only: domain the repository belongs to; it must be owned by the
+                    account. Its docroot is the default target_dir.'
+                target_dir:
+                  type: string
+                  description: 'create or settings: deploy target inside /var/www/html, absolute or relative
+                    to it; must not contain "..".'
+                deploy_mode:
+                  type: string
+                  enum:
+                  - automatic
+                  - manual
+                  - none
+                  description: 'create or settings: automatic deploys on pull/push (create defaults to
+                    automatic and deploys a remote repo right away), manual waits for a deploy action,
+                    none never deploys.'
+                actions_enabled:
+                  type: boolean
+                  description: 'create or settings: must be true for actions and actions_container to
+                    be saved; otherwise deploy actions are cleared.'
+                actions:
+                  type: string
+                  maxLength: 4000
+                  description: Shell commands to run after each deploy, one per line, inside actions_container.
+                actions_container:
+                  type: string
+                  pattern: ^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$
+                  description: Name of one of the account's containers to run the deploy actions in; required
+                    when actions is non-empty.
+                actions_present:
+                  type: boolean
+                  description: 'settings only: must be true for actions_enabled/actions/actions_container
+                    to be applied; otherwise the saved deploy actions are left alone.'
+              required:
+              - action
               example:
                 action: deploy
                 repo: mysite
@@ -7310,8 +8228,8 @@ paths:
       - bearerAuth: []
   /api/sites/wp-cli/{action}:
     get:
-      summary: Site-manager scoped WP-CLI passthrough (site info, debug flags, update preferences) - distinct
-        action set from POST /api/wp-cli/<action>.
+      summary: 'Site-manager WP-CLI actions for a WordPress site. Reads: site_info, debug_info, update_info.
+        Changes: update_debug, update_site_information, update_now, update_update_preferences.'
       operationId: sites_wp_cli_action
       tags:
       - Sites & Websites
@@ -7321,6 +8239,143 @@ paths:
         required: true
         schema:
           type: string
+      - name: website
+        in: query
+        required: false
+        description: Site name (domain or domain/subfolder) the action runs for; checked for ownership.
+        schema:
+          type: string
+      - name: domain
+        in: query
+        required: false
+        description: Fallback for website, used only when website is empty.
+        schema:
+          type: string
+      - name: docroot
+        in: query
+        required: true
+        description: WordPress install path inside the container, such as /var/www/html/example.com; must
+          not contain '..'.
+        schema:
+          type: string
+          pattern: ^[a-zA-Z0-9_/.-]+$
+      - name: WP_DEBUG
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets WP_DEBUG to true, any other value or absence sets it to
+          false.'
+        schema:
+          type: string
+      - name: WP_DEBUG_LOG
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets WP_DEBUG_LOG to true, any other value or absence sets
+          it to false.'
+        schema:
+          type: string
+      - name: WP_DEBUG_DISPLAY
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets WP_DEBUG_DISPLAY to true, any other value or absence sets
+          it to false.'
+        schema:
+          type: string
+      - name: SCRIPT_DEBUG
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets SCRIPT_DEBUG to true, any other value or absence sets
+          it to false.'
+        schema:
+          type: string
+      - name: SAVEQUERIES
+        in: query
+        required: false
+        description: 'update_debug: ''on'' sets SAVEQUERIES to true, any other value or absence sets it
+          to false.'
+        schema:
+          type: string
+      - name: siteurl
+        in: query
+        required: false
+        description: 'update_site_information: new siteurl option, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: home
+        in: query
+        required: false
+        description: 'update_site_information: new home option, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: blogname
+        in: query
+        required: false
+        description: 'update_site_information: new site title, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: blogdescription
+        in: query
+        required: false
+        description: 'update_site_information: new tagline, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: admin_email
+        in: query
+        required: false
+        description: 'update_site_information: new admin_email option, updated only when the key is sent.'
+        schema:
+          type: string
+      - name: users_can_register
+        in: query
+        required: false
+        description: 'update_site_information: users_can_register option value (''1'' enables registration),
+          updated only when the key is sent.'
+        schema:
+          type: string
+      - name: default_ping_status
+        in: query
+        required: false
+        description: 'update_site_information: default_ping_status option value (''open'' enables pingbacks),
+          updated only when the key is sent.'
+        schema:
+          type: string
+      - name: blog_public
+        in: query
+        required: false
+        description: 'update_site_information: blog_public option value (''1'' allows search engine indexing),
+          updated only when the key is sent.'
+        schema:
+          type: string
+      - name: WP_AUTO_UPDATE_PLUGINS
+        in: query
+        required: false
+        description: 'update_update_preferences: whether plugins auto-update.'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          default: 'false'
+      - name: WP_AUTO_UPDATE_THEMES
+        in: query
+        required: false
+        description: 'update_update_preferences: whether themes auto-update.'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          default: 'false'
+      - name: WP_AUTO_UPDATE_CORE
+        in: query
+        required: false
+        description: 'update_update_preferences: core auto-update mode.'
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          - minor
+          default: 'false'
       responses:
         '200':
           description: Success.
@@ -7544,7 +8599,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -7563,7 +8618,7 @@ paths:
                 site_name: My Drupal Site
                 drupal_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -7754,7 +8809,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -7774,7 +8829,7 @@ paths:
                 joomla_version: ''
                 admin_name: Administrator
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -7928,7 +8983,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -7946,7 +9001,7 @@ paths:
                 subdirectory: ''
                 opencart_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8103,7 +9158,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8121,7 +9176,7 @@ paths:
                 subdirectory: ''
                 nextcloud_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8311,7 +9366,7 @@ paths:
                   example: User
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8330,7 +9385,7 @@ paths:
                 prestashop_version: ''
                 admin_firstname: Admin
                 admin_lastname: User
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8489,7 +9544,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8508,7 +9563,7 @@ paths:
                 site_name: My Flarum Forum
                 flarum_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8693,7 +9748,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8711,7 +9766,7 @@ paths:
                 subdirectory: ''
                 matomo_version: ''
                 admin_login: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -8902,7 +9957,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -8922,7 +9977,7 @@ paths:
                 site_name: My Moodle Site
                 site_shortname: moodle
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9110,7 +10165,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9129,7 +10184,7 @@ paths:
                 mediawiki_version: ''
                 site_name: My Wiki
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -9287,7 +10342,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_full_name:
                   type: string
                   example: Admin User
@@ -9299,7 +10354,7 @@ paths:
                 subdirectory: ''
                 admin_email: admin@example.com
                 admin_user: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_full_name: Admin User
                 site_title: My DokuWiki
       responses:
@@ -9548,7 +10603,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9558,7 +10613,7 @@ paths:
                 board_name: My Board
                 board_description: A phpBB forum
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
       responses:
         '200':
@@ -9745,12 +10800,12 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
               example:
                 domain_id: '42'
                 subdirectory: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
       responses:
         '200':
           description: Success.
@@ -9818,7 +10873,7 @@ paths:
                   example: admin
                 admin_password:
                   type: string
-                  example: changeme
+                  example: Str0ng!Passw0rd
                 admin_email:
                   type: string
                   example: admin@example.com
@@ -9836,7 +10891,7 @@ paths:
                 subdirectory: ''
                 ojs_version: ''
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 admin_email: admin@example.com
                 db_name: ''
                 db_user: ''
@@ -10027,47 +11082,79 @@ paths:
               properties:
                 domain_id:
                   type: string
-                  example: '42'
+                  description: ID of the user's domain to install on, sent as a JSON string.
                 admin_email:
                   type: string
-                  example: admin@example.com
+                  pattern: ^([^\s@]+@[^\s@]+\.[^\s@]+)?$
+                  description: WordPress admin email; empty means admin@<domain>.
                 website_name:
                   type: string
-                  example: My Blog
+                  default: My Blog
+                  description: Site title.
                 site_description:
                   type: string
-                  example: My WordPress Blog
+                  default: My WordPress Blog
+                  description: Site tagline.
                 admin_username:
                   type: string
-                  example: admin
+                  pattern: ^[A-Za-z0-9._@][A-Za-z0-9._@-]{0,59}$
+                  description: 'WordPress admin login: letters, numbers and . _ @ -, not starting with
+                    -.'
                 admin_password:
                   type: string
-                  example: changeme
+                  minLength: 1
+                  maxLength: 128
+                  pattern: ^[^\s-]\S*$
+                  description: 'WordPress admin password: no whitespace, not starting with -, and it must
+                    meet the panel''s password_strength setting (default 50).'
                 wordpress_version:
                   type: string
-                  example: latest
+                  pattern: ^(latest|[0-9]+(\.[0-9]+)*(-[A-Za-z0-9]+)?)?$
+                  default: latest
+                  description: WordPress release to install, 'latest' or a version like 6.5.2.
                 subdirectory:
                   type: string
-                  example: ''
+                  description: Optional subfolder under the domain's docroot; lowercased, spaces removed,
+                    parts may only use letters, numbers, dots, dashes and underscores, up to 200 characters.
                 db_name:
                   type: string
-                  example: ''
+                  maxLength: 32
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: Database name before the account prefix is added; empty generates a random
+                    one.
                 db_user:
                   type: string
-                  example: ''
+                  maxLength: 32
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: Database user before the account prefix is added; empty generates a random
+                    one.
                 db_password:
                   type: string
-                  example: ''
+                  maxLength: 64
+                  pattern: ^[!#-&(-\[\]-_a-~]*$
+                  description: 'Database password: printable ASCII without spaces, quotes, backslashes
+                    or backticks; empty generates a random one.'
                 db_prefix:
                   type: string
-                  example: wp_
+                  pattern: ^[A-Za-z0-9_]*$
+                  default: wp_
+                  description: Table prefix; a trailing underscore is added when missing.
+                wp_set:
+                  type: string
+                  pattern: ^([a-z0-9_-]{1,64})?$
+                  description: Plugins/themes set slug to install; empty uses the global or user set,
+                    'none' skips sets.
+              required:
+              - domain_id
+              - admin_username
+              - admin_password
               example:
                 domain_id: '42'
                 admin_email: admin@example.com
                 website_name: My Blog
                 site_description: My WordPress Blog
                 admin_username: admin
-                admin_password: changeme
+                admin_password: Str0ng!Passw0rd
                 wordpress_version: latest
                 subdirectory: ''
                 db_name: ''
@@ -10101,33 +11188,55 @@ paths:
               properties:
                 source_domain:
                   type: string
-                  example: example.com
+                  pattern: ^[a-zA-Z0-9.-]+(/.*)?$
+                  description: Source site as domain or domain/subfolder; used as the old URL for search-replace.
                 target_domain:
                   type: string
-                  example: clone.example.com
+                  pattern: ^[a-zA-Z0-9.-]+$
+                  description: Destination domain, which must belong to the user.
                 source_db:
                   type: string
-                  example: wp_source
+                  pattern: ^[a-zA-Z0-9_]+$
+                  description: Database name of the source site.
                 source_folder:
                   type: string
-                  example: ''
+                  pattern: ^/var/www/html/
+                  description: Source site's install path inside the container, such as /var/www/html/example.com;
+                    must not contain '..'.
                 subdirectory:
                   type: string
-                  example: ''
+                  description: Optional subfolder under the target domain's docroot to clone into; the
+                    resulting path must not contain '..'.
                 target_db:
                   type: string
-                  example: ''
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: New database name before the account prefix is added; empty generates wp_clone_<random>.
                 target_db_user:
                   type: string
-                  example: ''
+                  pattern: ^[A-Za-z0-9_]*$
+                  description: New database user before the account prefix is added; empty reuses the
+                    target database name.
                 target_db_user_password:
                   type: string
-                  example: ''
+                  description: Password for the new database user; empty generates a random one.
+                include_uploads:
+                  type: boolean
+                  default: true
+                  description: Copy wp-content/uploads; false clones without it.
+                rewrite_urls:
+                  type: boolean
+                  default: true
+                  description: Run wp search-replace from the source URL to the target URL.
+              required:
+              - source_domain
+              - target_domain
+              - source_db
+              - source_folder
               example:
                 source_domain: example.com
                 target_domain: clone.example.com
                 source_db: wp_source
-                source_folder: ''
+                source_folder: /var/www/html/example.com
                 subdirectory: ''
                 target_db: ''
                 target_db_user: ''
@@ -10200,7 +11309,7 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -10208,10 +11317,17 @@ paths:
               properties:
                 backup_database:
                   type: boolean
-                  example: true
+                  default: true
+                  description: Include the database in the backup.
                 backup_files:
                   type: boolean
-                  example: true
+                  default: true
+                  description: Include the site files in the backup.
+                docroot:
+                  type: string
+                  pattern: ^/var/www/html/[A-Za-z0-9._/-]+$
+                  description: Install path inside the container; empty uses the domain's docroot. Must
+                    not contain '..'.
               example:
                 backup_database: true
                 backup_files: true
@@ -10248,7 +11364,18 @@ paths:
               properties:
                 backup_date:
                   type: string
-                  example: 2025-01-15_12-00-00
+                  pattern: ^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$
+                  description: Backup folder name to restore, as listed by GET /api/wordpress/<domain>/backups.
+                docroot:
+                  type: string
+                  pattern: ^[A-Za-z0-9._/-]+$
+                  description: Domain docroot, absolute (/var/www/html/...) or relative to /var/www/html;
+                    empty uses the domain's docroot. Must not contain '..'.
+                php_version:
+                  type: string
+                  description: PHP version of the domain; empty is looked up from the domain.
+              required:
+              - backup_date
               example:
                 backup_date: 2025-01-15_12-00-00
       responses:
@@ -10317,7 +11444,7 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -10327,12 +11454,13 @@ paths:
                   type: array
                   items:
                     type: string
-                    example: wp_manager_xmlrpc
-                  example:
-                  - wp_manager_xmlrpc
+                    pattern: ^wp_manager_\w+$
+                  description: Hardening rules to enable (from GET /api/wordpress/secure); names not matching
+                    wp_manager_* are dropped, an empty list disables all rules.
                 disable_all:
                   type: boolean
-                  example: false
+                  default: false
+                  description: Disable every hardening rule for the domain, ignoring rules.
               example:
                 rules:
                 - wp_manager_xmlrpc
@@ -10417,7 +11545,8 @@ paths:
       - bearerAuth: []
   /api/wp-cli/{action}:
     post:
-      summary: Run a WP-CLI action.
+      summary: 'Run a WP-CLI action on a WordPress site: core_update, core_update_check, plugin_update_all,
+        theme_update_all, list_plugins, list_themes, cache_flush, cron_run.'
       operationId: wp_cli_action
       tags:
       - WordPress
@@ -10427,16 +11556,44 @@ paths:
         required: true
         schema:
           type: string
+      - name: backup
+        in: query
+        required: false
+        description: Same as the body's backup flag; only the value '1' turns it on.
+        schema:
+          type: string
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              description: 'Accepted actions: cache_flush, core_update, core_update_check, cron_run, list_plugins,
+                list_themes, plugin_update_all, theme_update_all (case-insensitive). backup applies only
+                to core_update, plugin_update_all and theme_update_all.'
               properties:
                 domain:
                   type: string
-                  example: example.com
+                  pattern: ^[A-Za-z0-9_\-./]+$
+                  description: Site as domain or domain/subfolder; the domain must belong to the user.
+                php_version:
+                  type: string
+                  pattern: ^[A-Za-z0-9_\-.]+$
+                  description: PHP version picking the php-fpm container; empty uses the domain's version.
+                docroot:
+                  type: string
+                  pattern: ^[A-Za-z0-9_\-./]+$
+                  description: WordPress path inside the container; empty uses the domain's docroot (plus
+                    the subfolder from domain). Must not contain '..'.
+                backup:
+                  oneOf:
+                  - type: boolean
+                  - type: integer
+                  - type: string
+                  description: Take a full backup before an update action and skip the update if it fails;
+                    true, 1, "1" or "true" turn it on.
+              required:
+              - domain
               example:
                 domain: example.com
       responses:
@@ -10466,8 +11623,11 @@ paths:
       - name: lines
         in: query
         required: false
+        description: Number of log lines to return from the end. Non-numeric values fall back to 100;
+          there is no upper bound.
         schema:
-          type: string
+          type: integer
+          default: 100
       responses:
         '200':
           description: Success.
@@ -10530,7 +11690,8 @@ paths:
       - bearerAuth: []
   /api/pm2/{domain}/restart:
     post:
-      summary: Pull latest image and restart.
+      summary: Restart the application, which fetches its git repository again on start. Pulls the newest
+        image first unless no_pull is true.
       operationId: pm2_domain_restart
       tags:
       - Node.js / Python Apps
@@ -10540,6 +11701,18 @@ paths:
         required: true
         schema:
           type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                no_pull:
+                  type: boolean
+                  default: false
+                  description: Skip pulling the runtime image, which is slow and only needed to pick up
+                    a newer image.
       responses:
         '200':
           description: Success.
@@ -10565,21 +11738,44 @@ paths:
         schema:
           type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
+              description: JSON only (no form fallback; a body that fails to decode is treated as empty).
+                Each non-empty field rewrites the matching line in the account's .env, except requirements,
+                which is always rewritten. Restart the app for changes to take effect.
               properties:
                 version:
                   type: string
-                  example: '20'
+                  pattern: ^[0-9]+(\.[0-9]+)*(_[0-9]+)?(-jdk-jammy)?$
+                  description: Runtime image tag, e.g. "20" or "3.12"; Java tags may carry _NN and -jdk-jammy
+                    suffixes.
+                requirements:
+                  type: string
+                  description: '"1", "on", "true" or "yes" (case-insensitive) runs the dependency install
+                    (npm/pip/bundle/mvn) before start; anything else, including leaving it out, turns
+                    it off.'
+                startup_file:
+                  type: string
+                  description: Absolute path under /var/www/html/ ending in .py, .js, .rb or .java, with
+                    no ".." segments or newlines.
+                custom_cmd:
+                  type: string
+                  description: Custom startup command that replaces the default run command; must not
+                    contain ".." or newlines.
+                workdir:
+                  type: string
+                  description: 'Working directory: absolute path under /var/www/html/ with no ".." segments
+                    or newlines.'
                 cpu:
                   type: string
-                  example: '1'
+                  description: CPU limit as a positive number of cores, e.g. "1" or "0.5".
                 ram:
                   type: string
-                  example: '1'
+                  description: Memory limit as a positive number of gigabytes, e.g. "1"; G is appended
+                    unless already present.
               example:
                 version: '20'
                 cpu: '1'
@@ -10827,6 +12023,166 @@ paths:
               required:
               - domain_id
               - service_name
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/deploy/detect:
+    post:
+      summary: 'Look at a git repository and return how deploy would run it: runtime, framework, start
+        command, port and image version. Changes nothing.'
+      operationId: deploy_detect
+      tags:
+      - App Deploy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo_url:
+                  type: string
+                  pattern: ^https://
+                  maxLength: 500
+                  description: Public https:// git repository URL. Private repos and ssh URLs aren't supported.
+              required:
+              - repo_url
+              example:
+                repo_url: https://github.com/vercel/next-learn
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/deploy:
+    post:
+      summary: 'Deploy a git repository to a domain in one call: detect the stack, install it as a Node.js,
+        Python, Ruby or Java app with a reverse proxy, then wait until it answers HTTP. Returns 200 when
+        the app answers, 202 when it is installed but not answering yet (poll /api/deploy/status), 422
+        when the install failed.'
+      operationId: deploy
+      tags:
+      - App Deploy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repo_url:
+                  type: string
+                  pattern: ^https://
+                  maxLength: 500
+                  description: Public https:// git repository URL. Private repos and ssh URLs aren't supported.
+                domain:
+                  type: string
+                  description: Domain on this account to serve the app on, like example.com.
+                subdirectory:
+                  type: string
+                  description: Serve the app under example.com/<subdirectory> instead of the domain root.
+                service_name:
+                  type: string
+                  pattern: ^[a-z][a-z0-9]{1,30}$
+                  description: Container name, defaults to one made from the domain. Must not exist yet.
+                app_type:
+                  type: string
+                  enum:
+                  - nodejs
+                  - python
+                  - ruby
+                  - java
+                  description: Runtime, overrides detection.
+                start_cmd:
+                  type: string
+                  maxLength: 500
+                  description: Shell command that starts the app after dependencies are installed, overrides
+                    detection. No quotes, backslashes, backticks, .. or new lines. It must listen on 0.0.0.0
+                    and port.
+                port:
+                  type: integer
+                  minimum: 1
+                  maximum: 65535
+                  description: Port the app listens on inside its container, overrides detection (3000
+                    for Node and Ruby, 8000 for Python, 8080 for Java). Required when app_type and start_cmd
+                    are both given.
+                version:
+                  type: string
+                  description: 'Runtime image tag: latest or a number like 20 (Node) or 3.12 (Python).'
+                install_dependencies:
+                  type: boolean
+                  description: Run npm install, pip install -r requirements.txt, bundle install or mvn
+                    install before starting.
+                cpu_limit:
+                  type: string
+                  description: CPU cores for the container, default 0.5.
+                mem_limit:
+                  type: string
+                  description: Memory in GB for the container, default 1.0. Framework builds often need
+                    2.
+                wait_seconds:
+                  type: integer
+                  minimum: 0
+                  maximum: 600
+                  default: 180
+                  description: How long to wait for the app to answer HTTP before returning 202.
+              required:
+              - repo_url
+              - domain
+              example:
+                repo_url: https://github.com/user/app
+                domain: example.com
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/deploy/status:
+    get:
+      summary: 'Health of a deployed app: container state, whether it answers HTTP on its port, the status
+        code, and the newest log lines.'
+      operationId: deploy_status
+      tags:
+      - App Deploy
+      parameters:
+      - name: site
+        in: query
+        required: true
+        description: Site the app was deployed to, like example.com or example.com/blog.
+        schema:
+          type: string
+      - name: lines
+        in: query
+        required: false
+        description: How many log lines to return.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 30
       responses:
         '200':
           description: Success.
@@ -11182,9 +12538,11 @@ paths:
               properties:
                 content:
                   type: string
-                  example: |-
-                    $ORIGIN example.com.
-                    ...
+                  minLength: 1
+                  description: Full BIND zone file content; no carriage returns, only $TTL and $ORIGIN
+                    directives allowed, and it must pass named-checkzone.
+              required:
+              - content
               example:
                 content: |-
                   $ORIGIN example.com.
@@ -11222,16 +12580,46 @@ paths:
               properties:
                 name:
                   type: string
-                  example: www
+                  description: Record owner name, e.g. www or @; a name ending in the domain gets a trailing
+                    dot added.
                 ttl:
-                  type: string
-                  example: '3600'
+                  oneOf:
+                  - type: integer
+                  - type: string
+                  default: '3600'
+                  description: Time to live in seconds, as a number or string; defaults to 3600 when empty.
                 type:
                   type: string
-                  example: A
+                  enum:
+                  - A
+                  - AAAA
+                  - CAA
+                  - CNAME
+                  - MX
+                  - SRV
+                  - TLSA
+                  - TXT
+                  - HTTPS
+                  - SVCB
+                  - NS
+                  - SSHFP
+                  - URI
+                  - DMARC
+                  description: Record type, case-insensitive; the server's dns_record_types setting limits
+                    which are allowed (default A AAAA CAA CNAME MX SRV TLSA TXT). DMARC is saved as a
+                    TXT record named _dmarc.
                 record:
                   type: string
-                  example: 1.2.3.4
+                  description: 'Record data. Format checks: NS needs a hostname and a subdomain name,
+                    HTTPS/SVCB need priority target [params], SSHFP needs algorithm type fingerprint,
+                    URI needs priority weight target, DMARC must start with v=DMARC1 and have no quotes.'
+                priority:
+                  type: string
+                  description: Priority written between the type and the record data, for MX and SRV records.
+              required:
+              - name
+              - type
+              - record
               example:
                 name: www
                 ttl: '3600'
@@ -11275,10 +12663,18 @@ paths:
               properties:
                 content:
                   type: string
-                  example: www 3600 IN A 5.6.7.8
+                  description: Replacement zone line(s) written in place of rows row_id through end_row_id;
+                    record types must be allowed on the server.
+                end_row_id:
+                  type: integer
+                  description: Last line number (1-based, inclusive) of the record being replaced, for
+                    multi-line records; defaults to row_id and must be a JSON number.
                 serial:
                   type: string
-                  example: '2025010101'
+                  description: Zone serial you last read; if given and it differs from the current serial
+                    the update is refused with 409.
+              required:
+              - content
               example:
                 content: www 3600 IN A 5.6.7.8
                 serial: '2025010101'
@@ -11310,6 +12706,17 @@ paths:
         required: true
         schema:
           type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                end_row_id:
+                  type: integer
+                  description: Last line number (1-based, inclusive) to delete for a multi-line record;
+                    when omitted or not greater than row_id only that one line is removed.
       responses:
         '200':
           description: Success.

@@ -25,6 +25,8 @@
 
     <!-- SIDEBAR CLOSE / OPEN -->
     <style>[x-cloak] { display: none !important;}</style>
+    <!-- with both logos set only the one for the current mode shows -->
+    <style>html:not(.dark) .op-logo-dark,html.dark .op-logo-light{display:none!important}</style>
     <style>@media (max-width:639px){#toast-container{left:50%;bottom:1rem;transform:translateX(-50%);width:calc(100% - 2rem);max-width:28rem}}</style>
     <script>(function(){const sidebarState=sessionStorage.getItem('sidebarOpen');const isMobile=window.innerWidth<768;let isOpen=sidebarState===null?!isMobile:sidebarState==='true';if(isOpen){document.documentElement.classList.add('sidebar-open');}else{document.documentElement.classList.remove('sidebar-open');}})();</script>
     <style>@font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url('{{static "vendor/fonts/inter/inter-700-latin.woff2"}}') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style>
@@ -406,11 +408,11 @@ document.addEventListener('submit', (e) => {
 
                 <div data-sidebar="header" class="truncate flex h-16 shrink-0 items-center border-b border-gray-200 px-3 dark:border-gray-800" id="logo_section">
 
-                     {{if .Logo}}
-                     <!-- logo -->
+                     {{if or .Logo .LogoDark}}
+                     <!-- logo, with only one set it's used in both modes -->
                      <div class="flex min-w-0 flex-1 items-center justify-center gap-3">
                          <a href="/dashboard" class="group flex min-w-0 text-slate-500 hover:text-slate-700 dark:hover:text-slate-400">
-                            <img src="{{.Logo}}" class="max-h-10 w-auto max-w-full object-contain" id="logo_image" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}">
+                            {{if and .Logo .LogoDark}}<img src="{{.Logo}}" class="max-h-10 w-auto max-w-full object-contain op-logo-light" id="logo_image" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}"><img src="{{.LogoDark}}" class="max-h-10 w-auto max-w-full object-contain op-logo-dark" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}">{{else}}<img src="{{or .Logo .LogoDark}}" class="max-h-10 w-auto max-w-full object-contain" id="logo_image" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}">{{end}}
                          </a>
                      </div>
                      <!-- END logo -->

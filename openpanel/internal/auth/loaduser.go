@@ -51,7 +51,7 @@ func resolveIdentity(a *appctx.App, r *http.Request) *http.Request {
 			if a.DB != nil {
 				if result, err := mcptokens.Authenticate(a.DB, token); err == nil && result != nil {
 					r = withAuth(r, result.UserID, ViaMCP)
-					r = withMCPReadOnly(r, result.ReadOnly)
+					r = withMCPToken(r, MCPToken{ID: result.TokenID, Name: result.Name, Scope: result.Scope})
 					return r
 				}
 			}

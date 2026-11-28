@@ -42,7 +42,7 @@ custom_username=""
 custom_password=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="2.0.29"
+readonly DEFAULT_PANEL_VERSION="2.0.31"
 readonly CONTAINER_ENGINE="podman"
 readonly SHARED_STORE="/var/lib/containers/shared-storage"
 readonly ETC_DIR="/etc/openpanel/"
@@ -320,6 +320,7 @@ pkg_install_with_retry() {
         netavark|aardvark-dns|crun) warn "Could not install $pkg — podman may fall back to CNI/runc."; return ;;
         quota|systemd-container|slirp4netns|fuse-overlayfs|passt) warn "Could not install $pkg — you may need to install it manually."; return ;;
         systemd-oomd) warn "systemd-oomd is not available on this OS, a thrashing account will not be killed automatically."; return ;;
+        rsyslog) warn "Could not install rsyslog, lfd has no log files to read and won't block brute force logins."; return ;;
     esac
 
     local attempt=1 max=10 delay=5
@@ -789,6 +790,11 @@ setup_compose() {
         done
     fi
 
+    # load alert at 2x the cores like OpenAdmin > Notifications recommends, sentinel accepts 1-100
+    local load_alert=$(( total_cpus * 2 ))
+    (( load_alert > 100 )) && load_alert=100
+    sed -i "s/^load=.*/load=${load_alert}/" "${ETC_DIR}openadmin/config/notifications.ini"
+
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/container_my.cnf"
@@ -893,6 +899,12 @@ setup_firewall() {
 
     echo "Installing Sentinel Firewall..."
 
+    # lfd only reads log files like /var/log/auth.log, on journald-only systems (Ubuntu 26.04) they don't exist and nothing gets blocked
+    if ! command -v rsyslogd &>/dev/null; then
+        pkg_install_with_retry rsyslog
+    fi
+    command -v rsyslogd &>/dev/null && run systemctl enable --now rsyslog
+
     mkdir -p /usr/local/admin/modules/security/
     wget --timeout=3 --tries=3 --inet4-only -O /usr/local/admin/modules/security/csf.pl https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/modules/security/csf.pl  >/dev/null 2>&1
 
@@ -944,7 +956,7 @@ EOF
     # netavark bridge is podman0; cni-podman0 kept for CNI fallback
     # FASTSTART=0: at boot FASTSTART restores the iptables snapshot from shutdown (stale netavark rules for the old
     # container IPs) and skips csfpre/csfpost, which broke container -> own-IP:587 until a manual `csf -r`
-    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,podman1,podman2,podman3"/' -e 's/FASTSTART = "1"/FASTSTART = "0"/' /etc/csf/csf.conf
+    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,podman1,podman2,podman3"/' -e 's/FASTSTART = "1"/FASTSTART = "0"/' -e 's/^DENY_IP_LIMIT = .*/DENY_IP_LIMIT = "500"/' -e 's/^DENY_TEMP_IP_LIMIT = .*/DENY_TEMP_IP_LIMIT = "250"/' /etc/csf/csf.conf
     cp "${ETC_DIR}csf/csf.blocklists" /etc/csf/csf.blocklists
 
     local email; email=$(grep -E "^e-mail=" "$CONFIG_FILE" | cut -d= -f2 || true)
@@ -1011,6 +1023,8 @@ EOF
     if [[ -n "$new_hostname" ]]; then
         if [[ "$new_hostname" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
             sed -i "s/example\.net/$new_hostname/g" "${ETC_DIR}caddy/Caddyfile"
+            # /webmail follows the webmail.<hostname> block just written, so Email Settings shows it instead of ip:8080
+            sed -i "s|^redir @webmail .*|redir @webmail https://webmail.$new_hostname/ 301|" "${ETC_DIR}caddy/redirects.conf"
         elif [[ "$new_hostname" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
             if grep -q "# START HOSTNAME IP #" "${ETC_DIR}caddy/Caddyfile"; then
                 sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "${ETC_DIR}caddy/Caddyfile"

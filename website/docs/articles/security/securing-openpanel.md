@@ -12,7 +12,7 @@ For Server Administrators (OpenAdmin):
 - [Configure CorazaWAF rules](/docs/admin/security/waf/)
 - [Change OpenPanel or OpenAdmin ports](/docs/admin/settings/general/#ports)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
-- [Check passwords against weakpass.com lists](/docs/admin/settings/openpanel/#security)
+- [Check passwords against weakpass.com lists](/docs/admin/settings/openpanel/#passwords)
 - [Enable Two-factor authentication for OpenAdmin](/docs/admin/security/2fa/)
 - [Log in to OpenAdmin with Passkeys](/docs/admin/security/passkeys/)
 - [Changing the OpenPanel Administrator Username](/docs/admin/accounts/administrators/#create-new-admin)

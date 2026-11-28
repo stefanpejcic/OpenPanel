@@ -1783,6 +1783,38 @@ Updated applications_dashboard_items to websites wordpress nextcloud docker
 ```
 </details>
 
+### `hidden_docker_apps`
+
+One-click Docker apps hidden from the Docker applications section of the Auto Installer, by their `id` in `/etc/openpanel/docker/templates/applications.yml`, separated by spaces or commas. Empty (the default) shows every app, and apps added to the list later always show until they're hidden here. Users with the Docker feature can still run any image from *Containers*. Restart OpenPanel after changing it. Also set from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#docker-apps).
+
+**Check current value**:
+```bash
+opencli config get hidden_docker_apps
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get hidden_docker_apps
+grafana jellyfin
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update hidden_docker_apps 'grafana jellyfin'
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update hidden_docker_apps 'grafana jellyfin'
+Updated hidden_docker_apps to grafana jellyfin
+```
+</details>
+
 ### `dns_record_types`
 
 Record types users can add and edit in the [DNS Zone Editor](/docs/panel/domains/dns/), separated by spaces or commas. Available: `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TLSA`, `TXT`, `HTTPS`, `SVCB`, `NS`, `SSHFP`, `URI`, `DMARC`. See [what each one does](/docs/admin/settings/openpanel/#dns-record-types).
@@ -2566,6 +2598,29 @@ opencli config update ai_max_tokens 4096
 ```bash
 # opencli config update ai_max_tokens 4096
 Updated ai_max_tokens to 4096
+```
+</details>
+
+### `ai_reasoning_effort`
+
+How much the model reasons before answering: `none`, `minimal`, `low`, `medium`, `high` or `xhigh`. Empty (default) doesn't send it, so the model's default applies. If an OpenAI model rejects tools with its default reasoning (for example `gpt-6-luna` on `/chat/completions`), the assistant retries with `none`. For Anthropic models `none` and `minimal` are sent as `low`.
+
+**Check current value**:
+```bash
+opencli config get ai_reasoning_effort
+```
+
+**Set new value**:
+```bash
+opencli config update ai_reasoning_effort none
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_reasoning_effort none
+Updated ai_reasoning_effort to none
 ```
 </details>
 
