@@ -19,7 +19,8 @@
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Git"}}</h1>
         <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Total repositories:"}} <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 ml-1 tabular-nums">{{len .Repos}}</span></p>
       </div>
-      <div>
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <button id="github-accounts" type="button" @click="panel = panel === 'accounts' ? null : 'accounts'" :aria-expanded="(panel === 'accounts').toString()" class="{{$btn}} w-full sm:w-auto"><i class="ri-github-fill text-base leading-none" aria-hidden="true"></i>{{.T.Get "GitHub accounts"}}{{if .Accounts}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 tabular-nums">{{len .Accounts}}</span>{{end}}</button>
         <button id="add-repository" type="button" @click="panel = panel === 'create' ? null : 'create'" :class="panel === 'create' ? 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60' : 'border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-auto">
           <i :class="panel === 'create' ? 'ri-close-line' : 'ri-add-line'" class="ri-add-line text-base leading-none" aria-hidden="true"></i>
           <span x-text="panel === 'create' ? {{toJSON (.T.Get "Cancel")}} : {{toJSON (.T.Get "Add repository")}}"></span>
@@ -58,6 +59,61 @@
   </div>
   {{end}}
 
+  <!-- connected accounts -->
+  <div id="git-accounts" x-show="panel === 'accounts'" x-cloak x-transition class="mx-4 mb-6 rounded-md border border-gray-200 bg-white sm:mx-6 lg:mx-8 dark:border-gray-900 dark:bg-raised">
+    <div class="space-y-5 p-4 sm:p-6">
+      <div>
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "GitHub accounts"}}</h2>
+        <p class="mt-1 max-w-3xl text-sm text-gray-500">{{.T.Get "Connect a GitHub account with an access token to pick its repositories from a list. Private repositories then need no deploy key or password, and the push webhook is added for you."}}</p>
+      </div>
+
+      {{if .Accounts}}
+      <ul class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+        {{range .Accounts}}
+        <li id="account-{{.ID}}" class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex min-w-0 items-center gap-3">
+            <i class="ri-github-fill text-2xl leading-none text-gray-900 dark:text-gray-50" aria-hidden="true"></i>
+            <div class="min-w-0">
+              <p class="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-50">
+                <span class="truncate">{{.Title}}</span>{{if ne .Title .Login}}<span class="font-normal text-gray-500">{{.Login}}</span>{{end}}
+                {{if .Expired}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{$.T.Get "Token expired"}}</span>{{else if .ExpiresSoon}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{$.T.Get "Token expires soon"}}</span>{{end}}
+              </p>
+              <p class="mt-0.5 text-xs text-gray-500">{{$.T.Get "Repositories using it:"}} <span class="tabular-nums">{{.Repos}}</span> &middot; {{$.T.Get "connected"}} {{.AddedAt}}{{if .Expires}} &middot; {{$.T.Get "token expires"}} {{.Expires}}{{end}}</p>
+            </div>
+          </div>
+          <form method="POST" action="/git" class="shrink-0">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"><input type="hidden" name="action" value="account_remove"><input type="hidden" name="account" value="{{.ID}}">
+            {{template "git_confirm_button" (dict "T" $.T "Label" ($.T.Get "Disconnect") "Icon" "ri-link-unlink" "Class" $btn)}}
+          </form>
+        </li>
+        {{end}}
+      </ul>
+      <p class="text-xs text-gray-500">{{.T.Get "Disconnecting removes the token from this server and the webhooks it added. Repositories that used the account stay, but cannot pull until you pick another account in their settings. Revoke the token on GitHub as well if you no longer need it."}}</p>
+      {{end}}
+
+      <form method="POST" action="/git" autocomplete="off" class="grid grid-cols-1 gap-4 border-t border-gray-200 pt-5 md:grid-cols-3 dark:border-gray-800">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="action" value="account_add">
+        <div class="md:col-span-2">
+          <label class="{{$lbl}}" for="account_token">{{.T.Get "Access token"}}</label>
+          <input id="account_token" type="password" name="token" required autocomplete="off" spellcheck="false" placeholder="github_pat_..." class="{{$in}} font-mono">
+        </div>
+        <div>
+          <label class="{{$lbl}}" for="account_label">{{.T.Get "Name (optional)"}}</label>
+          <input id="account_label" type="text" name="label" maxlength="60" placeholder="{{.T.Get "for example Work"}}" class="{{$in}}">
+        </div>
+        <div class="md:col-span-3 space-y-1 text-xs text-gray-500">
+          <p>{{.T.Get "Create a fine-grained token on GitHub and give it these repository permissions: Contents (read-only), Metadata (read-only) and Webhooks (read and write). A classic token with the repo scope works too."}}</p>
+          <p>{{.T.Get "A fine-grained token covers one user or one organization, so connect a separate token for each owner you deploy from."}} <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Create a token on GitHub"}}</a></p>
+        </div>
+        <div class="md:col-span-3 flex justify-end gap-2">
+          <button type="button" @click="panel = null" class="{{$btn}}">{{.T.Get "Close"}}</button>
+          <button type="submit" class="{{$primary}}">{{.T.Get "Connect"}}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- add repository -->
   <div x-show="panel === 'create'" x-cloak x-transition class="mx-4 mb-6 rounded-md border border-gray-200 bg-white sm:mx-6 lg:mx-8 dark:border-gray-900 dark:bg-raised">
     <form method="POST" action="/git" class="space-y-5 p-4 sm:p-6">
@@ -79,10 +135,17 @@
         </div>
       </div>
 
-      <div x-show="source === 'remote'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div x-show="source === 'remote'" class="space-y-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="inline-flex rounded-md bg-gray-100 p-0.5 dark:bg-gray-900" role="group" aria-label="{{.T.Get "Where the repository is picked from"}}">
+            <button type="button" @click="via = 'url'" :aria-pressed="(via === 'url').toString()" :class="via === 'url' ? 'bg-white text-gray-900 shadow-xs dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-link text-base leading-none" aria-hidden="true"></i>{{.T.Get "Repository URL"}}</button>
+            <button id="via-github" type="button" @click="pickVia('github')" :aria-pressed="(via === 'github').toString()" :class="via === 'github' ? 'bg-white text-gray-900 shadow-xs dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="inline-flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-github-fill text-base leading-none" aria-hidden="true"></i>{{.T.Get "GitHub account"}}</button>
+          </div>
+        </div>
+      <div x-show="via === 'url'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="lg:col-span-2">
           <label class="{{$lbl}}" for="remote_url">{{.T.Get "Repository URL"}}</label>
-          <input id="remote_url" type="text" name="remote_url" x-model="url" :required="source === 'remote'" placeholder="https://github.com/user/repo.git  {{.T.Get "or"}}  git@github.com:user/repo.git" class="{{$in}}">
+          <input id="remote_url" type="text" name="remote_url" x-model="url" :required="source === 'remote' && via === 'url'" placeholder="https://github.com/user/repo.git  {{.T.Get "or"}}  git@github.com:user/repo.git" class="{{$in}}">
         </div>
         <template x-if="isSSH(url)">
           <div class="lg:col-span-2">
@@ -108,6 +171,34 @@
         </template>
       </div>
 
+      <div x-show="via === 'github'" x-cloak>
+        {{if .Accounts}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="{{$lbl}}" for="account">{{.T.Get "GitHub account"}}</label>
+            <select id="account" name="account" x-model="account" @change="loadRepos(false)" :disabled="source !== 'remote' || via !== 'github'" class="{{$in}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+              {{range .Accounts}}<option value="{{.ID}}">{{.Title}}{{if ne .Title .Login}} ({{.Login}}){{end}}</option>{{end}}
+            </select>
+          </div>
+          <div>
+            <label class="{{$lbl}}" for="github_repo">{{.T.Get "Repository"}}</label>
+            <div class="flex items-center gap-2">
+              <input id="github_repo" type="text" name="github_repo" list="github-repos" x-model="ghRepo" @change="loadBranches()" :required="source === 'remote' && via === 'github'" :disabled="source !== 'remote' || via !== 'github'" autocomplete="off" spellcheck="false" :placeholder="ghLoading ? {{toJSON (.T.Get "Loading repositories...")}} : {{toJSON (.T.Get "type to search, owner/repository")}}" class="{{$in}}">
+              <button type="button" @click="loadRepos(true)" :disabled="ghLoading" class="{{$btn}}" title="{{.T.Get "Reload the list from GitHub"}}" aria-label="{{.T.Get "Reload the list from GitHub"}}"><i class="ri-refresh-line text-base leading-none" :class="ghLoading ? 'animate-spin' : ''" aria-hidden="true"></i></button>
+            </div>
+            <datalist id="github-repos"><template x-for="r in ghRepos" :key="r.full_name"><option :value="r.full_name" x-text="r.private ? {{toJSON (.T.Get "private")}} : {{toJSON (.T.Get "public")}}"></option></template></datalist>
+            <p x-show="ghError" x-cloak class="mt-1.5 text-xs text-red-600 dark:text-red-500" x-text="ghError"></p>
+            <p x-show="!ghError && !ghLoading" class="mt-1.5 text-xs text-gray-500"><span x-text="ghRepos.length" class="tabular-nums"></span> {{.T.Get "repositories this account can reach."}} <span x-show="ghTruncated" x-cloak>{{.T.Get "Only the 1000 most recently pushed are listed, type the full owner/repository name for others."}}</span></p>
+          </div>
+        </div>
+        {{else}}
+        <div class="rounded-md border border-dashed border-gray-300 p-4 text-sm text-gray-500 dark:border-gray-800">
+          {{.T.Get "No GitHub account is connected yet."}} <button type="button" @click="panel = 'accounts'" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Connect a GitHub account"}}</button>
+        </div>
+        {{end}}
+      </div>
+      </div>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div>
           <label class="{{$lbl}}" for="name">{{.T.Get "Repository name"}}</label>
@@ -115,7 +206,8 @@
         </div>
         <div>
           <label class="{{$lbl}}" for="branch">{{.T.Get "Branch"}}</label>
-          <input id="branch" type="text" name="branch" :placeholder="source === 'remote' ? {{toJSON (.T.Get "default branch")}} : 'main'" class="{{$in}}">
+          <input id="branch" type="text" name="branch" list="github-branches" :placeholder="source === 'remote' ? (via === 'github' && ghDefault ? ghDefault : {{toJSON (.T.Get "default branch")}}) : 'main'" class="{{$in}}">
+          <datalist id="github-branches"><template x-for="b in (source === 'remote' && via === 'github' ? ghBranches : [])" :key="b"><option :value="b"></option></template></datalist>
         </div>
         <div>
           <label class="{{$lbl}}" for="domain">{{.T.Get "Website"}}</label>
@@ -145,7 +237,7 @@
 
 
   {{if not .Repos}}
-  <div x-show="panel !== 'create'" class="mx-4 flex h-64 flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 text-center sm:mx-6 lg:mx-8 dark:border-gray-800">
+  <div x-show="!panel" class="mx-4 flex h-64 flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 text-center sm:mx-6 lg:mx-8 dark:border-gray-800">
     <i class="ri-git-branch-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
     <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No repositories yet"}}</p>
     <p class="mt-1 text-sm text-gray-500">{{.T.Get "Add a repository to deploy a website from Git."}}</p>
@@ -194,7 +286,7 @@
         </thead>
         <tbody>
           {{range .Repos}}
-          {{template "git_repo_row" (dict "R" . "T" $.T "CSRF" $.CSRFToken "Containers" $.Containers "Username" $.Username "In" $in "Lbl" $lbl "Btn" $btn "Primary" $primary)}}
+          {{template "git_repo_row" (dict "R" . "T" $.T "CSRF" $.CSRFToken "Containers" $.Containers "Username" $.Username "Accounts" $.Accounts "In" $in "Lbl" $lbl "Btn" $btn "Primary" $primary)}}
           {{end}}
         </tbody>
       </table>
@@ -217,6 +309,7 @@ function gitRepos() {
   const docroots = {};
   domains.forEach(d => docroots[d.DomainURL] = d.Docroot);
   const first = domains.length ? domains[0].DomainURL : '';
+  const accounts = {{toJSON .Accounts}} || [];
   return Object.assign(table, {
     panel: new URLSearchParams(location.search).get('new') === '1' ? 'create' : null,
     removing: null,
@@ -228,6 +321,31 @@ function gitRepos() {
     target: docroots[first] || '',
     docroots: docroots,
     isSSH(u) { return /^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:/.test(u) || u.startsWith('ssh://'); },
+    via: 'url',
+    account: accounts.length ? accounts[0].id : '',
+    ghRepos: [], ghRepo: '', ghBranches: [], ghDefault: '', ghLoading: false, ghError: '', ghTruncated: false,
+    pickVia(v) { this.via = v; if (v === 'github' && this.account && !this.ghRepos.length) this.loadRepos(false); },
+    async loadRepos(refresh) {
+      if (!this.account) return;
+      this.ghLoading = true; this.ghError = ''; this.ghRepo = ''; this.ghBranches = []; this.ghDefault = '';
+      try {
+        const res = await fetch('/git/github/repos.json?account=' + encodeURIComponent(this.account) + (refresh ? '&refresh=1' : ''));
+        const data = await res.json();
+        if (data.error) { this.ghError = data.error; this.ghRepos = []; return; }
+        this.ghRepos = data.repos || []; this.ghTruncated = !!data.truncated;
+      } catch (e) { this.ghError = String(e); } finally { this.ghLoading = false; }
+    },
+    async loadBranches() {
+      this.ghBranches = []; this.ghDefault = '';
+      const repo = this.ghRepo.trim();
+      if (!/^[^\/\s]+\/[^\/\s]+$/.test(repo)) return;
+      try {
+        const res = await fetch('/git/github/branches.json?account=' + encodeURIComponent(this.account) + '&repo=' + encodeURIComponent(repo));
+        const data = await res.json();
+        if (data.error) { this.ghError = data.error; return; }
+        this.ghError = ''; this.ghBranches = data.branches || []; this.ghDefault = data.default_branch || '';
+      } catch (e) { this.ghError = String(e); }
+    },
   });
 }
 </script>
@@ -287,6 +405,7 @@ function gitRepos() {
       {{if $r.LastError}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20" title="{{$r.LastError}}">{{$T.Get "Error"}}</span>{{end}}
     </div>
     {{if $r.RemoteURL}}<div class="mt-0.5 text-xs text-gray-500 truncate" style="max-width: 18rem;" title="{{$r.RemoteURL}}">{{$r.RemoteURL}}</div>{{end}}
+    {{if $r.AccountGone}}<div class="mt-1"><span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20"><i class="ri-github-fill" aria-hidden="true"></i>{{$T.Get "Account disconnected"}}</span></div>{{else if $r.Account}}<div class="mt-0.5 inline-flex items-center gap-1 text-xs text-gray-500"><i class="ri-github-fill" aria-hidden="true"></i>{{$r.Account}}</div>{{end}}
   </td>
   <td x-show="columns.website" data-sort-col="website" data-sort-value="{{$r.Domain}}{{$r.TargetDir}}" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
     <div class="text-gray-900 dark:text-gray-50">{{$r.Domain}}</div>
@@ -337,7 +456,8 @@ function gitRepos() {
       <div class="flex flex-wrap items-center gap-2">
         {{template "git_copy_field" (dict "Value" $r.WebhookURL "T" $T)}}
       </div>
-      <p class="mt-1.5 text-xs text-gray-500">{{$T.Get "Add this URL as a push webhook in GitHub, GitLab or Bitbucket so changes are pulled automatically."}}</p>
+      {{if $r.HookAdded}}<p class="mt-1.5 text-xs text-gray-500"><i class="ri-checkbox-circle-line text-emerald-600 dark:text-emerald-500" aria-hidden="true"></i> {{$T.Get "This webhook was added to the repository on GitHub for you, pushes are pulled automatically."}}</p>
+      {{else}}<p class="mt-1.5 text-xs text-gray-500">{{$T.Get "Add this URL as a push webhook in GitHub, GitLab or Bitbucket so changes are pulled automatically."}}</p>{{end}}
     </div>
     {{end}}
 
@@ -358,7 +478,16 @@ function gitRepos() {
           <label class="{{.Lbl}}">{{$T.Get "Deploy to directory"}}</label>
           <input type="text" name="target_dir" value="{{$r.TargetDir}}" class="{{.In}}">
         </div>
-        {{if and (eq $r.Source "remote") (not $r.IsSSH)}}
+        {{if $r.RemoteRepo}}
+        <div>
+          <label class="{{.Lbl}}">{{$T.Get "GitHub account"}}</label>
+          <select name="account" class="{{.In}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+            {{if $r.AccountGone}}<option value="" selected>{{$T.Get "Disconnected, pick an account"}}</option>{{end}}
+            {{range .Accounts}}<option value="{{.ID}}" {{if eq .ID $r.AccountID}}selected{{end}}>{{.Title}}{{if ne .Title .Login}} ({{.Login}}){{end}}</option>{{end}}
+          </select>
+        </div>
+        {{end}}
+        {{if and (eq $r.Source "remote") (not $r.IsSSH) (not $r.RemoteRepo)}}
         <div>
           <label class="{{.Lbl}}">{{$T.Get "Username (private repositories only)"}}</label>
           <input type="text" name="remote_user" value="{{$r.RemoteUser}}" autocomplete="off" class="{{.In}}">

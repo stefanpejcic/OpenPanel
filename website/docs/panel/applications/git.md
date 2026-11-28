@@ -50,6 +50,29 @@ Click **Create**. A remote repository is cloned right away and, in automatic mod
 
 When you enter an SSH URL, the form shows the SSH public key of your account. Add it to the repository as a *deploy key* (read-only access is enough) on GitHub, GitLab or Bitbucket before you click **Create**. The same key is used for all SSH repositories of your account.
 
+### Connect a GitHub account
+
+Instead of typing a URL for every repository, connect a GitHub account once and pick its repositories from a list. Private repositories then need no deploy key and no username or password.
+
+1. On GitHub, open **Settings > Developer settings > Personal access tokens > Fine-grained tokens** and generate a token. Choose the user or organization that owns the repositories, select the repositories it may reach, and give it these repository permissions:
+   - **Contents**: Read-only
+   - **Metadata**: Read-only
+   - **Webhooks**: Read and write
+2. In OpenPanel, click **GitHub accounts** on the Git page, paste the token into **Access token** and click **Connect**. The name is optional and only helps you tell accounts apart.
+3. Click **Add repository**, choose **Remote Git hosting**, switch from **Repository URL** to **GitHub account**, and pick the account and the repository. The **Branch** field then suggests the repository's branches.
+
+A classic token with the `repo` scope works as well. A fine-grained token covers a single user or organization, so connect one token for each owner you deploy from. You can connect several accounts.
+
+In automatic mode OpenPanel also adds the push [webhook](#webhooks) to the repository on GitHub for you.
+
+The token is stored on the server and is never shown again. The accounts list shows when a token expires, and marks one that has expired. To replace a token, connect the new one and pick it in the settings of the repositories that used the old one.
+
+**Disconnect** removes the token from the server together with the webhooks OpenPanel added with it. Repositories that used the account stay in place with their deployed files, but cannot pull until you pick another connected account in their **Settings**. Revoke the token on GitHub too if you no longer need it.
+
+:::info
+Your hosting provider can limit how many accounts you connect with the `git_max_accounts` setting (default 10).
+:::
+
 ### Pushing to a local repository
 
 A local repository is reached over HTTPS through the panel. After you create it, OpenPanel shows the **Username** (your panel username), a **Password** for this repository and the **Clone URL**. Copy the password right away, it is not shown again.
@@ -86,6 +109,8 @@ The output of the last deploy is shown in the repository's **Settings**. If a co
 
 Every remote repository has a **Webhook URL** in its **Settings**. Add it as a push webhook in GitHub, GitLab or Bitbucket, and OpenPanel pulls the repository every time you push there. In automatic mode the changes are also deployed.
 
+For a repository added through a [connected GitHub account](#connect-a-github-account) in automatic mode, OpenPanel adds this webhook on GitHub itself and removes it again when you remove the repository. GitHub has to be able to reach the panel for that, so it only happens when the panel runs on a domain with a valid SSL certificate. On a panel that is opened by IP address, or when the token has no **Webhooks** permission, the repository is still added and you add the webhook URL by hand.
+
 ## Manage repositories
 
 ![Show Columns menu with switches for each column of the repositories table](/img/openpanel-screenshots/applications/git-columns.png#gh-light-mode-only)
@@ -106,7 +131,7 @@ The icons in the **Actions** column are:
 ![Settings row of a local repository with its clone URL, branch, deploy directory, deployment mode, deploy actions and the output of the last deploy](/img/openpanel-screenshots/applications/git-settings.png#gh-light-mode-only)
 ![Settings row of a local repository with its clone URL, branch, deploy directory, deployment mode, deploy actions and the output of the last deploy](/img/openpanel-screenshots/applications/git-settings_dark.png#gh-dark-mode-only)
 
-The settings show the **Clone URL** (local repositories) or **Webhook URL** (remote repositories) with a copy button, and let you change the branch, deploy directory, deployment mode, deploy actions and, for private HTTPS repositories, the username and access token. Leave the token empty to keep the saved one. Below the form you'll see the output of the last pull or deploy.
+The settings show the **Clone URL** (local repositories) or **Webhook URL** (remote repositories) with a copy button, and let you change the branch, deploy directory, deployment mode, deploy actions and, for private HTTPS repositories, the username and access token. A repository added through a connected GitHub account shows the account instead, and lets you switch it to another connected account. Leave the token empty to keep the saved one. Below the form you'll see the output of the last pull or deploy.
 
 ### Commit log
 
@@ -134,7 +159,7 @@ Removing a repository deletes it and its history from the server. Files that wer
 ![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab.png#gh-light-mode-only)
 ![Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL](/img/openpanel-screenshots/applications/git-tab_dark.png#gh-dark-mode-only)
 
-Every website in the [Site Manager](/docs/panel/applications/sites) has a **Git** tab that lists the repositories deploying to its domain. From there you can add a repository with the website's folder already filled in, pull, deploy and copy the clone or webhook URL.
+Every website in the [Site Manager](/docs/panel/applications/sites) has a **Git** tab that lists the repositories deploying to its domain. From there you can add a repository with the website's folder already filled in, from a URL or from a connected GitHub account, pull, deploy and copy the clone or webhook URL.
 
 For a WordPress site, a common setup is a repository for your theme or plugin that deploys into `wp-content/themes/<theme>` or `wp-content/plugins/<plugin>`, with a deploy action that runs WP-CLI:
 

@@ -68,3 +68,53 @@ func TestGetNotFound(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
+
+func TestDoMapsStatusesAndSendsTheToken(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer tok" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		switch r.URL.Path {
+		case "/ok":
+			w.Header().Set("github-authentication-token-expiration", "2030-05-06 07:08:09 UTC")
+			_, _ = w.Write([]byte(`{"a":1}`))
+		case "/limited":
+			w.Header().Set("X-RateLimit-Remaining", "0")
+			w.WriteHeader(http.StatusForbidden)
+		case "/denied":
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			_, _ = w.Write([]byte(`{"message":"Hook already exists on this repository"}`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer srv.Close()
+	old := APIBase
+	APIBase = srv.URL
+	defer func() { APIBase = old }()
+	ctx := context.Background()
+
+	resp, err := Do(ctx, http.MethodGet, "/ok", "tok", nil, time.Second)
+	if err != nil || string(resp.Body) != `{"a":1}` {
+		t.Fatalf("ok: %v %v", resp, err)
+	}
+	if exp := TokenExpiry(resp.Header); exp.Year() != 2030 || exp.Hour() != 7 {
+		t.Fatalf("expiry = %v", exp)
+	}
+	if !TokenExpiry(http.Header{}).IsZero() {
+		t.Fatal("no header should mean no expiry")
+	}
+	if _, err := Do(ctx, http.MethodGet, "/ok", "wrong", nil, time.Second); !errors.Is(err, ErrUnauthorized) {
+		t.Fatalf("bad token: %v", err)
+	}
+	if _, err := Do(ctx, http.MethodGet, "/missing", "tok", nil, time.Second); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("missing: %v", err)
+	}
+	if _, err := Do(ctx, http.MethodGet, "/limited", "tok", nil, time.Second); !errors.Is(err, ErrRateLimited) {
+		t.Fatalf("limited: %v", err)
+	}
+	if _, err := Do(ctx, http.MethodPost, "/denied", "tok", map[string]string{"x": "y"}, time.Second); err == nil || !strings.Contains(err.Error(), "Hook already exists") {
+		t.Fatalf("GitHub's own message should be passed on, got %v", err)
+	}
+}

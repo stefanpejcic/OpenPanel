@@ -961,11 +961,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             </button>
         </div>
         <div x-show="source === 'remote'" class="space-y-4">
-            <div>
+            <div x-show="accounts.length" x-cloak>
+                <label for="git-account" class="{{$lbl}}">{{.T.Get "Pick the repository from"}}</label>
+                <select name="account" id="git-account" x-model="account" @change="loadHosted()" :disabled="source !== 'remote'" class="{{$in}}">
+                    <option value="">{{.T.Get "Repository URL"}}</option>
+                    <template x-for="a in accounts" :key="a.id"><option :value="a.id" x-text="'GitHub: ' + a.title"></option></template>
+                </select>
+            </div>
+            <div x-show="account !== ''" x-cloak>
+                <label for="git-github_repo" class="{{$lbl}}">{{.T.Get "Repository"}}</label>
+                <input type="text" name="github_repo" id="git-github_repo" list="git-github-repos" x-model="hostedRepo" :disabled="source !== 'remote' || account === ''" autocomplete="off" spellcheck="false" :placeholder="hostedLoading ? {{toJSON (.T.Get "Loading repositories...")}} : {{toJSON (.T.Get "type to search, owner/repository")}}" class="{{$in}}">
+                <datalist id="git-github-repos"><template x-for="r in hosted" :key="r.full_name"><option :value="r.full_name"></option></template></datalist>
+                <p x-show="hostedError" x-cloak class="mt-1.5 text-xs text-red-600 dark:text-red-500" x-text="hostedError"></p>
+            </div>
+            <div x-show="account === ''">
                 <label for="git-remote_url" class="{{$lbl}}">{{.T.Get "Repository URL"}}</label>
                 <input type="text" name="remote_url" id="git-remote_url" x-model="url" placeholder="https://github.com/user/repo.git" class="{{$in}}">
             </div>
-            <template x-if="isSSH(url)">
+            <template x-if="account === '' && isSSH(url)">
                 <div>
                     <p class="{{$lbl}}">{{.T.Get "Add this key to the repository as a deploy key (read-only is enough) before clicking Create."}}</p>
                     <div class="flex items-start gap-2">
@@ -974,7 +987,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </div>
                 </div>
             </template>
-            <template x-if="url !== '' && !isSSH(url)">
+            <template x-if="account === '' && url !== '' && !isSSH(url)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div><label for="git-remote_user" class="{{$lbl}}">{{.T.Get "Username (private repositories only)"}}</label><input type="text" name="remote_user" id="git-remote_user" autocomplete="off" class="{{$in}}"></div>
                     <div><label for="git-remote_pass" class="{{$lbl}}">{{.T.Get "Password or access token"}}</label><input type="password" name="remote_pass" id="git-remote_pass" autocomplete="new-password" class="{{$in}}"></div>
@@ -1059,6 +1072,18 @@ function siteGit(domain, docroot) {
     return {
         domain, docroot, repos: [], containers: [], publicKey: '', loaded: false, adding: false, busy: false,
         source: 'remote', url: '', message: '', error: '', password: '',
+        accounts: [], account: '', hosted: [], hostedRepo: '', hostedLoading: false, hostedError: '',
+        async loadHosted() {
+            this.hosted = []; this.hostedRepo = ''; this.hostedError = '';
+            if (!this.account) return;
+            this.hostedLoading = true;
+            try {
+                const res = await fetch('/git/github/repos.json?account=' + encodeURIComponent(this.account));
+                const data = await res.json();
+                if (data.error) { this.hostedError = data.error; return; }
+                this.hosted = data.repos || [];
+            } catch (e) { this.hostedError = String(e); } finally { this.hostedLoading = false; }
+        },
         isSSH(u) { return /^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:/.test(u) || u.startsWith('ssh://'); },
         modeLabel(m) { return modes[m] || m; },
         modeIcon(m) { return { automatic: 'ri-flashlight-line', manual: 'ri-cursor-line', none: 'ri-forbid-line' }[m] || ''; },
@@ -1070,6 +1095,7 @@ function siteGit(domain, docroot) {
                 this.repos = data.repos || [];
                 this.containers = data.containers || [];
                 this.publicKey = data.public_key || '';
+                this.accounts = data.accounts || [];
             } catch (e) { this.error = String(e); } finally { this.loaded = true; }
         },
         async post(body) {
@@ -1084,7 +1110,7 @@ function siteGit(domain, docroot) {
             } catch (e) { this.error = String(e); return false; } finally { this.busy = false; await this.load(); }
         },
         async create(form) {
-            if (await this.post(new FormData(form))) { this.adding = false; form.reset(); this.url = ''; }
+            if (await this.post(new FormData(form))) { this.adding = false; form.reset(); this.url = ''; this.account = ''; this.hostedRepo = ''; }
         },
         act(action, name) {
             const body = new FormData();

@@ -13,17 +13,21 @@ import (
 var (
 	gitStorageLimit int64 = 2048 << 20
 	gitMaxRepos           = 50
+	gitMaxAccounts        = 10
 )
 
 var errGitStorageFull = errors.New("the git storage limit for this account is reached")
 
-// loadGitLimits reads git_max_storage_mb and git_max_repos from the panel config, 0 means no limit
+// loadGitLimits reads git_max_storage_mb, git_max_repos and git_max_accounts from the panel config, 0 means no limit
 func loadGitLimits(a *appctx.App) {
 	if mb, err := strconv.ParseInt(a.Config.Get("git_max_storage_mb", "2048"), 10, 64); err == nil && mb >= 0 {
 		gitStorageLimit = mb << 20
 	}
 	if n, err := strconv.Atoi(a.Config.Get("git_max_repos", "50")); err == nil && n >= 0 {
 		gitMaxRepos = n
+	}
+	if n, err := strconv.Atoi(a.Config.Get("git_max_accounts", "10")); err == nil && n >= 0 {
+		gitMaxAccounts = n
 	}
 }
 

@@ -20,6 +20,11 @@ type RepoView struct {
 	RemoteURL        string   `json:"remote_url"`
 	RemoteUser       string   `json:"remote_user"`
 	HasRemotePass    bool     `json:"has_remote_pass"`
+	RemoteRepo       string   `json:"remote_repo"`
+	AccountID        string   `json:"account_id"`
+	Account          string   `json:"account"`
+	AccountGone      bool     `json:"account_gone"`
+	HookAdded        bool     `json:"hook_added"`
 	IsSSH            bool     `json:"is_ssh"`
 	Branch           string   `json:"branch"`
 	Branches         []string `json:"branches"`
@@ -42,8 +47,12 @@ type RepoView struct {
 	BulkSkip         string   `json:"-"`
 }
 
-func buildViews(ctx context.Context, userContext, username, baseURL string, repos []Repo, domain string) []RepoView {
+func buildViews(ctx context.Context, userContext, username, baseURL string, repos []Repo, accounts []Account, domain string) []RepoView {
 	views := make([]RepoView, 0, len(repos))
+	titles := map[string]string{}
+	for _, a := range accounts {
+		titles[a.ID] = a.Title()
+	}
 	for _, r := range repos {
 		if domain != "" && r.Domain != domain {
 			continue
@@ -54,6 +63,10 @@ func buildViews(ctx context.Context, userContext, username, baseURL string, repo
 			TargetDir: r.TargetDir, DeployMode: r.DeployMode, Actions: r.Actions, ActionsContainer: r.ActionsContainer,
 			CreatedAt: r.CreatedAt, LastPull: r.LastPull, LastDeploy: r.LastDeploy, LastDeployISO: isoTime(r.LastDeploy), LastDeployed: r.LastDeployed,
 			LastError: r.LastError, LastOutput: r.LastOutput,
+			RemoteRepo: r.RemoteRepo, AccountID: r.AccountID, HookAdded: r.HookID != 0,
+		}
+		if r.RemoteRepo != "" {
+			v.Account, v.AccountGone = titles[r.AccountID], titles[r.AccountID] == ""
 		}
 		if r.Source == SourceLocal {
 			v.CloneURL = baseURL + strings.TrimPrefix(httpPrefix, "/") + username + "/" + r.Name + ".git"
@@ -92,6 +105,7 @@ type GitPageData struct {
 	Containers []string
 	PublicKey  string
 	Username   string
+	Accounts   []AccountView
 	pageExtras
 	Log         []Commit
 	LogView     *RepoView
@@ -124,9 +138,15 @@ func renderGitPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userID
 		log.Printf("GIT - %s: could not generate deploy key: %v", username, err)
 	}
 
+	accounts, err := loadAccounts(userContext)
+	if err != nil {
+		log.Printf("GIT - %s: could not read accounts.json: %v", username, err)
+	}
+
 	data := GitPageData{
 		LayoutData:  layout,
-		Repos:       buildViews(ctx, userContext, username, web.PublicBaseURL(ctx, a, r), repos, ""),
+		Repos:       buildViews(ctx, userContext, username, web.PublicBaseURL(ctx, a, r), repos, accounts, ""),
+		Accounts:    accountViews(accounts, repos),
 		Domains:     domains,
 		Containers:  containersFor(ctx, userContext),
 		PublicKey:   pub,
@@ -169,8 +189,10 @@ func handleSiteJSON(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	pub, _ := PublicKey(ctx, userContext)
+	accounts, _ := loadAccounts(userContext)
 	web.WriteJSON(w, http.StatusOK, map[string]any{
-		"repos":      buildViews(ctx, userContext, username, web.PublicBaseURL(ctx, a, r), repos, domain),
+		"repos":      buildViews(ctx, userContext, username, web.PublicBaseURL(ctx, a, r), repos, accounts, domain),
+		"accounts":   accountViews(accounts, repos),
 		"containers": containersFor(ctx, userContext),
 		"public_key": pub,
 	})
