@@ -82,3 +82,154 @@ if [ -f "$FEATURES_JSON" ] && grep -q '"Webmail (Roundcube)"' "$FEATURES_JSON"; 
     sed -i -e 's/"title": "Webmail (Roundcube)"/"title": "Webmail"/' \
         -e 's/auto-login to webmail (Roundcube) for email accounts. The Roundcube service must be configured separately./auto-login to webmail (Roundcube or Golub) for email accounts. The webmail service must be configured separately./' "$FEATURES_JSON"
 fi
+
+# docker-proxy: deny rules so nothing on the socket-proxy network can create containers, change them or copy files in or out
+# the rules are a haproxy template mounted over the image's own, docker-proxy is recreated for accounts where it's running
+# shellcheck disable=SC1091
+. /usr/local/opencli/lib/podman.sh
+CONFIG_RAW="${CONFIG_RAW:-https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main}"
+PROXY_TPL=/etc/openpanel/docker/socket-proxy/haproxy.cfg.template
+PROXY_MOUNT="$PROXY_TPL:/usr/local/etc/haproxy/haproxy.cfg.template:ro"
+tpl_tmp=$(mktemp)
+if wget --timeout=15 --tries=2 -q -O "$tpl_tmp" "$CONFIG_RAW/docker/socket-proxy/haproxy.cfg.template" </dev/null && grep -q "containers/(create|prune)" "$tpl_tmp"; then
+    mkdir -p "$(dirname "$PROXY_TPL")"
+    cat "$tpl_tmp" > "$PROXY_TPL"
+    chmod 644 "$PROXY_TPL"
+    echo "Updated $PROXY_TPL"
+else
+    echo "Could not download the docker-proxy rules, docker-proxy was left as it is. Run this update again later."
+fi
+rm -f "$tpl_tmp"
+
+# adds the mount after docker-proxy's last volume with that line's indent, checked with the yaml parser, prints "added", "present" or "skip"
+proxy_mount() {
+    python3 - "$1" "$PROXY_MOUNT" <<'PY' 2>/dev/null || echo skip
+import re, sys, yaml
+path, mount = sys.argv[1], sys.argv[2]
+text = open(path).read()
+def proxy_vols(t):
+    svc = ((yaml.safe_load(t) or {}).get("services") or {}).get("docker-proxy") or {}
+    return [str(v) for v in (svc.get("volumes") or [])]
+try:
+    vols = proxy_vols(text)
+except Exception:
+    print("skip"); sys.exit()
+if mount in vols:
+    print("present"); sys.exit()
+lines = text.split("\n")
+ind = lambda l: len(l) - len(l.lstrip())
+skip = lambda l: not l.strip() or l.lstrip().startswith("#")
+# the docker-proxy block, its volumes key, then the last item of that list
+top = [i for i, l in enumerate(lines) if re.match(r"^services:\s*$", l)]
+if len(top) != 1:
+    print("skip"); sys.exit()
+first = next((j for j in range(top[0] + 1, len(lines)) if not skip(lines[j])), None)
+if first is None:
+    print("skip"); sys.exit()
+# depends_on in cron and backup has a docker-proxy: line too, only the one at the service indent counts
+start = [i for i, l in enumerate(lines) if re.match(r"^\s+['\"]?docker-proxy['\"]?:\s*$", l) and ind(l) == ind(lines[first])]
+if len(start) != 1:
+    print("skip"); sys.exit()
+s0 = start[0]
+end = next((j for j in range(s0 + 1, len(lines)) if not skip(lines[j]) and ind(lines[j]) <= ind(lines[s0])), len(lines))
+vk = [j for j in range(s0 + 1, end) if re.match(r"^\s*volumes:\s*$", lines[j])]
+if len(vk) != 1:
+    print("skip"); sys.exit()
+items = []
+for j in range(vk[0] + 1, end):
+    l = lines[j]
+    if skip(l):
+        continue
+    if not l.lstrip().startswith("-") or ind(l) < ind(lines[vk[0]]):
+        break
+    items.append(j)
+if not items:
+    print("skip"); sys.exit()
+i = items[-1]
+indent = re.match(r"^(\s*-\s*)", lines[i]).group(1)
+lines.insert(i + 1, indent + mount)
+new = "\n".join(lines)
+try:
+    if mount not in proxy_vols(new):
+        print("skip"); sys.exit()
+except Exception:
+    print("skip"); sys.exit()
+open(path + ".op-2032", "w").write(new)
+print("added")
+PY
+}
+
+patch_proxy_compose() {
+    local f="$1" res
+    res=$(proxy_mount "$f")
+    case "$res" in
+        added)
+            cp -p "$f" "$f.bak-2.0.32"
+            # in place so the file keeps its owner and mode
+            cat "$f.op-2032" > "$f"
+            rm -f "$f.op-2032"
+            echo "Added the docker-proxy rules mount to $f"
+            return 0 ;;
+        present) return 1 ;;
+        *)
+            rm -f "$f.op-2032"
+            echo "Could not add the docker-proxy rules mount to $f (custom docker-proxy setup?), left as it is."
+            return 1 ;;
+    esac
+}
+
+if [ -s "$PROXY_TPL" ]; then
+    patch_proxy_compose /etc/openpanel/docker/compose/1.0/docker-compose.yml >/dev/null || true
+    for f in /home/*/docker-compose.yml; do
+        [ -f "$f" ] || continue
+        patch_proxy_compose "$f" || continue
+        home_dir=$(dirname "$f")
+        ctx=$(basename "$home_dir")
+        if podman_ctx_is_running "$ctx" docker-proxy </dev/null; then
+            sock=$(podman_user_socket "$ctx") || continue
+            (cd "$home_dir" && CONTAINER_HOST="$sock" timeout 120 podman-compose up -d --no-deps docker-proxy) >/dev/null 2>&1 </dev/null
+            if podman_ctx_is_running "$ctx" docker-proxy </dev/null; then
+                rm -f "$f.bak-2.0.32"
+                echo "Recreated docker-proxy for $ctx with the rules"
+            else
+                echo "docker-proxy for $ctx is not running after the change, the previous compose file is $f.bak-2.0.32"
+            fi
+        else
+            rm -f "$f.bak-2.0.32"
+        fi
+    done
+fi
+
+# the Docker socket for users' own containers is off unless the admin turns it on (OpenAdmin > Settings > OpenPanel, or docker_socket=yes)
+if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^docker_socket=" "$OPENPANEL_CONFIG"; then
+    if grep -q "^\[DOCKER\]" "$OPENPANEL_CONFIG"; then
+        sed -i "/^\[DOCKER\]/a docker_socket=no" "$OPENPANEL_CONFIG"
+    else
+        printf '\n[DOCKER]\ndocker_socket=no\n' >> "$OPENPANEL_CONFIG"
+    fi
+    echo "Added docker_socket=no to $OPENPANEL_CONFIG"
+fi
+
+# containers set up before this keep what they have, list them so the admin can look
+for f in /home/*/docker-compose.yml; do
+    [ -f "$f" ] || continue
+    python3 - "$f" <<'PY' 2>/dev/null
+import os, sys, yaml
+path = sys.argv[1]
+ctx = os.path.basename(os.path.dirname(path))
+try:
+    services = (yaml.safe_load(open(path)) or {}).get("services") or {}
+except Exception:
+    sys.exit()
+def is_socket(v):
+    src = (v.get("source", "") if isinstance(v, dict) else str(v).split(":")[0]).strip()
+    return src.startswith(("/run/user/", "/var/run/user/", "/run/podman")) or "podman.sock" in src or "docker.sock" in src
+for name, svc in services.items():
+    svc = svc or {}
+    if name != "docker-proxy" and any(is_socket(v) for v in (svc.get("volumes") or [])):
+        print(f"Warning: {ctx}'s container {name} mounts the podman socket, it can control and mount anything in that account. Remove it from {path} if it isn't needed.")
+    nets = svc.get("networks") or []
+    if name not in ("cron", "backup", "docker-proxy") and "socket-proxy" in (list(nets) if isinstance(nets, (list, dict)) else []):
+        print(f"Warning: {ctx}'s container {name} is on the socket-proxy network, only cron and backup should be. Remove it from that network in {path}.")
+PY
+done
