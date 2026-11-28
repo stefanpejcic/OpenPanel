@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="410" viewBox="0 0 920 410" role="img" aria-label="One OpenAdmin master managing several independent OpenPanel servers">
+<defs><marker id="multi-server-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 1 1 L 9 5 L 1 9 z" fill="#484f58"/></marker><marker id="multi-server-arrow-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 1 1 L 9 5 L 1 9 z" fill="#3b82f6"/></marker></defs>
+<rect x="1" y="1" width="918" height="408" rx="14" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+<rect x="230" y="22" width="460" height="112" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<rect x="246" y="22" width="428" height="3" rx="1.5" fill="#3b82f6"/>
+<rect x="250" y="38" width="70" height="20" rx="10.0" fill="#172554" stroke="#93c5fd" stroke-width="1" stroke-opacity="0.5"/>
+<text x="285.0" y="52.0" text-anchor="middle" fill="#93c5fd" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="0.06em">MASTER</text>
+<text x="332" y="52" text-anchor="start" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="13" font-weight="700">OpenAdmin  ·  System &gt; Multi-server</text>
+<rect x="250" y="72" width="96" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="298.0" y="87.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Switch servers</text>
+<rect x="358" y="72" width="96" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="406.0" y="87.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Search every node</text>
+<rect x="466" y="72" width="96" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="514.0" y="87.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Sync settings</text>
+<rect x="574" y="72" width="96" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="622.0" y="87.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Move accounts</text>
+<text x="460" y="120" text-anchor="middle" fill="#6e7681" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="500">One login for the whole cluster</text>
+<line x1="460" y1="134" x2="460" y2="158" stroke="#484f58" stroke-width="1.5"/>
+<line x1="152" y1="158" x2="768" y2="158" stroke="#484f58" stroke-width="1.5"/>
+<line x1="152" y1="158" x2="152" y2="190" stroke="#484f58" stroke-width="1.5" marker-end="url(#multi-server-arrow)"/>
+<line x1="460" y1="158" x2="460" y2="190" stroke="#484f58" stroke-width="1.5" marker-end="url(#multi-server-arrow)"/>
+<line x1="768" y1="158" x2="768" y2="190" stroke="#484f58" stroke-width="1.5" marker-end="url(#multi-server-arrow)"/>
+<rect x="352" y="146" width="216" height="24" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+<text x="460" y="162" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">manage  ·  apply  ·  sync policies</text>
+<rect x="24" y="194" width="256" height="150" rx="12" fill="#11161d" stroke="#3b82f6" stroke-width="1.4" stroke-opacity="0.35" stroke-dasharray="5 4"/>
+<rect x="40" y="194" width="224" height="3" rx="1.5" fill="#3b82f6"/>
+<text x="42" y="220" text-anchor="start" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="13" font-weight="700">Server 1</text>
+<text x="262" y="220" text-anchor="end" fill="#6e7681" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">master host</text>
+<text x="42" y="240" text-anchor="start" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="500">Full OpenPanel install</text>
+<rect x="42" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="67.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Users</text>
+<rect x="98" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="123.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Domains</text>
+<rect x="154" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="179.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Email</text>
+<rect x="210" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="235.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">DNS</text>
+<rect x="42" y="290" width="220" height="38" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+<rect x="54" y="305" width="8" height="8" rx="4" fill="#3fb950"/>
+<text x="70" y="313" text-anchor="start" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">Keeps serving if the master is down</text>
+<rect x="332" y="194" width="256" height="150" rx="12" fill="#11161d" stroke="#3b82f6" stroke-width="1.4" stroke-opacity="0.35" stroke-dasharray="5 4"/>
+<rect x="348" y="194" width="224" height="3" rx="1.5" fill="#3b82f6"/>
+<text x="350" y="220" text-anchor="start" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="13" font-weight="700">Server 2</text>
+<text x="570" y="220" text-anchor="end" fill="#6e7681" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">node</text>
+<text x="350" y="240" text-anchor="start" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="500">Full OpenPanel install</text>
+<rect x="350" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="375.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Users</text>
+<rect x="406" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="431.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Domains</text>
+<rect x="462" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="487.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Email</text>
+<rect x="518" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="543.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">DNS</text>
+<rect x="350" y="290" width="220" height="38" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+<rect x="362" y="305" width="8" height="8" rx="4" fill="#3fb950"/>
+<text x="378" y="313" text-anchor="start" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">Keeps serving if the master is down</text>
+<rect x="640" y="194" width="256" height="150" rx="12" fill="#11161d" stroke="#3b82f6" stroke-width="1.4" stroke-opacity="0.35" stroke-dasharray="5 4"/>
+<rect x="656" y="194" width="224" height="3" rx="1.5" fill="#3b82f6"/>
+<text x="658" y="220" text-anchor="start" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="13" font-weight="700">Server 3</text>
+<text x="878" y="220" text-anchor="end" fill="#6e7681" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">node</text>
+<text x="658" y="240" text-anchor="start" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="500">Full OpenPanel install</text>
+<rect x="658" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="683.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Users</text>
+<rect x="714" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="739.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Domains</text>
+<rect x="770" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="795.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Email</text>
+<rect x="826" y="254" width="50" height="22" rx="6" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<text x="851.0" y="269.0" text-anchor="middle" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">DNS</text>
+<rect x="658" y="290" width="220" height="38" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+<rect x="670" y="305" width="8" height="8" rx="4" fill="#3fb950"/>
+<text x="686" y="313" text-anchor="start" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">Keeps serving if the master is down</text>
+<path d="M 410 344 C 410 372, 512 372, 512 348" fill="none" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#multi-server-arrow-a)"/>
+<text x="461" y="392" text-anchor="middle" fill="#93c5fd" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600">Move accounts between servers</text>
+<text x="674" y="52" text-anchor="end" fill="#6e7681" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">Enterprise</text>
+</svg>

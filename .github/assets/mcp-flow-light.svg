@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="300" viewBox="0 0 920 300" role="img" aria-label="AI assistants reach OpenPanel through the /mcp endpoint with a scoped token">
+<defs><marker id="mcp-flow-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 1 1 L 9 5 L 1 9 z" fill="#8c959f"/></marker><marker id="mcp-flow-arrow-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 1 1 L 9 5 L 1 9 z" fill="#2563eb"/></marker></defs>
+<rect x="1" y="1" width="918" height="298" rx="14" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<rect x="24" y="24" width="220" height="230" rx="12" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<rect x="40" y="40" width="84" height="20" rx="10.0" fill="#ffeff7" stroke="#bf3989" stroke-width="1" stroke-opacity="0.5"/>
+<text x="82.0" y="54.0" text-anchor="middle" fill="#bf3989" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="0.06em">AI CLIENT</text>
+<rect x="40" y="74" width="188" height="32" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text x="56" y="95" text-anchor="start" fill="#1f2328" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600">Claude Code</text>
+<rect x="40" y="116" width="188" height="32" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text x="56" y="137" text-anchor="start" fill="#1f2328" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600">ChatGPT / Codex</text>
+<rect x="40" y="158" width="188" height="32" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text x="56" y="179" text-anchor="start" fill="#1f2328" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600">Cursor</text>
+<rect x="40" y="200" width="188" height="32" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text x="56" y="221" text-anchor="start" fill="#1f2328" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600">VS Code</text>
+<rect x="300" y="24" width="300" height="230" rx="12" fill="#f8fafc" stroke="#2563eb" stroke-width="1.4" stroke-opacity="0.4" stroke-dasharray="5 4"/>
+<rect x="316" y="24" width="268" height="3" rx="1.5" fill="#2563eb"/>
+<rect x="316" y="40" width="96" height="20" rx="10.0" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1" stroke-opacity="0.5"/>
+<text x="364.0" y="54.0" text-anchor="middle" fill="#1d4ed8" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="0.06em">MCP TOKEN</text>
+<text x="422" y="54" text-anchor="start" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="500">made by the user</text>
+<text x="316" y="88" text-anchor="start" fill="#6e7781" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="0.04em">Mode</text>
+<rect x="316" y="96" width="86" height="24" rx="12" fill="#dafbe1" stroke="#1a7f37" stroke-width="1" stroke-opacity="0.5"/>
+<text x="359.0" y="112" text-anchor="middle" fill="#1a7f37" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="700">Read-only</text>
+<rect x="410" y="96" width="92" height="24" rx="12" fill="#fff8c5" stroke="#9a6700" stroke-width="1" stroke-opacity="0.5"/>
+<text x="456.0" y="112" text-anchor="middle" fill="#9a6700" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="700">No deletes</text>
+<rect x="510" y="96" width="56" height="24" rx="12" fill="#ffebe9" stroke="#cf222e" stroke-width="1" stroke-opacity="0.5"/>
+<text x="538.0" y="112" text-anchor="middle" fill="#cf222e" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="700">Full</text>
+<text x="316" y="146" text-anchor="start" fill="#6e7781" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="0.04em">Limits</text>
+<rect x="316" y="154" width="84" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="358.0" y="169.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Feature list</text>
+<rect x="406" y="154" width="84" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="448.0" y="169.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Expiry date</text>
+<rect x="496" y="154" width="84" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="538.0" y="169.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Revocable</text>
+<rect x="316" y="194" width="268" height="44" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/>
+<text x="330" y="213" text-anchor="start" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600">Can't create or change tokens</text>
+<text x="330" y="229" text-anchor="start" fill="#6e7781" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">Writes are logged to account activity</text>
+<rect x="656" y="24" width="240" height="230" rx="12" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<rect x="672" y="40" width="96" height="20" rx="10.0" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1" stroke-opacity="0.5"/>
+<text x="720.0" y="54.0" text-anchor="middle" fill="#1d4ed8" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="0.06em">OPENPANEL</text>
+<rect x="672" y="72" width="208" height="34" rx="8" fill="#1f2328"/>
+<text x="686" y="94" text-anchor="start" fill="#f6f8fa" font-family="ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, monospace" font-size="13" font-weight="600">POST /mcp</text>
+<text x="866" y="94" text-anchor="end" fill="#8c959f" font-family="ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, monospace" font-size="11" font-weight="500">:2083</text>
+<rect x="672" y="120" width="100" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="722.0" y="135.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Websites</text>
+<rect x="778" y="120" width="100" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="828.0" y="135.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Domains</text>
+<rect x="672" y="150" width="100" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="722.0" y="165.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">DNS records</text>
+<rect x="778" y="150" width="100" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="828.0" y="165.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Databases</text>
+<rect x="672" y="180" width="100" height="22" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1"/>
+<text x="722.0" y="195.0" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="600">Logs</text>
+<text x="776" y="224" text-anchor="middle" fill="#57606a" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="600">Only this user's account</text>
+<text x="776" y="240" text-anchor="middle" fill="#6e7781" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11" font-weight="500">60 requests/min by default</text>
+<line x1="246" y1="139" x2="296" y2="139" stroke="#2563eb" stroke-width="1.5" marker-end="url(#mcp-flow-arrow-a)"/>
+<line x1="602" y1="139" x2="652" y2="139" stroke="#2563eb" stroke-width="1.5" marker-end="url(#mcp-flow-arrow-a)"/>
+<text x="460" y="282" text-anchor="middle" fill="#6e7781" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Helvetica, Arial, sans-serif" font-size="11.5" font-weight="500">Enterprise  ·  each tool call runs with the token's mode and feature list</text>
+</svg>

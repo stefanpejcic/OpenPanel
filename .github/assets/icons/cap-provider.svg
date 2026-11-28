@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-label="Hosting Provider Toolkit">
+  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="8" fill="#f59e0b" fill-opacity="0.14" stroke="#f59e0b" stroke-opacity="0.35" stroke-width="1.5"/>
+  <g transform="translate(7, 7) scale(0.75)" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>
+  </g>
+</svg>
