@@ -1376,6 +1376,10 @@ func updatePrefsFrom(r *http.Request) map[string]string {
 }
 
 func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer string, isLitespeed bool) {
+	if WPUpdatePrefsLocked(a.Config) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": WPUpdatePrefsLockedMessage})
+		return
+	}
 	updateOpts := updatePrefsFrom(r)
 	allowedValues := map[string]map[string]bool{
 		"WP_AUTO_UPDATE_PLUGINS": {"true": true, "false": true},

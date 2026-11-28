@@ -24,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -496,6 +497,10 @@ func handleWPToolCoreUpdate(a *appctx.App, w http.ResponseWriter, r *http.Reques
 }
 
 func handleWPToolAutoUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request, s *wpToolSite) {
+	if websites.WPUpdatePrefsLocked(a.Config) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": websites.WPUpdatePrefsLockedMessage})
+		return
+	}
 	kind, names, err := itemKindAndNames(r)
 	if err != nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})

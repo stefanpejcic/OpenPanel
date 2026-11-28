@@ -198,7 +198,7 @@ A warning is shown when:
 
 ## WordPress
 
-Plugins and themes installed on new WordPress sites, and the profiles users can pick from on *OpenPanel > WordPress > Install*. These options are available on all license types and are saved together with the rest of the page.
+Plugins, themes and automatic update preferences for new WordPress sites, and the profiles users can pick from on *OpenPanel > WordPress > Install*. These options are available on all license types and are saved together with the rest of the page.
 
 ### Default plugins set
 
@@ -219,6 +219,23 @@ Enter one item per row. Supported formats:
 * **URL**: a direct link to a `.zip` theme file hosted online
 
 Stored in `/etc/openpanel/wordpress/sets/themes.txt` file.
+
+### Automatic updates
+
+The automatic update preferences every new WordPress site starts with. They are written to the site's `wp-config.php` right after the install, and the user sees them on *OpenPanel > WordPress > (site) > Updates*.
+
+- **Automatic core updates**: *Minor and security releases* (what WordPress does on its own), *All releases, major included*, or *Off, update manually*. Saved as `wp_auto_update_core` (`minor`, `true` or `false`) and written as `WP_AUTO_UPDATE_CORE`.
+- **Automatic plugin updates**: saved as `wp_auto_update_plugins` (`true` or `false`) and written as `WP_AUTO_UPDATE_PLUGINS`.
+- **Automatic theme updates**: saved as `wp_auto_update_themes` (`true` or `false`) and written as `WP_AUTO_UPDATE_THEMES`.
+- **Lock update preferences**: saved as `wp_auto_update_lock` (`yes` or `no`). When on, users can't change the automatic update preferences of any of their sites, or switch auto-updates on or off for a single plugin or theme. Manual updates from the Updates tab keep working.
+
+For manual updates only, set core to *Off* and leave plugins and themes off.
+
+With the defaults (minor core releases, plugins and themes off) nothing is written and new sites behave as before. Sites that already exist, cloned sites and sites found by a scan keep the settings they have.
+
+The lock covers the panel and its API. A user who can edit files can still change the constants in `wp-config.php` by hand.
+
+The four keys are stored in `/etc/openpanel/openpanel/conf/openpanel.config` and are read when the OpenPanel service starts.
 
 ### WordPress profiles
 
