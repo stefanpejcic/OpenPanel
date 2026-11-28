@@ -11,13 +11,11 @@ import (
 // openpanel.config key from OpenAdmin, off unless "yes" since the socket is the account's whole podman API
 const socketSetting = "docker_socket"
 
-// socketProxyService is the template service that legitimately mounts the podman socket dir
-const socketProxyService = "docker-proxy"
-
-// socketProxyNetwork reaches docker-proxy; only the template's cron and backup services may join it
+// only the template's cron and backup join this network, anything on it can call docker-proxy
 const socketProxyNetwork = "socket-proxy"
 
-var socketProxyMembers = map[string]bool{"cron": true, "backup": true}
+// built-ins that hold the socket or sit on socket-proxy, their Edit is hidden and a direct request is refused too
+var socketServices = map[string]bool{"docker-proxy": true, "cron": true, "backup": true}
 
 // panelConfigPath is a var so tests can point it at a temp file
 var panelConfigPath = appctx.ConfigPath
@@ -39,8 +37,8 @@ func socketAllowed() bool {
 }
 
 // checkSocketAccess blocks the podman socket (checkbox or a raw /run/user/... volume) unless the server allows it
-func checkSocketAccess(allowed bool, names []string, addSocket bool, service string) error {
-	if allowed || service == socketProxyService {
+func checkSocketAccess(allowed bool, names []string, addSocket bool) error {
+	if allowed {
 		return nil
 	}
 	msg := fmt.Errorf("Giving a container the Docker socket is turned off on this server. Turn off the socket option or ask your hosting provider.")
@@ -55,12 +53,9 @@ func checkSocketAccess(allowed bool, names []string, addSocket bool, service str
 	return nil
 }
 
-// every compose network except socket-proxy, which only cron and backup may join since it reaches docker-proxy
-func userNetworks(composeData map[string]any, service string) []string {
+// every compose network except socket-proxy
+func userNetworks(composeData map[string]any) []string {
 	all := GetAvailableNetworks(composeData)
-	if socketProxyMembers[service] {
-		return all
-	}
 	out := make([]string, 0, len(all))
 	for _, n := range all {
 		if n != socketProxyNetwork {

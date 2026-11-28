@@ -1,6 +1,8 @@
 package docker
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -130,39 +132,48 @@ func TestCheckHostPathsRejectsNestedBindSources(t *testing.T) {
 }
 
 func TestCheckSocketAccess(t *testing.T) {
-	if checkSocketAccess(false, nil, true, "") == nil {
-		t.Fatal("socket checkbox without the feature should be rejected")
+	if checkSocketAccess(false, nil, true) == nil {
+		t.Fatal("socket checkbox with the setting off should be rejected")
 	}
 	for _, n := range []string{"/run/user/${USER_ID}/podman", "/run/user/${USER_ID}/podman/podman.sock"} {
-		if checkSocketAccess(false, []string{n}, false, "") == nil {
-			t.Fatalf("raw %s without the feature should be rejected", n)
+		if checkSocketAccess(false, []string{n}, false) == nil {
+			t.Fatalf("raw %s with the setting off should be rejected", n)
 		}
 	}
-	if checkSocketAccess(false, []string{"/run/user/${USER_ID}/podman"}, false, "docker-proxy") != nil {
-		t.Fatal("the template docker-proxy keeps its socket dir")
+	if checkSocketAccess(true, []string{"/run/user/${USER_ID}/podman"}, true) != nil {
+		t.Fatal("with the setting on it's allowed")
 	}
-	if checkSocketAccess(true, []string{"/run/user/${USER_ID}/podman"}, true, "") != nil {
-		t.Fatal("with the feature it's allowed")
-	}
-	if checkSocketAccess(false, []string{"./data", "pgdata"}, false, "") != nil {
+	if checkSocketAccess(false, []string{"./data", "pgdata"}, false) != nil {
 		t.Fatal("ordinary volumes stay fine")
 	}
 }
 
 func TestUserNetworksHidesSocketProxy(t *testing.T) {
 	compose := map[string]any{"networks": map[string]any{"www": nil, "db": nil, "socket-proxy": nil}}
-	for _, svc := range []string{"", "myapp", "docker-proxy"} {
-		if containsString(userNetworks(compose, svc), "socket-proxy") {
-			t.Fatalf("%q shouldn't be offered socket-proxy", svc)
-		}
+	nets := userNetworks(compose)
+	if containsString(nets, "socket-proxy") || len(nets) != 2 {
+		t.Fatalf("socket-proxy shouldn't be offered, got %v", nets)
 	}
-	for _, svc := range []string{"cron", "backup"} {
-		if !containsString(userNetworks(compose, svc), "socket-proxy") {
-			t.Fatalf("%s keeps socket-proxy", svc)
-		}
-	}
-	if got := selectedNetworks([]string{"socket-proxy", "www"}, userNetworks(compose, "myapp")); len(got) != 1 || got[0] != "www" {
+	if got := selectedNetworks([]string{"socket-proxy", "www"}, nets); len(got) != 1 || got[0] != "www" {
 		t.Fatalf("submitted socket-proxy should be dropped, got %v", got)
+	}
+}
+
+func TestSocketServicesCantBeEdited(t *testing.T) {
+	for _, svc := range []string{"docker-proxy", "cron", "backup"} {
+		for _, target := range []string{"/containers/edit/" + svc, "/api/docker/containers/" + svc} {
+			req := httptest.NewRequest(http.MethodPost, target, strings.NewReader("network=www"))
+			req.SetPathValue("service", svc)
+			rec := httptest.NewRecorder()
+			if strings.HasPrefix(target, "/api/") {
+				apiContainerEdit(nil, rec, req)
+			} else {
+				handleEditContainer(nil, rec, req)
+			}
+			if rec.Code != http.StatusForbidden {
+				t.Fatalf("%s: want 403, got %d", target, rec.Code)
+			}
+		}
 	}
 }
 

@@ -117,7 +117,7 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0."})
 		return
 	}
-	networks := selectedNetworks([]string{network}, userNetworks(composeData, ""))
+	networks := selectedNetworks([]string{network}, userNetworks(composeData))
 	if len(networks) == 0 {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Choose a valid network."})
 		return
@@ -146,7 +146,7 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
-	if volErr := checkSocketAccess(socketAllowed(), volNames, body.AddSocket, ""); volErr != nil {
+	if volErr := checkSocketAccess(socketAllowed(), volNames, body.AddSocket); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusForbidden, map[string]string{"error": volErr.Error()})
 		return
 	}
@@ -194,6 +194,10 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid service name", http.StatusBadRequest)
 		return
 	}
+	if socketServices[service] {
+		writeAPIDockerJSON(w, http.StatusForbidden, map[string]string{"error": "This built-in service can't be edited."})
+		return
+	}
 
 	currentUsername, userContext, err := apiInjected(a, r)
 	if err != nil {
@@ -229,7 +233,7 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0."})
 		return
 	}
-	networks := selectedNetworks([]string{strings.TrimSpace(network)}, userNetworks(composeData, service))
+	networks := selectedNetworks([]string{strings.TrimSpace(network)}, userNetworks(composeData))
 	if len(networks) == 0 {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Choose a valid network."})
 		return
@@ -258,7 +262,7 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
-	if volErr := checkSocketAccess(socketAllowed(), volNames, body.AddSocket, service); volErr != nil {
+	if volErr := checkSocketAccess(socketAllowed(), volNames, body.AddSocket); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusForbidden, map[string]string{"error": volErr.Error()})
 		return
 	}

@@ -160,7 +160,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	composeData, _ := LoadCompose(userContext)
 	availableVolumes := GetAvailableVolumes(composeData)
-	availableNetworks := userNetworks(composeData, "")
+	availableNetworks := userNetworks(composeData)
 	existingServices := serviceNames(composeData)
 	var domainNames []string
 	if domains, err := a.AllDomainsForUser(ctx, userID); err == nil {
@@ -266,7 +266,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		fail(err.Error())
 		return
 	}
-	if err := checkSocketAccess(socketAllowed(), r.Form["volume_name"], r.Form.Get("add_socket") != "", ""); err != nil {
+	if err := checkSocketAccess(socketAllowed(), r.Form["volume_name"], r.Form.Get("add_socket") != ""); err != nil {
 		fail(err.Error())
 		return
 	}
@@ -373,6 +373,10 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "invalid service name", http.StatusBadRequest)
 		return
 	}
+	if socketServices[service] {
+		http.Error(w, "This built-in service can't be edited.", http.StatusForbidden)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)
@@ -386,7 +390,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	composeData, _ := LoadCompose(userContext)
 	services := servicesRaw(composeData)
 	availableVolumes := GetAvailableVolumes(composeData)
-	availableNetworks := userNetworks(composeData, service)
+	availableNetworks := userNetworks(composeData)
 	existingServices := serviceNames(composeData)
 	title := fmt.Sprintf("Edit service %s", service)
 
@@ -459,7 +463,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			renderContainerFormPage(a, w, r, formView)
 			return
 		}
-		if err := checkSocketAccess(socketAllowed(), r.Form["volume_name"], r.Form.Get("add_socket") != "", service); err != nil {
+		if err := checkSocketAccess(socketAllowed(), r.Form["volume_name"], r.Form.Get("add_socket") != ""); err != nil {
 			formView.Error = err.Error()
 			renderContainerFormPage(a, w, r, formView)
 			return
