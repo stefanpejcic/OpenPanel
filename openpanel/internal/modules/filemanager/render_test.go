@@ -195,7 +195,9 @@ func TestRenderEditFilePage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"Edit file", "documents", "notes.txt", "hello world", "Monaco"} {
+		for _, want := range []string{"Edit file", "documents", "notes.txt", "hello world", "Monaco",
+			`value="/var/www/html/documents/notes.txt"`, "data-fe-reopen", "data-fe-encoding", "data-fe-undo", "data-fe-mode",
+			"js/file-editor.js", "js/editor-draft.js", "data-op-draft"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered edit_file page missing %q", want)
 			}
