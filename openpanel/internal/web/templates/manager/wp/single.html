@@ -1394,7 +1394,7 @@
                             showToast(`${error}`, 'error');
                         });
                 });
-                {{if .UpdatePrefsLocked}}document.querySelectorAll('#UpdatesForm input[type=radio]').forEach(function (el) { el.disabled = true; });{{end}}
+                {{if .UpdatePrefsLocked}}document.querySelectorAll('#UpdatesForm input[type=radio]').forEach(function (el) { el.disabled = true; el.parentElement.style.opacity = '.6'; el.parentElement.style.cursor = 'not-allowed'; });{{end}}
 
                 document.getElementById('saveGeneralBtn').addEventListener('click', function() {
                     var selectedDomain = {{toJSON .CurrentDomain}};

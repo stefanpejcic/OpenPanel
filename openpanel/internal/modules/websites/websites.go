@@ -1437,6 +1437,8 @@ func handleWPCLIUpdateInfo(a *appctx.App, w http.ResponseWriter, r *http.Request
 	} else {
 		fillDefinesFromWPCLIConfigList(r, userContext, docroot, wpBase, updateConstants)
 	}
+	// themes can't use a new page field without breaking on older panels, so they read the lock from here
+	updateConstants["locked"] = strconv.FormatBool(WPUpdatePrefsLocked(a.Config))
 	web.WriteJSON(w, http.StatusOK, updateConstants)
 }
 
