@@ -185,16 +185,36 @@ if [ -s "$PROXY_TPL" ]; then
         patch_proxy_compose "$f" || continue
         home_dir=$(dirname "$f")
         ctx=$(basename "$home_dir")
-        if podman_ctx_is_running "$ctx" docker-proxy </dev/null; then
-            sock=$(podman_user_socket "$ctx") || continue
+        if ! podman_ctx_is_running "$ctx" docker-proxy </dev/null; then
+            rm -f "$f.bak-2.0.32"
+            continue
+        fi
+        # the backup container only runs during a backup, and the backup's own compose down recreates docker-proxy afterwards
+        if podman_ctx_is_running "$ctx" backup </dev/null; then
+            rm -f "$f.bak-2.0.32"
+            echo "A backup is running for $ctx, its docker-proxy gets the rules when that backup finishes"
+            continue
+        fi
+        sock=$(podman_user_socket "$ctx") || continue
+        cron_was=0
+        podman_ctx_is_running "$ctx" cron </dev/null && cron_was=1
+        proxy_up() {
+            # cron and backup depend on docker-proxy and podman won't replace it while they exist, so they go with it
+            CONTAINER_HOST="$sock" timeout 60 podman --remote rm -f --depend docker-proxy >/dev/null 2>&1 </dev/null
             (cd "$home_dir" && CONTAINER_HOST="$sock" timeout 120 podman-compose up -d --no-deps docker-proxy) >/dev/null 2>&1 </dev/null
-            if podman_ctx_is_running "$ctx" docker-proxy </dev/null; then
-                rm -f "$f.bak-2.0.32"
-                echo "Recreated docker-proxy for $ctx with the rules"
-            else
-                echo "docker-proxy for $ctx is not running after the change, the previous compose file is $f.bak-2.0.32"
+            if [ "$cron_was" = 1 ]; then
+                (cd "$home_dir" && CONTAINER_HOST="$sock" timeout 120 podman-compose up -d --no-deps cron) >/dev/null 2>&1 </dev/null
             fi
+        }
+        proxy_up
+        if podman_ctx_is_running "$ctx" docker-proxy </dev/null \
+            && podman_ctx "$ctx" inspect docker-proxy --format '{{range .Mounts}}{{.Destination}} {{end}}' 2>/dev/null </dev/null | grep -q haproxy.cfg.template; then
+            rm -f "$f.bak-2.0.32"
+            echo "Recreated docker-proxy for $ctx with the rules"
         else
+            cat "$f.bak-2.0.32" > "$f"
+            proxy_up
+            echo "docker-proxy for $ctx didn't start with the rules, its compose file was put back. Check: podman logs docker-proxy"
             rm -f "$f.bak-2.0.32"
         fi
     done
