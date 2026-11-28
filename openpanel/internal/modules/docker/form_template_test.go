@@ -1,7 +1,11 @@
 package docker
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -124,5 +128,70 @@ func TestCheckHostPathsRejectsNestedBindSources(t *testing.T) {
 	}
 	if checkHostPaths(map[string]any{}, []string{"./x", "./x/y"}, "alice", "") == nil {
 		t.Fatal("two new entries nested in each other should be rejected")
+	}
+}
+
+func TestCheckSocketAccess(t *testing.T) {
+	if checkSocketAccess(false, nil, true) == nil {
+		t.Fatal("socket checkbox with the setting off should be rejected")
+	}
+	for _, n := range []string{"/run/user/${USER_ID}/podman", "/run/user/${USER_ID}/podman/podman.sock"} {
+		if checkSocketAccess(false, []string{n}, false) == nil {
+			t.Fatalf("raw %s with the setting off should be rejected", n)
+		}
+	}
+	if checkSocketAccess(true, []string{"/run/user/${USER_ID}/podman"}, true) != nil {
+		t.Fatal("with the setting on it's allowed")
+	}
+	if checkSocketAccess(false, []string{"./data", "pgdata"}, false) != nil {
+		t.Fatal("ordinary volumes stay fine")
+	}
+}
+
+func TestUserNetworksHidesSocketProxy(t *testing.T) {
+	compose := map[string]any{"networks": map[string]any{"www": nil, "db": nil, "socket-proxy": nil}}
+	nets := userNetworks(compose)
+	if containsString(nets, "socket-proxy") || len(nets) != 2 {
+		t.Fatalf("socket-proxy shouldn't be offered, got %v", nets)
+	}
+	if got := selectedNetworks([]string{"socket-proxy", "www"}, nets); len(got) != 1 || got[0] != "www" {
+		t.Fatalf("submitted socket-proxy should be dropped, got %v", got)
+	}
+}
+
+func TestSocketServicesCantBeEdited(t *testing.T) {
+	for _, svc := range []string{"docker-proxy", "cron", "backup"} {
+		for _, target := range []string{"/containers/edit/" + svc, "/api/docker/containers/" + svc} {
+			req := httptest.NewRequest(http.MethodPost, target, strings.NewReader("network=www"))
+			req.SetPathValue("service", svc)
+			rec := httptest.NewRecorder()
+			if strings.HasPrefix(target, "/api/") {
+				apiContainerEdit(nil, rec, req)
+			} else {
+				handleEditContainer(nil, rec, req)
+			}
+			if rec.Code != http.StatusForbidden {
+				t.Fatalf("%s: want 403, got %d", target, rec.Code)
+			}
+		}
+	}
+}
+
+func TestSocketAllowedReadsServerSetting(t *testing.T) {
+	old := panelConfigPath
+	t.Cleanup(func() { panelConfigPath = old })
+	dir := t.TempDir()
+	panelConfigPath = filepath.Join(dir, "missing.config")
+	if socketAllowed() {
+		t.Fatal("off when the config file is missing")
+	}
+	for val, want := range map[string]bool{"yes": true, "YES": true, "no": false, "": false, "1": false} {
+		panelConfigPath = filepath.Join(dir, "openpanel.config")
+		if err := os.WriteFile(panelConfigPath, []byte("dev_mode=off\ndocker_socket="+val+"\n"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		if socketAllowed() != want {
+			t.Fatalf("docker_socket=%q: want %v", val, want)
+		}
 	}
 }

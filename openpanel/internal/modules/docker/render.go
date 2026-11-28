@@ -344,6 +344,7 @@ type ContainerFormPageData struct {
 	Networks             []string
 	Healthcheck          string
 	AddSocket            bool
+	SocketAllowed        bool
 	VolumeEntries        []VolumeEntry
 	Domains              []string
 	Domain               string
@@ -379,6 +380,7 @@ func renderContainerFormPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		ExistingServicesJSON: toJSONStrings(v.ExistingServices),
 		ServiceNameReadonly:  v.Editing,
 		Domains:              v.Domains,
+		SocketAllowed:        socketAllowed(),
 	}
 
 	switch {
