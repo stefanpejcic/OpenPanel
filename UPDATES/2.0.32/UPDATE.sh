@@ -85,8 +85,6 @@ fi
 
 # docker-proxy: deny rules so nothing on the socket-proxy network can create containers, change them or copy files in or out
 # the rules are a haproxy template mounted over the image's own, docker-proxy is recreated for accounts where it's running
-# shellcheck disable=SC1091
-. /usr/local/opencli/lib/podman.sh
 CONFIG_RAW="${CONFIG_RAW:-https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main}"
 PROXY_TPL=/etc/openpanel/docker/socket-proxy/haproxy.cfg.template
 PROXY_MOUNT="$PROXY_TPL:/usr/local/etc/haproxy/haproxy.cfg.template:ro"
@@ -178,37 +176,52 @@ patch_proxy_compose() {
     esac
 }
 
+# podman against the account's own socket: upod <seconds> <podman args>
+upod() {
+    local t="$1"; shift
+    CONTAINER_HOST="unix://$sock" timeout "$t" podman --remote "$@" </dev/null
+}
+urunning() {
+    [ "$(upod 20 inspect -f '{{.State.Running}}' "$1" 2>/dev/null)" = true ]
+}
+# cron and backup depend on docker-proxy and podman won't replace it while they exist, so they go with it and the ones that ran come back
+proxy_up() {
+    upod 60 rm -f --depend docker-proxy >/dev/null 2>&1
+    (cd "$home_dir" && CONTAINER_HOST="unix://$sock" timeout 120 podman-compose up -d --no-deps docker-proxy) >/dev/null 2>&1 </dev/null
+    for dep in $deps_were; do
+        (cd "$home_dir" && CONTAINER_HOST="unix://$sock" timeout 120 podman-compose up -d --no-deps "$dep") >/dev/null 2>&1 </dev/null
+    done
+}
+
 if [ -s "$PROXY_TPL" ]; then
     patch_proxy_compose /etc/openpanel/docker/compose/1.0/docker-compose.yml >/dev/null || true
     for f in /home/*/docker-compose.yml; do
         [ -f "$f" ] || continue
-        patch_proxy_compose "$f" || continue
         home_dir=$(dirname "$f")
         ctx=$(basename "$home_dir")
-        if ! podman_ctx_is_running "$ctx" docker-proxy </dev/null; then
+        sock="/run/user/$(stat -c '%u' "$home_dir" 2>/dev/null)/podman/podman.sock"
+        proxy_runs=0
+        deps_were=""
+        if [ -S "$sock" ] && urunning docker-proxy; then
+            proxy_runs=1
+            for dep in cron backup; do
+                urunning "$dep" && deps_were="$deps_were $dep"
+            done
+            # an idle backup container has nothing in /tmp, a backup in progress keeps its archive and file lists there
+            case " $deps_were " in *" backup "*)
+                if [ -n "$(upod 20 exec backup sh -c 'find /tmp -type f | head -n 1' 2>/dev/null)" ] && ! grep -qF "$PROXY_MOUNT" "$f"; then
+                    echo "A backup is running for $ctx, its docker-proxy was left as it is. Run this update again when the backup is done."
+                    continue
+                fi ;;
+            esac
+        fi
+        patch_proxy_compose "$f" || continue
+        if [ "$proxy_runs" = 0 ]; then
             rm -f "$f.bak-2.0.32"
             continue
         fi
-        # the backup container only runs during a backup, and the backup's own compose down recreates docker-proxy afterwards
-        if podman_ctx_is_running "$ctx" backup </dev/null; then
-            rm -f "$f.bak-2.0.32"
-            echo "A backup is running for $ctx, its docker-proxy gets the rules when that backup finishes"
-            continue
-        fi
-        sock=$(podman_user_socket "$ctx") || continue
-        cron_was=0
-        podman_ctx_is_running "$ctx" cron </dev/null && cron_was=1
-        proxy_up() {
-            # cron and backup depend on docker-proxy and podman won't replace it while they exist, so they go with it
-            CONTAINER_HOST="$sock" timeout 60 podman --remote rm -f --depend docker-proxy >/dev/null 2>&1 </dev/null
-            (cd "$home_dir" && CONTAINER_HOST="$sock" timeout 120 podman-compose up -d --no-deps docker-proxy) >/dev/null 2>&1 </dev/null
-            if [ "$cron_was" = 1 ]; then
-                (cd "$home_dir" && CONTAINER_HOST="$sock" timeout 120 podman-compose up -d --no-deps cron) >/dev/null 2>&1 </dev/null
-            fi
-        }
         proxy_up
-        if podman_ctx_is_running "$ctx" docker-proxy </dev/null \
-            && podman_ctx "$ctx" inspect docker-proxy --format '{{range .Mounts}}{{.Destination}} {{end}}' 2>/dev/null </dev/null | grep -q haproxy.cfg.template; then
+        if urunning docker-proxy && upod 20 inspect docker-proxy --format '{{range .Mounts}}{{.Destination}} {{end}}' 2>/dev/null | grep -q haproxy.cfg.template; then
             rm -f "$f.bak-2.0.32"
             echo "Recreated docker-proxy for $ctx with the rules"
         else
