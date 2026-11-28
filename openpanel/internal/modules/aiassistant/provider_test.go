@@ -148,3 +148,16 @@ func TestRefundAndLastError(t *testing.T) {
 		t.Fatalf("not cleared: %+v", f)
 	}
 }
+
+// the same error again moves last_error_at, OpenAdmin showed the first failure's time for every later one (discussion #1392)
+func TestRepeatedLastErrorUpdatesTime(t *testing.T) {
+	usersDir = t.TempDir()
+	setLastError("u", "provider returned 400: rejected")
+	f := loadUsage("u")
+	f.LastErrorAt = "2026-11-27T18:05:00Z"
+	saveUsage("u", f)
+	setLastError("u", "provider returned 400: rejected")
+	if f = loadUsage("u"); f.LastErrorAt == "2026-11-27T18:05:00Z" || f.LastErrorAt == "" {
+		t.Fatalf("time not moved on a repeated error: %+v", f)
+	}
+}

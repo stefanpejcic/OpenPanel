@@ -127,7 +127,7 @@ func refundRequest(username string) {
 	}
 }
 
-// setLastError keeps why the last question failed, an empty msg clears it once a question gets answered again
+// setLastError keeps why the last question failed and when it last happened, an empty msg clears it once a question gets answered again
 func setLastError(username, msg string) {
 	if len(msg) > 500 {
 		msg = msg[:500] + "..."
@@ -135,7 +135,8 @@ func setLastError(username, msg string) {
 	usageMu.Lock()
 	defer usageMu.Unlock()
 	f := loadUsage(username)
-	if f.LastError == msg {
+	// answered with nothing to clear, skip the write
+	if msg == "" && f.LastError == "" {
 		return
 	}
 	f.LastError, f.LastErrorAt = msg, ""
